@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Custom animations used on the landing page */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+.animate-fade-up {
+  animation: fadeUp 600ms cubic-bezier(.2,.9,.2,1) both;
+}
+.animate-zoom-in {
+  animation: zoomIn 700ms cubic-bezier(.2,.9,.2,1) both;
+}
+.animate-float-slow {
+  animation: float 3.5s ease-in-out infinite;
+}
+.animate-pulse-slow {
+  animation: pulse 2.5s ease-in-out infinite;
+}
+
+/* Utility to control animation delay inline when needed */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+
+/* Small card hover lift */
+.card-hover-raise { transition: transform 250ms ease, box-shadow 250ms ease; }
+.card-hover-raise:hover { transform: translateY(-6px); }
