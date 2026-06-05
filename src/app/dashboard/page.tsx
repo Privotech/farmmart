@@ -1,16 +1,18 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { localStorageDb } from "@/lib/localStorageDb";
 
 export default function DashboardPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+
 
   if (status === "loading") {
     return <div>Loading...</div>;
@@ -101,6 +103,12 @@ export default function DashboardPage() {
                   </thead>
                   <tbody>
                     {[
+                      ...localStorageDb.getOrders(session?.user?.email || "").map(o => ({
+                        id: o.id,
+                        date: new Date(o.createdAt).toLocaleDateString(),
+                        amount: `₦${o.totalAmount.toLocaleString()}`,
+                        status: o.status.charAt(0).toUpperCase() + o.status.slice(1),
+                      })),
                       {
                         id: "#ORD001",
                         date: "2026-05-25",

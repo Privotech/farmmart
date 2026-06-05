@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { CartItem as CartItemComponent } from "@/components/features/CartItem";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { CartItem } from "@/types";
+import { localStorageDb } from "@/lib/localStorageDb";
 
 export default function CartPage() {
   const router = useRouter();
@@ -21,19 +22,17 @@ export default function CartPage() {
     await Promise.resolve();
     setIsLoading(true);
     try {
-      const response = await fetch("/api/cart");
-      const data = await response.json();
-
-      if (data.success) {
-        setCartItems(data.data.items);
-        setTotalPrice(data.data.totalPrice);
-      }
+      if (!session || !session.user) return;
+      const items = localStorageDb.getCartItems(session.user.email);
+      setCartItems(items);
+      const total = items.reduce((sum, item) => sum + (item.animal.price * item.quantity), 0);
+      setTotalPrice(total);
     } catch (err) {
       console.error("Error fetching cart:", err);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [session]);
 
   useEffect(() => {
     if (!session) {
@@ -47,19 +46,16 @@ export default function CartPage() {
   }, [session, router, fetchCart]);
 
   const handleRemoveItem = async (itemId: string) => {
+    if (!session || !session.user) return;
     try {
-      const response = await fetch(`/api/cart?itemId=${itemId}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        setCartItems(cartItems.filter((item) => item.id !== itemId));
-        await fetchCart();
-      }
+      localStorageDb.removeFromCart(session.user.email, itemId);
+      setCartItems(cartItems.filter((item) => item.id !== itemId));
+      await fetchCart();
     } catch (err) {
       console.error("Error removing item:", err);
     }
   };
+
 
   const handleUpdateQuantity = async () => {
     // In a real app, update the quantity via API

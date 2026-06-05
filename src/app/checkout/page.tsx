@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { initializePayment } from "@/lib/paystack";
+import { localStorageDb } from "@/lib/localStorageDb";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -27,14 +27,11 @@ export default function CheckoutPage() {
       return;
     }
     
-    const fetchCartTotal = async () => {
+    const fetchCartTotal = () => {
       try {
-        const response = await fetch("/api/cart");
-        const data = await response.json();
-        
-        if (data.success && data.data) {
-          setCartTotal(data.data.totalPrice || 0);
-        }
+        const items = localStorageDb.getCartItems(session.user.email);
+        const total = items.reduce((sum, item) => sum + (item.animal.price * item.quantity), 0);
+        setCartTotal(total);
       } catch (err) {
         console.error("Error fetching cart total:", err);
       }
@@ -59,25 +56,23 @@ export default function CheckoutPage() {
         return;
       }
 
-      // Initialize payment with Paystack
-      const amount = cartTotal + 5000; // Total + shipping
-      const paymentData = await initializePayment({
-        email: session?.user?.email || "",
-        amount: amount * 100, // Convert to kobo
-        reference: `ORDER-${Date.now()}`,
-        metadata: {
-          address: formData.deliveryAddress,
-          phone: formData.phoneNumber,
-          city: formData.city,
-          state: formData.state,
-        },
-      });
+      if (!session || !session.user) {
+        setError("No active session found");
+        return;
+      }
 
-      if (paymentData.data?.authorization_url) {
-        // Redirect to Paystack payment page
-        window.location.href = paymentData.data.authorization_url;
+      const order = localStorageDb.createOrder(
+        session.user.email,
+        session.user,
+        formData.deliveryAddress,
+        formData.phoneNumber
+      );
+
+      if (order) {
+        alert("Payment simulated successfully! Order created.");
+        router.push("/dashboard");
       } else {
-        setError("Failed to initialize payment");
+        setError("Failed to create order. Your cart might be empty.");
       }
     } catch {
       setError("An error occurred. Please try again.");
@@ -89,6 +84,7 @@ export default function CheckoutPage() {
   if (!session) {
     return null;
   }
+
 
   const shippingCost = 5000;
   const tax = Math.floor(cartTotal * 0.075);
@@ -167,7 +163,6 @@ export default function CheckoutPage() {
           </Card>
         </div>
 
-        {/* Order Summary */}
         <div>
           <Card>
             <h3 className="text-xl font-bold mb-4">Order Summary</h3>

@@ -8,28 +8,29 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Animal } from "@/types";
+import { localStorageDb } from "@/lib/localStorageDb";
+import { useSession } from "@/lib/auth-client";
 
 export default function AnimalDetailPage() {
   const params = useParams();
   const id = params.id as string;
+  const { data: session } = useSession();
   const [animal, setAnimal] = useState<Animal | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchAnimal = async () => {
+    const fetchAnimal = () => {
       setIsLoading(true);
       setError("");
 
       try {
-        const response = await fetch(`/api/animals/${id}`);
-        const data = await response.json();
-
-        if (data.success) {
-          setAnimal(data.data);
+        const data = localStorageDb.getAnimalById(id);
+        if (data) {
+          setAnimal(data);
         } else {
-          setError(data.error || "Failed to fetch animal details");
+          setError("Failed to fetch animal details");
         }
       } catch {
         setError("An error occurred while fetching animal details");
@@ -45,26 +46,19 @@ export default function AnimalDetailPage() {
 
   const handleAddToCart = async () => {
     if (!animal) return;
+    if (!session || !session.user) {
+      alert("Please log in to add items to cart");
+      return;
+    }
 
     try {
-      const response = await fetch("/api/cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          animalId: animal.id,
-          quantity: 1,
-        }),
-      });
-
-      if (response.ok) {
-        alert("Added to cart!");
-      } else {
-        alert("Failed to add to cart");
-      }
+      localStorageDb.addToCart(session.user.email, animal.id, 1);
+      alert("Added to cart!");
     } catch {
       alert("Error adding to cart");
     }
   };
+
 
   if (isLoading) {
     return (

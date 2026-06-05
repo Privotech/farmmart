@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useAuth } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -11,6 +11,7 @@ interface AuthContainerProps {
 
 export default function AuthContainer({ initialMode }: AuthContainerProps) {
   const router = useRouter();
+  const { signIn, signUp } = useAuth();
   const [isLogin, setIsLogin] = useState(initialMode === "login");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -44,9 +45,9 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
         redirect: false,
       });
 
-      if (result?.error) {
-        setError("Invalid email or password");
-      } else if (result?.ok) {
+      if (!result?.ok) {
+        setError(result?.error || "Invalid email or password");
+      } else {
         router.push("/dashboard");
       }
     } catch {
@@ -78,20 +79,10 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: regName,
-          email: regEmail,
-          password: regPassword,
-        }),
-      });
+      const result = await signUp(regName, regEmail, regPassword);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || "Registration failed");
+      if (!result.ok) {
+        setError(result.error || "Registration failed");
         return;
       }
 
@@ -104,6 +95,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-[#f3f4f6] flex items-center justify-center p-4">

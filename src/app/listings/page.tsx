@@ -5,37 +5,24 @@ import { AnimalCard } from "@/components/features/AnimalCard";
 import { FilterPanel } from "@/components/features/FilterPanel";
 import { Button } from "@/components/ui/Button";
 import { Animal, AnimalFilters } from "@/types";
+import { localStorageDb } from "@/lib/localStorageDb";
+import { useSession } from "@/lib/auth-client";
 
 export default function ListingsPage() {
+  const { data: session } = useSession();
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [filters, setFilters] = useState<AnimalFilters>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchAnimals = async () => {
+    const fetchAnimals = () => {
       setIsLoading(true);
       setError("");
 
       try {
-        const params = new URLSearchParams();
-        if (filters.type) params.append("type", filters.type);
-        if (filters.breed) params.append("breed", filters.breed);
-        if (filters.minPrice)
-          params.append("minPrice", filters.minPrice.toString());
-        if (filters.maxPrice)
-          params.append("maxPrice", filters.maxPrice.toString());
-        if (filters.search) params.append("search", filters.search);
-        if (filters.sortBy) params.append("sortBy", filters.sortBy);
-
-        const response = await fetch(`/api/animals?${params.toString()}`);
-        const data = await response.json();
-
-        if (data.success) {
-          setAnimals(data.data);
-        } else {
-          setError("Failed to fetch animals");
-        }
+        const data = localStorageDb.getAnimals(filters);
+        setAnimals(data);
       } catch {
         setError("An error occurred while fetching animals");
       } finally {
@@ -47,25 +34,19 @@ export default function ListingsPage() {
   }, [filters]);
 
   const handleAddToCart = async (animal: Animal) => {
-    try {
-      const response = await fetch("/api/cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          animalId: animal.id,
-          quantity: 1,
-        }),
-      });
+    if (!session || !session.user) {
+      alert("Please log in to add items to cart");
+      return;
+    }
 
-      if (response.ok) {
-        alert("Added to cart!");
-      } else {
-        alert("Failed to add to cart");
-      }
+    try {
+      localStorageDb.addToCart(session.user.email, animal.id, 1);
+      alert("Added to cart!");
     } catch {
       alert("Error adding to cart");
     }
   };
+
 
   return (
     <div className="container mx-auto px-4 py-8">
