@@ -69,19 +69,19 @@ export default function CartPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 bg-[#121212] min-h-screen text-gray-100">
         <p>Loading cart...</p>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8">Shopping Cart</h1>
+    <div className="container mx-auto px-4 py-8 bg-[#121212] min-h-screen">
+      <h1 className="text-4xl font-bold mb-8 text-gray-100">Shopping Cart</h1>
 
       {cartItems.length === 0 ? (
-        <Card className="text-center py-12">
-          <p className="text-gray-600 text-lg mb-6">Your cart is empty</p>
+        <Card className="text-center py-12 border-gray-800 bg-gray-900">
+          <p className="text-gray-400 text-lg mb-6">Your cart is empty</p>
           <Link href="/listings">
             <Button variant="primary">Continue Shopping</Button>
           </Link>
@@ -102,33 +102,33 @@ export default function CartPage() {
 
           {/* Order Summary */}
           <div>
-            <Card>
-              <h3 className="text-xl font-bold mb-4">Order Summary</h3>
+            <Card className="bg-gray-900 border-gray-800">
+              <h3 className="text-xl font-bold mb-4 text-gray-100">Order Summary</h3>
 
-              <div className="space-y-3 mb-6 pb-6 border-b">
+              <div className="space-y-3 mb-6 pb-6 border-b border-gray-700">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span className="font-semibold">
+                  <span className="text-gray-400">Subtotal</span>
+                  <span className="font-semibold text-gray-100">
                     ₦{totalPrice.toLocaleString()}
                   </span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Shipping</span>
-                  <span className="font-semibold">₦5,000</span>
+                  <span className="text-gray-400">Shipping</span>
+                  <span className="font-semibold text-gray-100">₦5,000</span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Tax</span>
-                  <span className="font-semibold">
+                  <span className="text-gray-400">Tax</span>
+                  <span className="font-semibold text-gray-100">
                     ₦{Math.floor(totalPrice * 0.075).toLocaleString()}
                   </span>
                 </div>
               </div>
 
               <div className="flex justify-between mb-6">
-                <span className="text-lg font-bold">Total</span>
-                <span className="text-2xl font-bold text-green-600">
+                <span className="text-lg font-bold text-gray-100">Total</span>
+                <span className="text-2xl font-bold text-emerald-500">
                   ₦
                   {(
                     totalPrice +

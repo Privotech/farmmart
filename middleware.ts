@@ -2,12 +2,22 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(req: NextRequest) {
-  // Bypassing server-side authentication checking for localStorage-based mock environment.
-  // The pages themselves protect their content client-side using user session status.
+  const { pathname } = req.nextUrl;
+
+  // Role-based routing for protected routes
+  if (pathname.startsWith('/buyer') || pathname.startsWith('/seller') || pathname.startsWith('/admin')) {
+    const token = req.cookies.get('next-auth.session-token') || req.cookies.get('__Secure-next-auth.session-token');
+
+    if (!token) {
+      // Redirect to login if not authenticated
+      return NextResponse.redirect(new URL('/login', req.url));
+    }
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/checkout/:path*'],
+  matcher: ['/buyer/:path*', '/seller/:path*', '/admin/:path*', '/checkout/:path*'],
 };
 

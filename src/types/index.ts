@@ -91,4 +91,5 @@ export interface AnimalFilters {
   healthStatus?: string;
   search?: string;
   sortBy?: 'price_asc' | 'price_desc' | 'newest' | 'oldest';
+  sellerId?: string;
 }

@@ -101,7 +101,7 @@ export default function CheckoutPage() {
             <h2 className="text-2xl font-bold mb-6">Delivery Information</h2>
 
             {error && (
-              <div className="bg-red-100 text-red-800 p-3 rounded-lg mb-6">
+              <div className="bg-emerald-100 text-emerald-800 p-3 rounded-lg mb-6">
                 {error}
               </div>
             )}
@@ -190,12 +190,12 @@ export default function CheckoutPage() {
 
             <div className="flex justify-between mb-4">
               <span className="text-lg font-bold">Total</span>
-              <span className="text-2xl font-bold text-green-600">
+              <span className="text-2xl font-bold text-emerald-600">
                 ₦{total.toLocaleString()}
               </span>
             </div>
 
-            <div className="bg-blue-50 p-4 rounded-lg text-sm text-blue-800">
+            <div className="bg-emerald-50 p-4 rounded-lg text-sm text-emerald-800">
               ✓ Secure payment via Paystack
             </div>
           </Card>

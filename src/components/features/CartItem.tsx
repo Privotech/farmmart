@@ -31,8 +31,8 @@ export const CartItem = ({
   const totalPrice = item.animal.price * quantity;
 
   return (
-    <Card className="flex gap-4 items-center">
-      <div className="relative w-28 h-28 flex-shrink-0 rounded-lg overflow-hidden">
+    <Card className="flex gap-4 items-center bg-gray-900 border-gray-800">
+      <div className="relative w-28 h-28 flex-shrink-0 rounded-lg overflow-hidden bg-gray-800">
         <Image
           src={item.animal.images[0] || "/placeholder-animal.jpg"}
           alt={item.animal.name}
@@ -43,9 +43,9 @@ export const CartItem = ({
 
       <div className="flex-1 flex justify-between items-center gap-4">
         <div>
-          <h3 className="font-bold text-gray-900">{item.animal.name}</h3>
-          <p className="text-sm text-gray-500">{item.animal.breed} • {item.animal.type}</p>
-          <p className="text-emerald-600 font-semibold">₦{item.animal.price.toLocaleString()}</p>
+          <h3 className="font-bold text-gray-100">{item.animal.name}</h3>
+          <p className="text-sm text-gray-400">{item.animal.breed} • {item.animal.type}</p>
+          <p className="text-emerald-500 font-semibold">₦{item.animal.price.toLocaleString()}</p>
         </div>
 
         <div className="flex items-center gap-4">
@@ -58,7 +58,7 @@ export const CartItem = ({
           />
 
           <div className="text-right">
-            <p className="text-lg font-bold text-gray-900">₦{totalPrice.toLocaleString()}</p>
+            <p className="text-lg font-bold text-gray-100">₦{totalPrice.toLocaleString()}</p>
           </div>
 
           <Button

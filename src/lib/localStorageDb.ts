@@ -239,10 +239,49 @@ export const localStorageDb = {
     return getLocalStorage<Order[]>(key, []);
   },
 
+  getAllOrders: (): Order[] => {
+    const allOrders: Order[] = [];
+    // Get all localStorage keys that match the order pattern
+    if (isClient) {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key?.startsWith('farmmart_orders_')) {
+          const orders = getLocalStorage<Order[]>(key, []);
+          allOrders.push(...orders);
+        }
+      }
+    }
+    return allOrders;
+  },
+
+  getSellerOrders: (sellerId: string): Order[] => {
+    const allOrders = localStorageDb.getAllOrders();
+    return allOrders.filter(order => 
+      order.items.some(item => item.animal.sellerId === sellerId)
+    );
+  },
+
+  updateOrderStatus: (orderId: string, newStatus: Order['status']): void => {
+    if (!isClient) return;
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith('farmmart_orders_')) {
+        const orders = getLocalStorage<Order[]>(key, []);
+        const orderIndex = orders.findIndex(o => o.id === orderId);
+        if (orderIndex > -1) {
+          orders[orderIndex].status = newStatus;
+          orders[orderIndex].updatedAt = new Date();
+          setLocalStorage(key, orders);
+          return;
+        }
+      }
+    }
+  },
+
   createOrder: (
-    userEmail: string, 
+    userEmail: string,
     user: Omit<User, 'createdAt' | 'updatedAt'>,
-    deliveryAddress: string, 
+    deliveryAddress: string,
     phoneNumber: string
   ): Order | null => {
     const cartKey = `farmmart_cart_${userEmail}`;
@@ -301,5 +340,131 @@ export const localStorageDb = {
     localStorageDb.clearCart(userEmail);
 
     return newOrder;
+  },
+
+  // --- Users ---
+  getUsers: (): User[] => {
+    return getLocalStorage<User[]>('farmmart_users', [
+      {
+        id: "seller-1",
+        email: "amina@farmmart.com",
+        name: "Amina Ibrahim",
+        role: "seller",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "seller-2",
+        email: "chidi@farmmart.com",
+        name: "Chidi Okafor",
+        role: "seller",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "seller-3",
+        email: "lagospoultry@farmmart.com",
+        name: "Lagos Poultry Farm",
+        role: "seller",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "buyer-1",
+        email: "buyer@example.com",
+        name: "Test Buyer",
+        role: "buyer",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "admin-1",
+        email: "admin@farmmart.com",
+        name: "Admin User",
+        role: "admin",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ]);
+  },
+
+  updateUserRole: (userId: string, newRole: User['role']): void => {
+    const users = localStorageDb.getUsers();
+    const userIndex = users.findIndex(u => u.id === userId);
+    if (userIndex > -1) {
+      users[userIndex].role = newRole;
+      users[userIndex].updatedAt = new Date();
+      setLocalStorage('farmmart_users', users);
+    }
+  },
+
+  deleteUser: (userId: string): void => {
+    const users = localStorageDb.getUsers();
+    const filteredUsers = users.filter(u => u.id !== userId);
+    setLocalStorage('farmmart_users', filteredUsers);
+  },
+
+  // --- Animal Management ---
+  deleteAnimal: (animalId: string): void => {
+    const animals = getLocalStorage<Animal[]>('farmmart_animals', DEFAULT_ANIMALS);
+    const filteredAnimals = animals.filter(a => a.id !== animalId);
+    setLocalStorage('farmmart_animals', filteredAnimals);
+  },
+
+  updateAnimalAvailability: (animalId: string, available: boolean): void => {
+    const animals = getLocalStorage<Animal[]>('farmmart_animals', DEFAULT_ANIMALS);
+    const animalIndex = animals.findIndex(a => a.id === animalId);
+    if (animalIndex > -1) {
+      animals[animalIndex].available = available;
+      animals[animalIndex].updatedAt = new Date();
+      setLocalStorage('farmmart_animals', animals);
+    }
+  },
+
+  updateAnimal: (animalId: string, animalData: Partial<Omit<Animal, 'id' | 'createdAt' | 'updatedAt'>>): Animal | null => {
+    const animals = getLocalStorage<Animal[]>('farmmart_animals', DEFAULT_ANIMALS);
+    const animalIndex = animals.findIndex(a => a.id === animalId);
+    if (animalIndex > -1) {
+      animals[animalIndex] = {
+        ...animals[animalIndex],
+        ...animalData,
+        updatedAt: new Date()
+      };
+      setLocalStorage('farmmart_animals', animals);
+      return animals[animalIndex];
+    }
+    return null;
+  },
+
+  updateUser: (userId: string, userData: Partial<Omit<User, 'id' | 'createdAt' | 'updatedAt'>>): User | null => {
+    const users = localStorageDb.getUsers();
+    const userIndex = users.findIndex(u => u.id === userId);
+    if (userIndex > -1) {
+      users[userIndex] = {
+        ...users[userIndex],
+        ...userData,
+        updatedAt: new Date()
+      };
+      setLocalStorage('farmmart_users', users);
+      
+      // Also check if this user email is logged in, and update the session in localStorage if needed
+      const sessionStr = localStorage.getItem('farmmart_session');
+      if (sessionStr) {
+        try {
+          const session = JSON.parse(sessionStr);
+          if (session.user.id === userId) {
+            session.user = {
+              ...session.user,
+              ...userData
+            };
+            localStorage.setItem('farmmart_session', JSON.stringify(session));
+          }
+        } catch (e) {
+          console.error("Failed to parse session during user update", e);
+        }
+      }
+      return users[userIndex];
+    }
+    return null;
   }
 };

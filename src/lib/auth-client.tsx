@@ -20,6 +20,7 @@ interface AuthContextType {
   signIn: (provider: string, options: any) => Promise<{ ok: boolean; error?: string }>;
   signOut: (options?: any) => Promise<void>;
   signUp: (name: string, email: string, role?: string) => Promise<{ ok: boolean; error?: string }>;
+  updateSession: (userUpdates: Partial<Session['user']>) => Promise<Session | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -148,8 +149,24 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     return { ok: true };
   };
 
+  const updateSession = async (userUpdates: Partial<Session['user']>) => {
+    if (session) {
+      const updated = {
+        ...session,
+        user: {
+          ...session.user,
+          ...userUpdates
+        }
+      };
+      localStorage.setItem("farmmart_session", JSON.stringify(updated));
+      setSession(updated);
+      return updated;
+    }
+    return null;
+  };
+
   return (
-    <AuthContext.Provider value={{ session, status, signIn, signOut, signUp }}>
+    <AuthContext.Provider value={{ session, status, signIn, signOut, signUp, updateSession }}>
       {children}
     </AuthContext.Provider>
   );
@@ -163,7 +180,9 @@ export function useSession() {
   return {
     data: context.session,
     status: context.status,
-    update: async () => {}
+    update: async (userUpdates: Partial<Session['user']>) => {
+      return context.updateSession(userUpdates);
+    }
   };
 }
 
