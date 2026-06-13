@@ -37,8 +37,8 @@ export const FilterPanel = ({ onFilterChange }: FilterPanelProps) => {
   };
 
   return (
-    <Card className="space-y-6 bg-gray-900 border-gray-800">
-      <h3 className="text-lg font-bold text-gray-100">Filters</h3>
+    <Card className="space-y-6 bg-emerald-950 border-emerald-800">
+      <h3 className="text-lg font-bold text-emerald-100">Filters</h3>
 
       {/* Search */}
       <div>
@@ -53,17 +53,17 @@ export const FilterPanel = ({ onFilterChange }: FilterPanelProps) => {
 
       {/* Animal Type */}
       <div>
-        <h4 className="font-semibold mb-3 text-gray-300">Animal Type</h4>
+        <h4 className="font-semibold mb-3 text-emerald-300">Animal Type</h4>
         <div className="grid grid-cols-2 gap-2">
           {animalTypes.map((type) => (
-            <label key={type} className="flex items-center gap-2 cursor-pointer text-gray-400 hover:text-gray-200">
+            <label key={type} className="flex items-center gap-2 cursor-pointer text-emerald-400 hover:text-emerald-200">
               <input
                 type="checkbox"
                 checked={filters.type === type}
                 onChange={(e) =>
                   handleFilterChange("type", e.target.checked ? type : undefined)
                 }
-                className="w-4 h-4 text-emerald-600 bg-gray-800 border-gray-700 rounded"
+                className="w-4 h-4 text-emerald-600 bg-emerald-900 border-emerald-700 rounded"
               />
               <span className="capitalize">{type}</span>
             </label>
@@ -73,10 +73,10 @@ export const FilterPanel = ({ onFilterChange }: FilterPanelProps) => {
 
       {/* Health Status */}
       <div>
-        <h4 className="font-semibold mb-3 text-gray-300">Health Status</h4>
+        <h4 className="font-semibold mb-3 text-emerald-300">Health Status</h4>
         <div className="grid grid-cols-2 gap-2">
           {healthStatuses.map((status) => (
-            <label key={status} className="flex items-center gap-2 cursor-pointer text-gray-400 hover:text-gray-200">
+            <label key={status} className="flex items-center gap-2 cursor-pointer text-emerald-400 hover:text-emerald-200">
               <input
                 type="checkbox"
                 checked={filters.healthStatus === status}
@@ -86,7 +86,7 @@ export const FilterPanel = ({ onFilterChange }: FilterPanelProps) => {
                     e.target.checked ? status : undefined,
                   )
                 }
-                className="w-4 h-4 text-emerald-600 bg-gray-800 border-gray-700 rounded"
+                className="w-4 h-4 text-emerald-600 bg-emerald-900 border-emerald-700 rounded"
               />
               <span className="capitalize">{status}</span>
             </label>
@@ -96,7 +96,7 @@ export const FilterPanel = ({ onFilterChange }: FilterPanelProps) => {
 
       {/* Price Range */}
       <div>
-        <h4 className="font-semibold mb-3 text-gray-300">Price Range</h4>
+        <h4 className="font-semibold mb-3 text-emerald-300">Price Range</h4>
         <div className="flex gap-2">
           <Input
             type="number"
@@ -127,17 +127,17 @@ export const FilterPanel = ({ onFilterChange }: FilterPanelProps) => {
 
       {/* Sort */}
       <div>
-        <h4 className="font-semibold mb-3 text-gray-300">Sort By</h4>
+        <h4 className="font-semibold mb-3 text-emerald-300">Sort By</h4>
         <select
           value={filters.sortBy || ""}
           onChange={(e) =>
             handleFilterChange("sortBy", e.target.value || undefined)
           }
-          className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400 text-gray-100"
+          className="w-full px-3 py-2 bg-emerald-900 border border-emerald-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400 text-emerald-100"
         >
-          <option value="" className="bg-gray-800">Default</option>
+          <option value="" className="bg-emerald-900">Default</option>
           {sortOptions.map((option) => (
-            <option key={option.value} value={option.value} className="bg-gray-800">
+            <option key={option.value} value={option.value} className="bg-emerald-900">
               {option.label}
             </option>
           ))}
@@ -145,7 +145,7 @@ export const FilterPanel = ({ onFilterChange }: FilterPanelProps) => {
       </div>
 
       {/* Reset Button */}
-      <Button variant="secondary" onClick={handleReset} className="w-full bg-gray-800 border-gray-700 hover:bg-gray-700 text-gray-200">
+      <Button variant="secondary" onClick={handleReset} className="w-full bg-emerald-900 border-emerald-700 hover:bg-emerald-800 text-emerald-200">
         Clear Filters
       </Button>
     </Card>

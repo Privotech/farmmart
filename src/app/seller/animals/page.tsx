@@ -37,7 +37,7 @@ export default function SellerAnimalsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
+      <div className="min-h-screen flex items-center justify-center text-emerald-400">
         Loading listings...
       </div>
     );
@@ -48,10 +48,10 @@ export default function SellerAnimalsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-4xl font-bold text-emerald-100 mb-2">
               My Listings
             </h1>
-            <p className="text-gray-600">Manage your animal listings</p>
+            <p className="text-emerald-400">Manage your animal listings</p>
           </div>
           <Link href="/seller/animals/new">
             <Button variant="primary">Add New Animal</Button>
@@ -60,7 +60,7 @@ export default function SellerAnimalsPage() {
 
         {animals.length === 0 ? (
           <Card className="text-center py-12">
-            <p className="text-gray-600 text-lg mb-6">
+            <p className="text-emerald-400 text-lg mb-6">
               You haven&apos;t listed any animals yet
             </p>
             <Link href="/seller/animals/new">
@@ -71,38 +71,38 @@ export default function SellerAnimalsPage() {
           <Card>
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="border-b">
+                <thead className="border-b border-emerald-800">
                   <tr>
-                    <th className="text-left py-3 font-semibold text-gray-700">
+                    <th className="text-left py-3 font-semibold text-emerald-300">
                       Animal
                     </th>
-                    <th className="text-left py-3 font-semibold text-gray-700">
+                    <th className="text-left py-3 font-semibold text-emerald-300">
                       Type
                     </th>
-                    <th className="text-left py-3 font-semibold text-gray-700">
+                    <th className="text-left py-3 font-semibold text-emerald-300">
                       Price
                     </th>
-                    <th className="text-left py-3 font-semibold text-gray-700">
+                    <th className="text-left py-3 font-semibold text-emerald-300">
                       Status
                     </th>
-                    <th className="text-left py-3 font-semibold text-gray-700">
+                    <th className="text-left py-3 font-semibold text-emerald-300">
                       Actions
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {animals.map((animal) => (
-                    <tr key={animal.id} className="border-b hover:bg-gray-50">
+                    <tr key={animal.id} className="border-b border-emerald-800 hover:bg-emerald-900/30">
                       <td className="py-3">
-                        <div className="font-semibold">{animal.name}</div>
-                        <div className="text-sm text-gray-600">
+                        <div className="font-semibold text-emerald-100">{animal.name}</div>
+                        <div className="text-sm text-emerald-400">
                           {animal.breed}
                         </div>
                       </td>
-                      <td className="py-3 text-gray-600 capitalize">
+                      <td className="py-3 text-emerald-400 capitalize">
                         {animal.type}
                       </td>
-                      <td className="py-3 font-semibold">
+                      <td className="py-3 font-semibold text-emerald-400">
                         ₦{animal.price.toLocaleString()}
                       </td>
                       <td className="py-3">

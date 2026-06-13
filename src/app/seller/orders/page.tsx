@@ -39,7 +39,7 @@ export default function SellerOrdersPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
+      <div className="min-h-screen flex items-center justify-center text-emerald-400">
         Loading orders...
       </div>
     );
@@ -49,15 +49,15 @@ export default function SellerOrdersPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl font-bold text-emerald-100 mb-2">
             Order Management
           </h1>
-          <p className="text-gray-600">View and manage incoming orders</p>
+          <p className="text-emerald-400">View and manage incoming orders</p>
         </div>
 
         {orders.length === 0 ? (
           <Card className="text-center py-12">
-            <p className="text-gray-600 text-lg mb-6">No orders yet</p>
+            <p className="text-emerald-400 text-lg mb-6">No orders yet</p>
             <Button
               variant="primary"
               onClick={() => router.push("/seller/animals")}
@@ -69,39 +69,39 @@ export default function SellerOrdersPage() {
           <Card>
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="border-b">
+                <thead className="border-b border-emerald-800">
                   <tr>
-                    <th className="text-left py-3 font-semibold text-gray-700">
+                    <th className="text-left py-3 font-semibold text-emerald-300">
                       Order ID
                     </th>
-                    <th className="text-left py-3 font-semibold text-gray-700">
+                    <th className="text-left py-3 font-semibold text-emerald-300">
                       Date
                     </th>
-                    <th className="text-left py-3 font-semibold text-gray-700">
+                    <th className="text-left py-3 font-semibold text-emerald-300">
                       Customer
                     </th>
-                    <th className="text-left py-3 font-semibold text-gray-700">
+                    <th className="text-left py-3 font-semibold text-emerald-300">
                       Amount
                     </th>
-                    <th className="text-left py-3 font-semibold text-gray-700">
+                    <th className="text-left py-3 font-semibold text-emerald-300">
                       Status
                     </th>
-                    <th className="text-left py-3 font-semibold text-gray-700">
+                    <th className="text-left py-3 font-semibold text-emerald-300">
                       Actions
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {orders.map((order) => (
-                    <tr key={order.id} className="border-b hover:bg-gray-50">
-                      <td className="py-3 font-semibold">{order.id}</td>
-                      <td className="py-3 text-gray-600">
+                    <tr key={order.id} className="border-b border-emerald-800 hover:bg-emerald-900/30">
+                      <td className="py-3 font-semibold text-emerald-100">{order.id}</td>
+                      <td className="py-3 text-emerald-400">
                         {new Date(order.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="py-3 text-gray-600">
+                      <td className="py-3 text-emerald-400">
                         {order.user?.name || "Unknown"}
                       </td>
-                      <td className="py-3 font-semibold">
+                      <td className="py-3 font-semibold text-emerald-400">
                         ₦{order.totalAmount.toLocaleString()}
                       </td>
                       <td className="py-3">

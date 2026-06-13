@@ -104,20 +104,20 @@ export const Sidebar = () => {
   const isSeller = session.user?.role === "seller";
 
   return (
-    <aside className={`hidden md:flex flex-col w-64 ${isSeller ? "bg-[#0F172A]" : "bg-[#1f2937]"} h-screen sticky top-0 border-r border-gray-800`}>
+    <aside className={`hidden md:flex flex-col w-64 ${isSeller ? "bg-emerald-950" : "bg-emerald-950"} h-screen sticky top-0 border-r border-emerald-800`}>
       <div className="p-6 mb-4">
         <div className="flex items-center gap-2 mb-1">
           {isSeller && (
-            <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-xs">🐷</span>
+            <div className="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-xs">🐄</span>
             </div>
           )}
-          <h3 className={`text-xl font-bold tracking-tight ${isSeller ? "text-white" : "text-gray-100"}`}>
-            {isSeller ? "Pig Seller Portal" : "Digital Harvest"}
+          <h3 className={`text-xl font-bold tracking-tight ${isSeller ? "text-emerald-100" : "text-emerald-100"}`}>
+            {isSeller ? "Livestock Seller Portal" : "Digital Harvest"}
           </h3>
         </div>
         {!isSeller && (
-          <p className="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Global Logistics</p>
+          <p className="text-[10px] text-emerald-400 font-bold tracking-widest uppercase">Global Logistics</p>
         )}
       </div>
 
@@ -128,8 +128,8 @@ export const Sidebar = () => {
             href={link.href}
             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition text-sm font-bold ${
               pathname === link.href
-                ? (isSeller ? "bg-[#1E293B] text-white shadow-sm" : "bg-gray-800 text-emerald-400 shadow-sm border-l-4 border-emerald-600 rounded-l-none -ml-4 pl-8")
-                : (isSeller ? "text-gray-400 hover:text-white hover:bg-[#1E293B]" : "text-gray-400 hover:text-emerald-500")
+                ? (isSeller ? "bg-emerald-900 text-emerald-100 shadow-sm" : "bg-emerald-900 text-emerald-400 shadow-sm border-l-4 border-emerald-500 rounded-l-none -ml-4 pl-8")
+                : (isSeller ? "text-emerald-400 hover:text-emerald-100 hover:bg-emerald-900" : "text-emerald-400 hover:text-emerald-500")
             }`}
           >
             <span className="flex-shrink-0">{link.icon}</span>
@@ -142,19 +142,19 @@ export const Sidebar = () => {
         <Link href={isSeller ? "/seller/animals/new" : "/buyer/listings"}>
           <button className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition shadow-lg ${
             isSeller 
-              ? "bg-emerald-700 hover:bg-emerald-800 text-white" 
-              : "bg-emerald-700 hover:bg-emerald-800 text-white"
+              ? "bg-emerald-600 hover:bg-emerald-700 text-white" 
+              : "bg-emerald-600 hover:bg-emerald-700 text-white"
           }`}>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            {isSeller ? "New Pig Listing" : "New Procurement"}
+            {isSeller ? "New Livestock Listing" : "New Procurement"}
           </button>
         </Link>
         
-        <div className="pt-4 border-t border-gray-800 space-y-1">
+        <div className="pt-4 border-t border-emerald-800 space-y-1">
           <Link href="/help" className={`flex items-center gap-3 px-4 py-2 text-sm font-bold ${
-            isSeller ? "text-gray-400 hover:text-white hover:bg-[#1E293B]" : "text-gray-400 hover:text-emerald-500"
+            isSeller ? "text-emerald-400 hover:text-emerald-100 hover:bg-emerald-900" : "text-emerald-400 hover:text-emerald-500"
           }`}>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -164,7 +164,7 @@ export const Sidebar = () => {
           <button 
             onClick={handleSignOut}
             className={`w-full flex items-center gap-3 px-4 py-2 text-sm font-bold ${
-            isSeller ? "text-gray-400 hover:text-white hover:bg-[#1E293B]" : "text-gray-400 hover:text-emerald-500"
+            isSeller ? "text-emerald-400 hover:text-emerald-100 hover:bg-emerald-900" : "text-emerald-400 hover:text-emerald-500"
           }`}>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

@@ -26,7 +26,7 @@ export default function SellerAnalyticsPage() {
 
   if (isLoading || !session) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500 bg-[#EFF6FF]">
+      <div className="min-h-screen flex items-center justify-center text-emerald-400 bg-black">
         Loading analytics...
       </div>
     );
@@ -69,92 +69,92 @@ export default function SellerAnalyticsPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl font-bold text-emerald-100 mb-2">
             Seller Performance & Analytics
           </h1>
-          <p className="text-gray-600">Track listings, sales, and analytics for your farm.</p>
+          <p className="text-emerald-400">Track listings, sales, and analytics for your farm.</p>
         </div>
 
         {/* Highlight Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="relative overflow-hidden">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-600"></div>
-            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Total Earnings</h4>
-            <div className="text-2xl font-bold text-emerald-700">₦{totalRevenue.toLocaleString()}</div>
-            <p className="text-xs text-gray-500 mt-2">Exclude cancelled orders</p>
+            <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">Total Earnings</h4>
+            <div className="text-2xl font-bold text-emerald-400">₦{totalRevenue.toLocaleString()}</div>
+            <p className="text-xs text-emerald-500 mt-2">Exclude cancelled orders</p>
           </Card>
 
           <Card className="relative overflow-hidden">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
-            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Active Listings</h4>
-            <div className="text-2xl font-bold text-blue-600">{activeListings}</div>
-            <p className="text-xs text-gray-500 mt-2">Currently visible to buyers</p>
+            <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">Active Listings</h4>
+            <div className="text-2xl font-bold text-emerald-400">{activeListings}</div>
+            <p className="text-xs text-emerald-500 mt-2">Currently visible to buyers</p>
           </Card>
 
           <Card className="relative overflow-hidden">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-amber-500"></div>
-            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Sold Animals</h4>
-            <div className="text-2xl font-bold text-amber-600">{soldListings}</div>
-            <p className="text-xs text-gray-500 mt-2">Cleared from inventory</p>
+            <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">Sold Animals</h4>
+            <div className="text-2xl font-bold text-emerald-400">{soldListings}</div>
+            <p className="text-xs text-emerald-500 mt-2">Cleared from inventory</p>
           </Card>
 
           <Card className="relative overflow-hidden">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-purple-500"></div>
-            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Avg. Animal Price</h4>
-            <div className="text-2xl font-bold text-purple-600">₦{avgPrice.toLocaleString()}</div>
-            <p className="text-xs text-gray-500 mt-2">Across all {totalListings} listings</p>
+            <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">Avg. Animal Price</h4>
+            <div className="text-2xl font-bold text-emerald-400">₦{avgPrice.toLocaleString()}</div>
+            <p className="text-xs text-emerald-500 mt-2">Across all {totalListings} listings</p>
           </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           {/* Orders summary */}
           <Card className="lg:col-span-1">
-            <h3 className="text-lg font-bold text-gray-900 mb-6">Order Status Breakdown</h3>
+            <h3 className="text-lg font-bold text-emerald-100 mb-6">Order Status Breakdown</h3>
             <div className="space-y-4">
-              <div className="flex justify-between items-center pb-2 border-b">
-                <span className="text-sm font-semibold text-gray-600 flex items-center gap-2">
+              <div className="flex justify-between items-center pb-2 border-b border-emerald-800">
+                <span className="text-sm font-semibold text-emerald-400 flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-yellow-400"></span> Pending
                 </span>
-                <span className="font-bold text-gray-800">{pendingCount}</span>
+                <span className="font-bold text-emerald-100">{pendingCount}</span>
               </div>
-              <div className="flex justify-between items-center pb-2 border-b">
-                <span className="text-sm font-semibold text-gray-600 flex items-center gap-2">
+              <div className="flex justify-between items-center pb-2 border-b border-emerald-800">
+                <span className="text-sm font-semibold text-emerald-400 flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-blue-400"></span> Confirmed
                 </span>
-                <span className="font-bold text-gray-800">{confirmedCount}</span>
+                <span className="font-bold text-emerald-100">{confirmedCount}</span>
               </div>
-              <div className="flex justify-between items-center pb-2 border-b">
-                <span className="text-sm font-semibold text-gray-600 flex items-center gap-2">
+              <div className="flex justify-between items-center pb-2 border-b border-emerald-800">
+                <span className="text-sm font-semibold text-emerald-400 flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Shipped
                 </span>
-                <span className="font-bold text-gray-800">{shippedCount}</span>
+                <span className="font-bold text-emerald-100">{shippedCount}</span>
               </div>
-              <div className="flex justify-between items-center pb-2 border-b">
-                <span className="text-sm font-semibold text-gray-600 flex items-center gap-2">
+              <div className="flex justify-between items-center pb-2 border-b border-emerald-800">
+                <span className="text-sm font-semibold text-emerald-400 flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Delivered
                 </span>
-                <span className="font-bold text-gray-800">{deliveredCount}</span>
+                <span className="font-bold text-emerald-100">{deliveredCount}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-semibold text-gray-600 flex items-center gap-2">
+                <span className="text-sm font-semibold text-emerald-400 flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-red-500"></span> Cancelled
                 </span>
-                <span className="font-bold text-gray-800">{cancelledCount}</span>
+                <span className="font-bold text-emerald-100">{cancelledCount}</span>
               </div>
             </div>
           </Card>
 
           {/* Product Types distribution */}
           <Card className="lg:col-span-2">
-            <h3 className="text-lg font-bold text-gray-900 mb-6">Listed Animal Types</h3>
+            <h3 className="text-lg font-bold text-emerald-100 mb-6">Listed Animal Types</h3>
             {Object.keys(animalTypes).length === 0 ? (
-              <div className="text-center py-10 text-gray-500">No types mapped. List an animal to begin tracking.</div>
+              <div className="text-center py-10 text-emerald-500">No types mapped. List an animal to begin tracking.</div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {Object.entries(animalTypes).map(([type, count]) => (
-                  <div key={type} className="text-center p-6 bg-gray-50 rounded-xl hover:shadow-md transition">
-                    <div className="text-3xl font-extrabold text-emerald-600 mb-2">{count}</div>
-                    <div className="text-xs text-gray-500 font-bold uppercase tracking-wider capitalize">{type}</div>
+                  <div key={type} className="text-center p-6 bg-emerald-900/30 rounded-xl hover:shadow-md transition border border-emerald-800">
+                    <div className="text-3xl font-extrabold text-emerald-400 mb-2">{count}</div>
+                    <div className="text-xs text-emerald-500 font-bold uppercase tracking-wider capitalize">{type}</div>
                   </div>
                 ))}
               </div>
@@ -164,36 +164,36 @@ export default function SellerAnalyticsPage() {
 
         {/* Listings details list */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-900 mb-6">Inventory Value Detail</h3>
+          <h3 className="text-lg font-bold text-emerald-100 mb-6">Inventory Value Detail</h3>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="border-b">
+              <thead className="border-b border-emerald-800">
                 <tr>
-                  <th className="text-left py-3 font-semibold text-gray-700">Animal</th>
-                  <th className="text-left py-3 font-semibold text-gray-700">Breed</th>
-                  <th className="text-left py-3 font-semibold text-gray-700">Type</th>
-                  <th className="text-left py-3 font-semibold text-gray-700">Listing Price</th>
-                  <th className="text-left py-3 font-semibold text-gray-700">Status</th>
+                  <th className="text-left py-3 font-semibold text-emerald-300">Animal</th>
+                  <th className="text-left py-3 font-semibold text-emerald-300">Breed</th>
+                  <th className="text-left py-3 font-semibold text-emerald-300">Type</th>
+                  <th className="text-left py-3 font-semibold text-emerald-300">Listing Price</th>
+                  <th className="text-left py-3 font-semibold text-emerald-300">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {animals.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="text-center py-8 text-gray-500">No animals listed yet.</td>
+                    <td colSpan={5} className="text-center py-8 text-emerald-500">No animals listed yet.</td>
                   </tr>
                 ) : (
                   animals.map((a) => (
-                    <tr key={a.id} className="border-b hover:bg-gray-50">
-                      <td className="py-3 font-medium text-gray-900">{a.name}</td>
-                      <td className="py-3 text-gray-600">{a.breed}</td>
-                      <td className="py-3 text-gray-600 capitalize">{a.type}</td>
-                      <td className="py-3 font-semibold text-gray-900">₦{a.price.toLocaleString()}</td>
+                    <tr key={a.id} className="border-b border-emerald-800 hover:bg-emerald-900/30">
+                      <td className="py-3 font-medium text-emerald-100">{a.name}</td>
+                      <td className="py-3 text-emerald-400">{a.breed}</td>
+                      <td className="py-3 text-emerald-400 capitalize">{a.type}</td>
+                      <td className="py-3 font-semibold text-emerald-100">₦{a.price.toLocaleString()}</td>
                       <td className="py-3">
                         <span
                           className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${
                             a.available
-                              ? "bg-emerald-100 text-emerald-800"
-                              : "bg-gray-100 text-gray-800"
+                              ? "bg-emerald-900/30 text-emerald-400 border border-emerald-800"
+                              : "bg-emerald-900/30 text-emerald-400 border border-emerald-800"
                           }`}
                         >
                           {a.available ? "Available" : "Sold"}

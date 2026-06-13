@@ -33,8 +33,8 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
 
       <div className="space-y-3">
         <div>
-          <h3 className="text-lg font-bold text-gray-100">{animal.name}</h3>
-          <p className="text-sm text-gray-400">
+          <h3 className="text-lg font-bold text-emerald-100">{animal.name}</h3>
+          <p className="text-sm text-emerald-400">
             {animal.breed} • {animal.age} months
           </p>
         </div>
@@ -46,19 +46,19 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
           </Badge>
         </div>
 
-        <p className="text-sm text-gray-400">{animal.location}</p>
+        <p className="text-sm text-emerald-400">{animal.location}</p>
 
-        <p className="text-sm text-gray-300 line-clamp-3">
+        <p className="text-sm text-emerald-300 line-clamp-3">
           {animal.description}
         </p>
 
-        <div className="flex justify-between items-center pt-4 border-t border-gray-700">
+        <div className="flex justify-between items-center pt-4 border-t border-emerald-800">
           <div>
-            <p className="text-2xl font-bold text-emerald-500">
+            <p className="text-2xl font-bold text-emerald-400">
               ₦{animal.price.toLocaleString()}
             </p>
             {animal.weight && (
-              <p className="text-xs text-gray-400">{animal.weight} kg</p>
+              <p className="text-xs text-emerald-400">{animal.weight} kg</p>
             )}
           </div>
 

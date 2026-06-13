@@ -109,7 +109,7 @@ export default function EditAnimalPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
+      <div className="min-h-screen flex items-center justify-center text-emerald-400">
         Loading listing details...
       </div>
     );
@@ -119,16 +119,16 @@ export default function EditAnimalPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl font-bold text-emerald-100 mb-2">
             Edit Animal Listing
           </h1>
-          <p className="text-gray-600">Update your animal listing information</p>
+          <p className="text-emerald-400">Update your animal listing information</p>
         </div>
 
         <Card>
           {error ? (
             <div className="text-center py-8">
-              <div className="bg-red-100 text-red-800 p-4 rounded-lg mb-6">
+              <div className="bg-rose-900/30 text-rose-400 p-4 rounded-lg mb-6 border border-rose-800">
                 {error}
               </div>
               <Button variant="secondary" onClick={() => router.push("/seller/animals")}>
@@ -138,7 +138,7 @@ export default function EditAnimalPage() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               <ImageUpload onImageUpload={setImageUrl} currentImage={imageUrl} />
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Input
                   type="text"
@@ -152,14 +152,14 @@ export default function EditAnimalPage() {
                 />
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-emerald-300 mb-2">
                     Type
                   </label>
                   <select
                     name="type"
                     value={formData.type}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-4 py-2 bg-emerald-950 border border-emerald-800 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-emerald-100"
                     disabled={isSaving}
                   >
                     <option value="cattle">Cattle</option>
@@ -226,14 +226,14 @@ export default function EditAnimalPage() {
                 />
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-emerald-300 mb-2">
                     Health Status
                   </label>
                   <select
                     name="health_status"
                     value={formData.health_status}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-4 py-2 bg-emerald-950 border border-emerald-800 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-emerald-100"
                     disabled={isSaving}
                   >
                     <option value="healthy">Healthy</option>
@@ -245,7 +245,7 @@ export default function EditAnimalPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-emerald-300 mb-2">
                   Description
                 </label>
                 <textarea
@@ -253,7 +253,7 @@ export default function EditAnimalPage() {
                   value={formData.description}
                   onChange={handleInputChange}
                   rows={4}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-emerald-950 border border-emerald-800 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-emerald-100"
                   placeholder="Describe the animal's condition, temperament, etc."
                   required
                   disabled={isSaving}

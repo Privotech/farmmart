@@ -24,7 +24,7 @@ export default function SellerLayout({
 
   if (status === "loading" || !session) {
     return (
-      <div className="min-h-screen bg-[#EFF6FF] flex items-center justify-center text-gray-500">
+      <div className="min-h-screen bg-black flex items-center justify-center text-emerald-400">
         Loading...
       </div>
     );
@@ -36,7 +36,7 @@ export default function SellerLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-[#EFF6FF]">
+    <div className="flex min-h-screen bg-black">
       <Sidebar />
       <main className="flex-1 overflow-y-auto">
         {children}
