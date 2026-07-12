@@ -1,67 +1,55 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useSession } from "@/lib/auth-client";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/Card";
-import { localStorageDb } from "@/lib/localStorageDb";
-import { User, Order, Animal } from "@/types";
 
-export default function SellerAnalyticsPage() {
-  const { data: session } = useSession();
-  const [isLoading, setIsLoading] = useState(true);
-  const [animals, setAnimals] = useState<Animal[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
+export default async function SellerAnalyticsPage() {
+  const session = await getServerSession(authOptions);
 
-  useEffect(() => {
-    if (session) {
-      const sellerAnimals = localStorageDb.getAnimals({
-        sellerId: session.user.id,
-      });
-      const sellerOrders = localStorageDb.getSellerOrders(session.user.id);
-      setAnimals(sellerAnimals);
-      setOrders(sellerOrders);
-      setIsLoading(false);
-    }
-  }, [session]);
-
-  if (isLoading || !session) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-emerald-400 bg-black">
-        Loading analytics...
-      </div>
-    );
+  if (!session?.user?.id || session.user.role !== "SELLER") {
+    redirect("/login");
   }
+
+  const [animals, orders] = await Promise.all([
+    prisma.animals.findMany({
+      where: { seller_id: session.user.id },
+    }),
+    prisma.orders.findMany({
+      where: {
+        animals: {
+          seller_id: session.user.id,
+        },
+      },
+    }),
+  ]);
 
   // Calculations
   const totalListings = animals.length;
-  const activeListings = animals.filter((a) => a.available).length;
-  const soldListings = animals.filter((a) => !a.available).length;
+  const activeListings = animals.filter((a) => a.status === "AVAILABLE").length;
+  const soldListings = animals.filter((a) => a.status !== "AVAILABLE").length;
 
   const avgPrice =
     totalListings > 0
-      ? Math.floor(animals.reduce((sum, a) => sum + a.price, 0) / totalListings)
+      ? Math.floor(animals.reduce((sum, a) => sum + Number(a.price), 0) / totalListings)
       : 0;
 
   // Seller specific revenue calculation
   const totalRevenue = orders
-    .filter((o) => o.status !== "cancelled")
-    .reduce((sum, o) => {
-      const sellerItemsTotal = o.items
-        .filter((item) => item.animal.sellerId === session.user.id)
-        .reduce((s, item) => s + item.totalPrice, 0);
-      return sum + sellerItemsTotal;
-    }, 0);
+    .filter((o) => o.status !== "CANCELLED")
+    .reduce((sum, o) => sum + Number(o.amount), 0);
 
   // Orders status breakdown
-  const deliveredCount = orders.filter((o) => o.status === "delivered").length;
-  const pendingCount = orders.filter((o) => o.status === "pending").length;
-  const shippedCount = orders.filter((o) => o.status === "shipped").length;
-  const confirmedCount = orders.filter((o) => o.status === "confirmed").length;
-  const cancelledCount = orders.filter((o) => o.status === "cancelled").length;
+  const deliveredCount = orders.filter((o) => o.status === "DELIVERED").length;
+  const pendingCount = orders.filter((o) => o.status === "PENDING").length;
+  const shippedCount = orders.filter((o) => o.status === "SHIPPED").length;
+  const confirmedCount = orders.filter((o) => o.status === "CONFIRMED").length;
+  const cancelledCount = orders.filter((o) => o.status === "CANCELLED").length;
 
   // Animal type breakdown for seller
-  const animalTypes = animals.reduce((acc: Record<string, number>, animal: Animal) => {
-    acc[animal.type] = (acc[animal.type] || 0) + 1;
+  const animalTypes = animals.reduce((acc: Record<string, number>, animal) => {
+    const type = animal.category.toLowerCase().replace('_', ' ');
+    acc[type] = (acc[type] || 0) + 1;
     return acc;
   }, {});
 
@@ -153,7 +141,7 @@ export default function SellerAnalyticsPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {Object.entries(animalTypes).map(([type, count]) => (
                   <div key={type} className="text-center p-6 bg-emerald-900/30 rounded-xl hover:shadow-md transition border border-emerald-800">
-                    <div className="text-3xl font-extrabold text-emerald-400 mb-2">{count}</div>
+                    <div className="text-3xl font-extrabold text-emerald-400 mb-2">{count as number}</div>
                     <div className="text-xs text-emerald-500 font-bold uppercase tracking-wider capitalize">{type}</div>
                   </div>
                 ))}
@@ -186,17 +174,17 @@ export default function SellerAnalyticsPage() {
                     <tr key={a.id} className="border-b border-emerald-800 hover:bg-emerald-900/30">
                       <td className="py-3 font-medium text-emerald-100">{a.name}</td>
                       <td className="py-3 text-emerald-400">{a.breed}</td>
-                      <td className="py-3 text-emerald-400 capitalize">{a.type}</td>
-                      <td className="py-3 font-semibold text-emerald-100">₦{a.price.toLocaleString()}</td>
+                      <td className="py-3 text-emerald-400 capitalize">{a.category.toLowerCase().replace('_', ' ')}</td>
+                      <td className="py-3 font-semibold text-emerald-100">₦{Number(a.price).toLocaleString()}</td>
                       <td className="py-3">
                         <span
                           className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${
-                            a.available
+                            a.status === "AVAILABLE"
                               ? "bg-emerald-900/30 text-emerald-400 border border-emerald-800"
                               : "bg-emerald-900/30 text-emerald-400 border border-emerald-800"
                           }`}
                         >
-                          {a.available ? "Available" : "Sold"}
+                          {a.status === "AVAILABLE" ? "Available" : "Sold"}
                         </span>
                       </td>
                     </tr>
@@ -210,3 +198,4 @@ export default function SellerAnalyticsPage() {
     </div>
   );
 }
+

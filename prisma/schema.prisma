@@ -4,6 +4,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -118,6 +119,7 @@ model users {
   firebase_uid                           String      @unique(map: "uq_users_firebase_uid") @db.VarChar(128)
   name                                   String      @db.VarChar(150)
   email                                  String      @unique(map: "uq_users_email") @db.VarChar(255)
+  password                               String?
   phone                                  String?     @db.VarChar(20)
   role                                   users_role  @default(BUYER)
   avatar_url                             String?     @db.Text
@@ -138,6 +140,22 @@ model users {
   @@index([state], map: "idx_users_state")
 }
 
+model loginAttempt {
+  id          String    @id @default(uuid())
+  email       String    @unique(map: "LoginAttempt_email_key")
+  attempts    Int       @default(0)
+  lockedUntil DateTime?
+}
+
+model passwordReset {
+  id        String   @id @default(uuid())
+  email     String
+  token     String   @unique(map: "PasswordReset_token_key")
+  used      Boolean  @default(false)        
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
 enum animals_category {
   CATTLE
   GOAT
@@ -152,6 +170,9 @@ enum animals_category {
 enum orders_status {
   PENDING
   PAID
+  CONFIRMED
+  SHIPPED
+  DELIVERED
   CANCELLED
   REFUNDED
 }
@@ -173,3 +194,5 @@ enum animals_status {
   SOLD
   RESERVED
 }
+
+ 

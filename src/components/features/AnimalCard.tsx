@@ -24,7 +24,9 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
     <Card className="overflow-hidden hover:shadow-xl transition-shadow animate-fade-up card-hover-raise">
       <div className="relative w-full h-56 mb-4 rounded-lg overflow-hidden">
         <Image
-          src={animal.images[0] || "/placeholder-animal.jpg"}
+          src={
+            JSON.parse(animal.images || "[]")[0] || "/placeholder-animal.jpg"
+          }
           alt={animal.name}
           fill
           className="object-cover"
@@ -40,8 +42,10 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
         </div>
 
         <div className="flex gap-2 flex-wrap">
-          <Badge variant="primary">{animal.type}</Badge>
-          <Badge variant={healthStatusColors[animal.health_status]}>
+          <Badge variant="primary">{animal.category}</Badge>
+          <Badge
+            variant={healthStatusColors[animal.health_status ?? "unknown"]}
+          >
             {animal.health_status}
           </Badge>
         </div>
@@ -68,21 +72,26 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
                 View
               </Button>
             </Link>
-            {onAddToCart && animal.available && (
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => onAddToCart(animal)}
-                className="px-4"
-              >
-                Add
-              </Button>
-            )}
-            {!animal.available && (
-              <Button variant="secondary" size="sm" disabled>
-                Sold
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {onAddToCart && animal.status === "AVAILABLE" && (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => onAddToCart(animal)}
+                  className="px-4"
+                >
+                  Add
+                </Button>
+              )}
+              {animal.status !== "AVAILABLE" && (
+                <Badge
+                  variant="outline"
+                  className="text-gray-500 border-gray-700"
+                >
+                  Sold
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
       </div>

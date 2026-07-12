@@ -18,13 +18,13 @@ export default function DashboardRedirect() {
 
     // Redirect based on user role
     switch (session.user?.role) {
-      case "buyer":
+      case "BUYER":
         router.push("/buyer/dashboard");
         break;
-      case "seller":
+      case "SELLER":
         router.push("/seller/dashboard");
         break;
-      case "admin":
+      case "ADMIN":
         router.push("/admin/dashboard");
         break;
       default:

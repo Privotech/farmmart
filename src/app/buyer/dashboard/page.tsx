@@ -1,37 +1,26 @@
-"use client";
-
-import { useSession } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
-import { localStorageDb } from "@/lib/localStorageDb";
 import Image from "next/image";
 
-export default function BuyerDashboard() {
-  const router = useRouter();
-  const { data: session, status } = useSession();
+export default async function BuyerDashboard() {
+  const session = await getServerSession(authOptions);
 
-  useEffect(() => {
-    if (status !== "loading" && !session) {
-      router.push("/login");
-    }
-    if (status !== "loading" && session?.user?.role !== "buyer") {
-      router.push("/dashboard");
-    }
-  }, [session, status, router]);
-
-  if (status === "loading" || !session) {
-    return <div className="min-h-screen flex items-center justify-center text-emerald-500">Loading...</div>;
+  if (!session?.user?.id || session.user.role !== "BUYER") {
+    redirect("/login");
   }
 
-  const orders = localStorageDb.getOrders(session?.user?.email || "");
-  const cartItems = localStorageDb.getCartItems(session?.user?.email || "");
-  
-  const totalSpend = orders.reduce((sum, o) => sum + o.totalAmount, 0);
+  const orders = await prisma.orders.findMany({
+    where: { buyer_id: session.user.id },
+  });
+
+  const totalSpend = orders
+    .filter((o) => o.status !== "CANCELLED")
+    .reduce((sum, o) => sum + Number(o.amount), 0);
 
   return (
     <div className="flex min-h-screen bg-black">

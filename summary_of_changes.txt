@@ -1,0 +1,27 @@
+FarmMart Project Status Summary
+
+Project overview
+FarmMart is a Next.js marketplace for buying and selling farm animals. The application is built with TypeScript, Prisma, MySQL, NextAuth-style authentication, and a set of buyer, seller, and admin dashboard pages.
+
+What has been done
+- Initial project structure and app shell created with Next.js, TypeScript, Tailwind, and Prisma.
+- Authentication routes added for login, registration, forgot password, and reset password.
+- Core database schema implemented for users, animals, cart, orders, inquiries, reviews, login attempts, and password resets.
+- Buyer, seller, and admin route pages created to support the marketplace experience.
+- Animal and auth API routes implemented with basic validation and response handling.
+- Security-related updates added around login, environment secret checks, and rate-limited auth flows.
+
+What still needs to be done
+- Finish and verify the end-to-end checkout and payment flow with Paystack.
+- Complete seller and admin management features, analytics, and moderation workflows.
+- Tighten validation and error handling across all API routes.
+- Run Prisma migrations and verify the database schema against the live environment.
+- Add final testing, deployment configuration, and production hardening.
+- Polish the remaining UI pages and improve responsive behavior.
+
+Recommended next steps
+1. Validate the Prisma schema and database migration state.
+2. Test the cart, order, and payment flow from start to finish.
+3. Finish the seller dashboard and admin panels.
+4. Add automated tests and deployment checks.
+5. Prepare production environment variables and hosting setup.

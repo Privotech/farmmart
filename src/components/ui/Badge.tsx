@@ -1,7 +1,7 @@
 import React from "react";
 
 interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  variant?: "primary" | "success" | "warning" | "danger";
+  variant?: "primary" | "success" | "warning" | "danger" | "outline";
   children: React.ReactNode;
 }
 
@@ -16,6 +16,7 @@ export const Badge: React.FC<BadgeProps> = ({
     success: "bg-emerald-100 text-emerald-800",
     warning: "bg-yellow-100 text-yellow-800",
     danger: "bg-rose-100 text-rose-800",
+    outline: "border border-emerald-700 text-emerald-100 bg-transparent",
   } as const;
 
   return (

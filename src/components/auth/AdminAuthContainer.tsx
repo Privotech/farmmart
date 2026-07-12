@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { localStorageDb } from "@/lib/localStorageDb";
 
 interface AdminAuthContainerProps {
   initialMode: "login" | "register";
 }
 
-export default function AdminAuthContainer({ initialMode }: AdminAuthContainerProps) {
+export default function AdminAuthContainer({
+  initialMode,
+}: AdminAuthContainerProps) {
   const router = useRouter();
   const { signIn, signUp } = useAuth();
   const [isLogin, setIsLogin] = useState(initialMode === "login");
@@ -40,21 +41,13 @@ export default function AdminAuthContainer({ initialMode }: AdminAuthContainerPr
       const result = await signIn("credentials", {
         email: loginEmail,
         password: loginPassword,
-        redirect: false,
       });
 
       if (!result?.ok) {
         setError(result?.error || "Invalid email or password");
       } else {
-        // Check if user is admin
-        const users = localStorageDb.getUsers();
-        const user = users.find((u) => u.email === loginEmail);
-        
-        if (user?.role === "admin") {
-          router.push("/admin/dashboard");
-        } else {
-          setError("Access denied. Admin only.");
-        }
+        // Redirect to admin dashboard, it will handle kicking out non-admins
+        router.push("/admin/dashboard");
       }
     } catch {
       setError("An error occurred. Please try again.");
@@ -73,7 +66,10 @@ export default function AdminAuthContainer({ initialMode }: AdminAuthContainerPr
     }
 
     // Verify admin secret key
-    if (adminSecretKey !== process.env.ADMIN_SECRET_KEY || adminSecretKey !== "FARMMART_ADMIN_2024_SECRET") {
+    if (
+      adminSecretKey !== process.env.ADMIN_SECRET_KEY &&
+      adminSecretKey !== "FARMMART_ADMIN_2024_SECRET"
+    ) {
       setError("Invalid admin secret key");
       return;
     }
@@ -86,22 +82,15 @@ export default function AdminAuthContainer({ initialMode }: AdminAuthContainerPr
     setIsLoading(true);
 
     try {
-      const result = await signUp(regName, regEmail, regPassword);
+      const result = await signUp(regName, regEmail, regPassword, "ADMIN");
 
       if (!result.ok) {
         setError(result.error || "Registration failed");
         return;
       }
 
-      // Update user role to admin
-      const users = localStorageDb.getUsers();
-      const user = users.find((u) => u.email === regEmail);
-      
-      if (user) {
-        localStorageDb.updateUserRole(user.id, "admin");
-        handleToggle("login");
-        setLoginEmail(regEmail);
-      }
+      handleToggle("login");
+      setLoginEmail(regEmail);
     } catch {
       setError("An error occurred. Please try again.");
     } finally {
@@ -227,7 +216,9 @@ export default function AdminAuthContainer({ initialMode }: AdminAuthContainerPr
               onClick={() => handleToggle(isLogin ? "register" : "login")}
               className="text-emerald-400 hover:text-emerald-300 text-sm"
             >
-              {isLogin ? "Need an admin account? Register" : "Already have an account? Login"}
+              {isLogin
+                ? "Need an admin account? Register"
+                : "Already have an account? Login"}
             </button>
           </div>
         </div>

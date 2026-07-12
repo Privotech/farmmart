@@ -9,17 +9,28 @@ interface Session {
     id: string;
     email: string;
     name: string;
-    role: "buyer" | "seller" | "admin";
+    role: "BUYER" | "SELLER" | "ADMIN";
     image?: string;
   };
+}
+
+interface SignInOptions {
+  email?: string;
+  password?: string;
+  callbackUrl?: string;
+}
+
+interface SignOutOptions {
+  redirect?: boolean;
+  callbackUrl?: string;
 }
 
 interface AuthContextType {
   session: Session | null;
   status: "loading" | "authenticated" | "unauthenticated";
-  signIn: (provider: string, options: any) => Promise<{ ok: boolean; error?: string }>;
-  signOut: (options?: any) => Promise<void>;
-  signUp: (name: string, email: string, role?: string) => Promise<{ ok: boolean; error?: string }>;
+  signIn: (provider: string, options?: SignInOptions) => Promise<{ ok: boolean; error?: string }>;
+  signOut: (options?: SignOutOptions) => Promise<void>;
+  signUp: (name: string, email: string, password?: string, role?: string) => Promise<{ ok: boolean; error?: string }>;
   updateSession: (userUpdates: Partial<Session['user']>) => Promise<Session | null>;
 }
 
@@ -31,125 +42,104 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<"loading" | "authenticated" | "unauthenticated">("loading");
 
   useEffect(() => {
-    const savedSession = localStorage.getItem("farmmart_session");
-    if (savedSession) {
+    const fetchSession = async () => {
       try {
-        const parsed = JSON.parse(savedSession);
-        setSession(parsed);
-        setStatus("authenticated");
-      } catch {
-        localStorage.removeItem("farmmart_session");
+        const response = await fetch('/api/auth/me');
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          setSession({ user: data.user });
+          setStatus("authenticated");
+        } else {
+          setSession(null);
+          setStatus("unauthenticated");
+        }
+      } catch (error) {
+        console.error("Failed to fetch session:", error);
+        setSession(null);
         setStatus("unauthenticated");
       }
-    } else {
-      setStatus("unauthenticated");
-    }
+    };
+
+    fetchSession();
   }, []);
 
-  const signIn = async (provider: string, options: any) => {
+  const signIn = async (provider: string, options: SignInOptions = {}) => {
     if (provider === "credentials") {
       const { email, password } = options;
       
-      const usersStr = localStorage.getItem("farmmart_users") || "[]";
-      const users = JSON.parse(usersStr) as (User & { password?: string })[];
-      
-      const matchedUser = users.find(u => u.email === email && u.password === password);
-      
-      if (matchedUser) {
-        const sessionData: Session = {
-          user: {
-            id: matchedUser.id,
-            email: matchedUser.email,
-            name: matchedUser.name,
-            role: matchedUser.role,
-            image: matchedUser.image
-          }
-        };
-        localStorage.setItem("farmmart_session", JSON.stringify(sessionData));
-        setSession(sessionData);
-        setStatus("authenticated");
-        
-        document.cookie = `farmmart_session_email=${matchedUser.email}; path=/; max-age=2592000; SameSite=Lax`;
-        
-        return { ok: true };
-      }
-      
-      if (email === "test@farmmart.com" && password === "password") {
-        const mockUser: Session = {
-          user: {
-            id: "test-user-id",
-            email: "test@farmmart.com",
-            name: "John Doe",
-            role: "buyer"
-          }
-        };
-        localStorage.setItem("farmmart_session", JSON.stringify(mockUser));
-        setSession(mockUser);
-        setStatus("authenticated");
-        document.cookie = `farmmart_session_email=test@farmmart.com; path=/; max-age=2592000; SameSite=Lax`;
-        return { ok: true };
-      }
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
 
-      return { ok: false, error: "Invalid email or password" };
-    }
-    
-    // Social / Google login mock
-    if (provider === "google") {
-      const mockUser: Session = {
-        user: {
-          id: "google-user-id",
-          email: "google@farmmart.com",
-          name: "Google Friend",
-          role: "buyer",
-          image: "/logo.svg"
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          const sessionData: Session = {
+            user: {
+              id: data.user.id,
+              email: data.user.email,
+              name: data.user.name,
+              role: data.user.role,
+              image: data.user.image,
+            },
+          };
+          setSession(sessionData);
+          setStatus("authenticated");
+          return { ok: true };
+        } else {
+          return { ok: false, error: data.error || "Invalid email or password" };
         }
-      };
-      localStorage.setItem("farmmart_session", JSON.stringify(mockUser));
-      setSession(mockUser);
-      setStatus("authenticated");
-      document.cookie = `farmmart_session_email=google@farmmart.com; path=/; max-age=2592000; SameSite=Lax`;
-      return { ok: true };
+      } catch (error) {
+        console.error("SignIn error:", error);
+        return { ok: false, error: "An unexpected error occurred during sign-in." };
+      }
     }
 
     return { ok: false, error: "Unsupported login method" };
   };
 
-  const signOut = async (options?: any) => {
-    localStorage.removeItem("farmmart_session");
-    setSession(null);
-    setStatus("unauthenticated");
-    document.cookie = "farmmart_session_email=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax";
-    
-    if (options?.redirect !== false) {
-      router.push(options?.callbackUrl || "/");
+  const signOut = async (options: SignOutOptions = {}) => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (error) {
+      console.error("SignOut error:", error);
+    } finally {
+      setSession(null);
+      setStatus("unauthenticated");
+      if (options.redirect !== false) {
+        router.push(options.callbackUrl || "/");
+      }
     }
   };
 
-  const signUp = async (name: string, email: string, password?: string) => {
-    const usersStr = localStorage.getItem("farmmart_users") || "[]";
-    const users = JSON.parse(usersStr) as (User & { password?: string })[];
+  const signUp = async (name: string, email: string, password?: string, role?: string) => {
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, role }),
+      });
 
-    const exists = users.some(u => u.email === email);
-    if (exists) {
-      return { ok: false, error: "Email already registered" };
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        return { ok: true };
+      } else {
+        return { ok: false, error: data.error || "An error occurred during registration" };
+      }
+    } catch (error) {
+      console.error("SignUp error:", error);
+      return { ok: false, error: "An unexpected error occurred during registration." };
     }
-
-    const newUser: User & { password?: string } = {
-      id: Math.random().toString(36).substring(2, 9),
-      email,
-      name,
-      role: "buyer",
-      password: password || "password",
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-
-    users.push(newUser);
-    localStorage.setItem("farmmart_users", JSON.stringify(users));
-    return { ok: true };
   };
 
   const updateSession = async (userUpdates: Partial<Session['user']>) => {
+    // This function should ideally make a request to the server to update the user's session.
+    // For now, we'll just update the local state.
     if (session) {
       const updated = {
         ...session,
@@ -158,7 +148,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           ...userUpdates
         }
       };
-      localStorage.setItem("farmmart_session", JSON.stringify(updated));
       setSession(updated);
       return updated;
     }
@@ -193,24 +182,3 @@ export function useAuth() {
   }
   return context;
 }
-
-// Emulating next-auth wrappers
-export const signIn = async (provider: string, options: any) => {
-  // Direct calls outside useAuth hook context will be tricky,
-  // so we delegate to the window/provider system if needed.
-  // But inside AuthContainer, we can use useAuth hook!
-  if (typeof window !== "undefined") {
-    console.warn("Please use useAuth() hook for signIn inside client components.");
-  }
-  return { ok: true };
-};
-
-export const signOut = async (options?: any) => {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem("farmmart_session");
-    document.cookie = "farmmart_session_email=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax";
-    if (options?.redirect !== false) {
-      window.location.href = options?.callbackUrl || "/";
-    }
-  }
-};

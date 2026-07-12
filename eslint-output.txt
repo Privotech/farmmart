@@ -1,0 +1,262 @@
+
+> farmmart@0.1.0 lint
+> eslint
+
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\database\setup_db.js
+  32:12  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\admin\analytics\page.tsx
+  31:57  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-explicit-any
+  45:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-explicit-any
+  54:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\admin\analytics\page.tsx:54:7
+  52 |   useEffect(() => {
+  53 |     if (session && session.user.role === "admin") {
+> 54 |       fetchData();
+     |       ^^^^^^^^^ Avoid calling setState() directly within an effect
+  55 |     }
+  56 |   }, [session]);
+  57 |  react-hooks/set-state-in-effect
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\admin\dashboard\page.tsx
+  50:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\admin\moderation\page.tsx
+  33:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             @typescript-eslint/no-explicit-any
+  42:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\admin\moderation\page.tsx:42:7
+  40 |   useEffect(() => {
+  41 |     if (session && session.user.role === "admin") {
+> 42 |       fetchAnimals();
+     |       ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  43 |     }
+  44 |   }, [session]);
+  45 |  react-hooks/set-state-in-effect
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\admin\orders\page.tsx
+  32:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-explicit-any
+  41:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\admin\orders\page.tsx:41:7
+  39 |   useEffect(() => {
+  40 |     if (session && session.user.role === "admin") {
+> 41 |       fetchOrders();
+     |       ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  42 |     }
+  43 |   }, [session]);
+  44 |  react-hooks/set-state-in-effect
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\admin\users\page.tsx
+  31:38  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+  37:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+  46:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\admin\users\page.tsx:46:7
+  44 |   useEffect(() => {
+  45 |     if (session && session.user.role === "admin") {
+> 46 |       fetchUsers();
+     |       ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  47 |     }
+  48 |   }, [session]);
+  49 |  react-hooks/set-state-in-effect
+  58:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+  68:21  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\api\animals\route.ts
+  6:7  warning  'VALID_STATUSES' is assigned a value but only used as a type  @typescript-eslint/no-unused-vars
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\api\auth\me\route.ts
+  36:12  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+  41:28  warning  'req' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\api\orders\route.ts
+  70:50  warning  'totalAmount' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\buyer\dashboard\page.tsx
+   7:10  warning  'Card' is defined but never used                                                                                                                                                             @typescript-eslint/no-unused-vars
+   8:10  warning  'Badge' is defined but never used                                                                                                                                                            @typescript-eslint/no-unused-vars
+  10:10  warning  'Button' is defined but never used                                                                                                                                                           @typescript-eslint/no-unused-vars
+  32:22  error    React Hook "useOrders" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  react-hooks/rules-of-hooks
+  33:11  warning  'cartItems' is assigned a value but never used                                                                                                                                               @typescript-eslint/no-unused-vars
+  33:25  error    React Hook "useCart" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?    react-hooks/rules-of-hooks
+  35:53  error    Unexpected any. Specify a different type                                                                                                                                                     @typescript-eslint/no-explicit-any
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\buyer\live-bids\page.tsx
+  7:10  warning  'Card' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\buyer\orders\page.tsx
+  53:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\buyer\price-index\page.tsx
+  7:10  warning  'Card' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\buyer\reports\page.tsx
+  7:10  warning  'Card' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\buyer\supply-chain\page.tsx
+   7:10  warning  'Card' is defined but never used                   @typescript-eslint/no-unused-vars
+   8:8   warning  'Image' is defined but never used                  @typescript-eslint/no-unused-vars
+  50:21  warning  'setShipments' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\contact-us\page.tsx
+   4:8   warning  'Link' is defined but never used                                 @typescript-eslint/no-unused-vars
+  33:15  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  55:64  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\forgot-password\page.tsx
+  33:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\listings\page.tsx
+  3:10  warning  'useState' is defined but never used       @typescript-eslint/no-unused-vars
+  3:20  warning  'useEffect' is defined but never used      @typescript-eslint/no-unused-vars
+  7:18  warning  'AnimalFilters' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\mission\page.tsx
+   1:8   warning  'Link' is defined but never used                                 @typescript-eslint/no-unused-vars
+   2:10  warning  'Button' is defined but never used                               @typescript-eslint/no-unused-vars
+  33:47  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  33:71  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  41:41  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\reset-password\page.tsx
+  21:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\reset-password\page.tsx:21:7
+  19 |   useEffect(() => {
+  20 |     if (!token) {
+> 21 |       setError("Invalid or missing reset token.");
+     |       ^^^^^^^^ Avoid calling setState() directly within an effect
+  22 |     }
+  23 |   }, [token]);
+  24 |  react-hooks/set-state-in-effect
+  57:14  warning  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\seller\animals\[id]\edit\page.tsx
+  10:10  warning  'Animal' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\seller\animals\page.tsx
+  14:26  warning  'status' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\app\seller\orders\page.tsx
+  14:26  warning  'status' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\components\auth\AdminAuthContainer.tsx
+  14:17  warning  'session' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\components\layout\Footer.tsx
+  13:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\components\layout\Navbar.tsx
+  22:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\hooks\useAnimals.ts
+  29:14  warning  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  37:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\hooks\useAnimals.ts:37:5
+  35 |
+  36 |   useEffect(() => {
+> 37 |     fetchAnimals();
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  38 |   }, [fetchAnimals]);
+  39 |
+  40 |   return { animals, isLoading, error, filters, setFilters, refetch: fetchAnimals };  react-hooks/set-state-in-effect
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\hooks\useCart.ts
+  30:14  warning  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-unused-vars
+  38:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\hooks\useCart.ts:38:5
+  36 |
+  37 |   useEffect(() => {
+> 38 |     fetchCart();
+     |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  39 |   }, [fetchCart]);
+  40 |
+  41 |   const addToCart = async (animalId: string, quantity: number = 1) => {  react-hooks/set-state-in-effect
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\hooks\useOrders.ts
+  27:14  warning  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  35:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\hooks\useOrders.ts:35:5
+  33 |
+  34 |   useEffect(() => {
+> 35 |     fetchOrders();
+     |     ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  36 |   }, [fetchOrders]);
+  37 |
+  38 |   const createOrder = async (items: OrderItem[], deliveryAddress: string, phoneNumber: string, totalAmount: number) => {  react-hooks/set-state-in-effect
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\lib\auth-client.tsx
+  62:20  warning  Expected an assignment or function call and instead saw an expression                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-expressions
+  63:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Priviledge\Desktop\Privilege real portfolio\farmmart\src\lib\auth-client.tsx:63:5
+  61 |
+  62 |   useEffect(() => {s
+> 63 |     fetchSession();
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  64 |   }, []);
+  65 |
+  66 |   const signIn = async (provider: string, options: SignInOptions) => {  react-hooks/set-state-in-effect
+
+Γ£û 60 problems (27 errors, 33 warnings)
+

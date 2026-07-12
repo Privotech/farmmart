@@ -1,95 +1,137 @@
-// User Types
+// Prisma Enum Types
+export type UsersRole = 'BUYER' | 'SELLER' | 'ADMIN';
+export type AnimalsCategory = 'CATTLE' | 'GOAT' | 'SHEEP' | 'PIG' | 'POULTRY' | 'RABBIT' | 'HORSE' | 'OTHER';
+export type AnimalsStatus = 'AVAILABLE' | 'SOLD' | 'RESERVED';
+export type OrdersStatus = 'PENDING' | 'PAID' | 'CANCELLED' | 'REFUNDED';
+export type InquiriesStatus = 'UNREAD' | 'READ' | 'REPLIED';
+
+// User Type (matches Prisma users model)
 export interface User {
   id: string;
-  email: string;
+  firebaseUid: string;
   name: string;
-  role: 'buyer' | 'seller' | 'admin';
-  image?: string;
+  email: string;
+  password?: string;
+  phone?: string;
+  role: UsersRole;
+  avatarUrl?: string;
+  address?: string;
+  state?: string;
+  city?: string;
+  isVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
-// Animal Listing Types
+// Animal Type (matches Prisma animals model)
 export interface Animal {
+  type?: string;
+  health_status?: "healthy" | "vaccinated" | "treated" | "unknown";
   id: string;
   name: string;
-  type: 'cattle' | 'goat' | 'sheep' | 'pig' | 'poultry' | 'other';
-  breed: string;
-  age: number; // in months
-  weight?: number; // in kg
-  price: number;
-  description: string;
-  images: string[];
+  category: AnimalsCategory;
+  breed?: string;
+  age?: number;
+  weight?: number; // Decimal as number
+  price: number; // Decimal as number
+  description?: string;
+  images: string; // JSON string array
+  status: AnimalsStatus;
+  location?: string;
+  state?: string;
+  isNegotiable: boolean;
+  viewCount: number;
   sellerId: string;
-  seller: User;
-  location: string;
-  health_status: 'healthy' | 'vaccinated' | 'treated' | 'unknown';
-  available: boolean;
   createdAt: Date;
   updatedAt: Date;
+  // Relations (optional)
+  seller?: User;
 }
 
-// Cart Types
+// Cart Type (matches Prisma cart model)
 export interface CartItem {
   id: string;
   userId: string;
   animalId: string;
-  animal: Animal;
   quantity: number;
-  addedAt: Date;
+  createdAt: Date;
+  animal: Animal; // Made required
+  user?: User;
 }
 
-export interface Cart {
-  id: string;
-  userId: string;
-  items: CartItem[];
-  totalPrice: number;
-  updatedAt: Date;
-}
-
-// Order Types
+// Order Type (matches Prisma orders model)
 export interface Order {
+  items: unknown;
   id: string;
-  userId: string;
-  user: User;
-  items: OrderItem[];
-  totalAmount: number;
-  status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
-  paymentStatus: 'pending' | 'completed' | 'failed';
-  paymentReference?: string;
-  deliveryAddress: string;
-  phoneNumber: string;
+  buyerId: string;
+  animalId: string;
+  amount: number;
+  totalAmount: number; // For UI
+  paymentStatus?: string;
+  status: OrdersStatus;
+  paystackRef: string;
+  paystackChannel?: string;
+  deliveryAddress?: string;
+  deliveryState?: string;
+  deliveryCity?: string;
+  notes?: string;
+  paidAt?: Date;
   createdAt: Date;
   updatedAt: Date;
+  // Relations (optional)
+  buyer?: User;
+  animal?: Animal;
+  user?: { name: string; email: string }; // For UI
 }
 
-export interface OrderItem {
+// Inquiry Type (matches Prisma inquiries model)
+export interface Inquiry {
   id: string;
-  orderId: string;
+  senderId: string;
+  receiverId: string;
   animalId: string;
-  animal: Animal;
-  quantity: number;
-  pricePerUnit: number;
-  totalPrice: number;
+  message: string;
+  status: InquiriesStatus;
+  createdAt: Date;
+  // Relations (optional)
+  sender?: User;
+  receiver?: User;
+  animal?: Animal;
+}
+
+// Review Type (matches Prisma reviews model)
+export interface Review {
+  id: string;
+  userId: string;
+  animalId: string;
+  rating: number; // 1-5
+  comment?: string;
+  createdAt: Date;
+  // Relations (optional)
+  user?: User;
+  animal?: Animal;
 }
 
 // API Response Types
-export interface ApiResponse<T> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
-  message: string;
   data?: T;
   error?: string;
+  message?: string;
 }
 
 // Filter Types
 export interface AnimalFilters {
+  category?: AnimalsCategory;
   type?: string;
+  healthStatus?: string;
   breed?: string;
   minPrice?: number;
   maxPrice?: number;
   location?: string;
-  healthStatus?: string;
+  state?: string;
   search?: string;
   sortBy?: 'price_asc' | 'price_desc' | 'newest' | 'oldest';
   sellerId?: string;
+  status?: AnimalsStatus;
 }

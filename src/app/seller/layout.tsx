@@ -17,7 +17,7 @@ export default function SellerLayout({
     if (status !== "loading" && !session) {
       router.push("/login");
     }
-    if (status !== "loading" && session?.user?.role !== "seller") {
+    if (status !== "loading" && session?.user?.role !== "SELLER") {
       router.push("/dashboard");
     }
   }, [session, status, router]);
@@ -31,7 +31,7 @@ export default function SellerLayout({
   }
 
   // Double check that we are indeed a seller to avoid layout flash
-  if (session.user.role !== "seller") {
+  if (session.user.role !== "SELLER") {
     return null;
   }
 

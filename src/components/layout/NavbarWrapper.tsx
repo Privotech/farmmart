@@ -8,7 +8,7 @@ export const NavbarWrapper = () => {
   const pathname = usePathname();
   const { data: session } = useSession();
 
-  // If user is logged in, only show navbar on the landing page ("/")
+
   if (session) {
     if (pathname === "/") {
       return <Navbar />;
@@ -16,6 +16,6 @@ export const NavbarWrapper = () => {
     return null;
   }
 
-  // If user is not logged in, show navbar everywhere so they can navigate and login/register
+
   return <Navbar />;
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useSession, signOut } from "@/lib/auth-client";
+import { useSession, useAuth } from "@/lib/auth-client";
 import { usePathname } from "next/navigation";
 import { ReactNode } from "react";
 
@@ -75,6 +75,7 @@ const BuyerReportsIcon = () => (
 
 export const Sidebar = () => {
   const { data: session } = useSession();
+  const { signOut } = useAuth();
   const pathname = usePathname();
 
   const handleSignOut = async () => {
@@ -97,11 +98,11 @@ export const Sidebar = () => {
     { href: "/settings", label: "Settings", icon: <SettingsIcon /> },
   ];
 
-  const dashboardLinks = session?.user?.role === "seller" ? sellerLinks : buyerLinks;
+  const dashboardLinks = session?.user?.role === "SELLER" ? sellerLinks : buyerLinks;
 
   if (!session) return null;
 
-  const isSeller = session.user?.role === "seller";
+  const isSeller = session.user?.role === "SELLER";
 
   return (
     <aside className={`hidden md:flex flex-col w-64 ${isSeller ? "bg-emerald-950" : "bg-emerald-950"} h-screen sticky top-0 border-r border-emerald-800`}>

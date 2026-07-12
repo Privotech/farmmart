@@ -1,43 +1,30 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useSession } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { localStorageDb } from "@/lib/localStorageDb";
 
-export default function BuyerOrdersPage() {
-  const router = useRouter();
-  const { data: session, status } = useSession();
-  const [orders, setOrders] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+export default async function BuyerOrdersPage() {
+  const session = await getServerSession(authOptions);
 
-  useEffect(() => {
-    if (status !== "loading" && !session) {
-      router.push("/login");
-    }
-    if (status !== "loading" && session?.user?.role !== "buyer") {
-      router.push("/dashboard");
-    }
-  }, [session, status, router]);
-
-  useEffect(() => {
-    if (session) {
-      const userOrders = localStorageDb.getOrders(session.user?.email || "");
-      setOrders(userOrders);
-      setIsLoading(false);
-    }
-  }, [session]);
-
-  if (status === "loading" || !session) {
-    return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading...</div>;
+  if (!session?.user?.id || session.user.role !== "BUYER") {
+    redirect("/login");
   }
 
-  if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading orders...</div>;
-  }
+  const orders = await prisma.orders.findMany({
+    where: {
+      buyer_id: session.user.id
+    },
+    orderBy: {
+      created_at: 'desc'
+    },
+    include: {
+      animals: true
+    }
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -50,9 +37,9 @@ export default function BuyerOrdersPage() {
         {orders.length === 0 ? (
           <Card className="text-center py-12">
             <p className="text-gray-600 text-lg mb-6">You haven't placed any orders yet</p>
-            <Button variant="primary" onClick={() => router.push("/buyer/listings")}>
-              Browse Listings
-            </Button>
+            <Link href="/buyer/listings">
+              <Button variant="primary">Browse Listings</Button>
+            </Link>
           </Card>
         ) : (
           <Card>
@@ -73,30 +60,30 @@ export default function BuyerOrdersPage() {
                     <tr key={order.id} className="border-b hover:bg-gray-50">
                       <td className="py-3 font-semibold">{order.id}</td>
                       <td className="py-3 text-gray-600">
-                        {new Date(order.createdAt).toLocaleDateString()}
+                        {order.created_at.toLocaleDateString()}
                       </td>
-                      <td className="py-3 text-gray-600">{order.items.length} items</td>
-                      <td className="py-3 font-semibold">₦{order.totalAmount.toLocaleString()}</td>
+                      <td className="py-3 text-gray-600">1 item</td>
+                      <td className="py-3 font-semibold">₦{Number(order.amount).toLocaleString()}</td>
                       <td className="py-3">
                         <Badge
                           variant={
-                            order.status === "delivered"
+                            order.status === "DELIVERED"
                               ? "success"
-                              : order.status === "pending"
+                              : order.status === "PENDING"
                                 ? "warning"
-                                : order.status === "cancelled"
+                                : order.status === "CANCELLED"
                                   ? "danger"
                                   : "primary"
                           }
                         >
-                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                          {order.status}
                         </Badge>
                       </td>
                       <td className="py-3">
                         <Badge
-                          variant={order.paymentStatus === "completed" ? "success" : "warning"}
+                          variant={order.status === "PAID" ? "success" : "warning"}
                         >
-                          {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
+                          {order.status === "PAID" ? "Completed" : "Pending"}
                         </Badge>
                       </td>
                     </tr>
@@ -110,3 +97,4 @@ export default function BuyerOrdersPage() {
     </div>
   );
 }
+

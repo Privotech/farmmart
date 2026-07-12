@@ -7,8 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import ImageUpload from "@/components/ImageUpload";
-import { localStorageDb } from "@/lib/localStorageDb";
-import { Animal } from "@/types";
+import { AnimalsCategory } from "@/types";
 
 export default function NewAnimalPage() {
   const router = useRouter();
@@ -18,14 +17,15 @@ export default function NewAnimalPage() {
 
   const [formData, setFormData] = useState({
     name: "",
-    type: "cattle",
+    category: "CATTLE" as AnimalsCategory,
     breed: "",
     age: "",
     weight: "",
     price: "",
     description: "",
     location: "",
-    health_status: "healthy",
+    state: "",
+    isNegotiable: false,
   });
   const [imageUrl, setImageUrl] = useState("");
 
@@ -34,8 +34,12 @@ export default function NewAnimalPage() {
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >,
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const target = e.target as HTMLInputElement;
+    const { name, value, type, checked } = target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,29 +53,21 @@ export default function NewAnimalPage() {
         return;
       }
 
-      const animal = localStorageDb.createAnimal({
-        name: formData.name,
-        type: formData.type as Animal["type"],
-        breed: formData.breed,
-        age: parseInt(formData.age),
-        weight: formData.weight ? parseInt(formData.weight) : undefined,
-        price: parseFloat(formData.price),
-        description: formData.description,
-        location: formData.location,
-        health_status: formData.health_status as Animal["health_status"],
-        sellerId: session.user.id,
-        seller: {
-          ...session.user,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        images: imageUrl ? [imageUrl] : [],
+      const response = await fetch("/api/animals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          sellerId: session.user.id,
+          images: JSON.stringify(imageUrl ? [imageUrl] : []),
+        }),
       });
 
-      if (animal) {
+      const result = await response.json();
+      if (result.success) {
         router.push("/seller/animals");
       } else {
-        setError("Failed to create listing");
+        setError(result.error || "Failed to create listing");
       }
     } catch {
       setError("An error occurred. Please try again.");
@@ -84,15 +80,15 @@ export default function NewAnimalPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-emerald-100 mb-2">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
             List New Animal
           </h1>
-          <p className="text-emerald-400">Add a new animal to your inventory</p>
+          <p className="text-gray-600">Add a new animal to your inventory</p>
         </div>
 
         <Card>
           {error && (
-            <div className="bg-emerald-900/30 text-emerald-400 p-4 rounded-lg mb-6 border border-emerald-800">
+            <div className="bg-emerald-100 text-emerald-800 p-4 rounded-lg mb-6">
               {error}
             </div>
           )}
@@ -112,22 +108,24 @@ export default function NewAnimalPage() {
               />
 
               <div>
-                <label className="block text-sm font-medium text-emerald-300 mb-2">
-                  Type
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Category
                 </label>
                 <select
-                  name="type"
-                  value={formData.type}
+                  name="category"
+                  value={formData.category}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 bg-emerald-950 border border-emerald-800 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-emerald-100"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-gray-900"
                   disabled={isLoading}
                 >
-                  <option value="cattle">Cattle</option>
-                  <option value="goat">Goat</option>
-                  <option value="sheep">Sheep</option>
-                  <option value="pig">Pig</option>
-                  <option value="poultry">Poultry</option>
-                  <option value="other">Other</option>
+                  <option value="CATTLE">Cattle</option>
+                  <option value="GOAT">Goat</option>
+                  <option value="SHEEP">Sheep</option>
+                  <option value="PIG">Pig</option>
+                  <option value="POULTRY">Poultry</option>
+                  <option value="RABBIT">Rabbit</option>
+                  <option value="HORSE">Horse</option>
+                  <option value="OTHER">Other</option>
                 </select>
               </div>
 
@@ -138,18 +136,16 @@ export default function NewAnimalPage() {
                 placeholder="e.g., White Fulani"
                 value={formData.breed}
                 onChange={handleInputChange}
-                required
                 disabled={isLoading}
               />
 
               <Input
                 type="number"
                 name="age"
-                label="Age (months)"
+                label="Age (months) - Optional"
                 placeholder="e.g., 24"
                 value={formData.age}
                 onChange={handleInputChange}
-                required
                 disabled={isLoading}
               />
 
@@ -178,34 +174,43 @@ export default function NewAnimalPage() {
                 type="text"
                 name="location"
                 label="Location"
-                placeholder="e.g., Lagos"
+                placeholder="e.g., Ikeja"
                 value={formData.location}
                 onChange={handleInputChange}
-                required
                 disabled={isLoading}
               />
 
-              <div>
-                <label className="block text-sm font-medium text-emerald-300 mb-2">
-                  Health Status
-                </label>
-                <select
-                  name="health_status"
-                  value={formData.health_status}
+              <Input
+                type="text"
+                name="state"
+                label="State"
+                placeholder="e.g., Lagos"
+                value={formData.state}
+                onChange={handleInputChange}
+                disabled={isLoading}
+              />
+
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="isNegotiable"
+                  name="isNegotiable"
+                  checked={formData.isNegotiable}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 bg-emerald-950 border border-emerald-800 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-emerald-100"
                   disabled={isLoading}
+                  className="w-4 h-4 text-emerald-600 rounded"
+                />
+                <label
+                  htmlFor="isNegotiable"
+                  className="text-sm font-medium text-gray-700"
                 >
-                  <option value="healthy">Healthy</option>
-                  <option value="vaccinated">Vaccinated</option>
-                  <option value="treated">Treated</option>
-                  <option value="unknown">Unknown</option>
-                </select>
+                  Price is negotiable
+                </label>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-emerald-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Description
               </label>
               <textarea
@@ -213,9 +218,8 @@ export default function NewAnimalPage() {
                 value={formData.description}
                 onChange={handleInputChange}
                 rows={4}
-                className="w-full px-4 py-2 bg-emerald-950 border border-emerald-800 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-emerald-100"
+                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-gray-900"
                 placeholder="Describe the animal's condition, temperament, etc."
-                required
                 disabled={isLoading}
               />
             </div>

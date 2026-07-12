@@ -1,54 +1,23 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useSession } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { localStorageDb } from "@/lib/localStorageDb";
-import { Order } from "@/types";
 
-export default function AdminOrdersPage() {
-  const router = useRouter();
-  const { data: session, status } = useSession();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+export default async function AdminOrdersPage() {
+  const session = await getServerSession(authOptions);
 
-  useEffect(() => {
-    if (status !== "loading" && !session) {
-      router.push("/login");
-    }
-    if (status !== "loading" && session?.user?.role !== "admin") {
-      router.push("/dashboard");
-    }
-  }, [session, status, router]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (session) {
-        const allOrders = localStorageDb.getAllOrders();
-        setOrders(allOrders);
-        setIsLoading(false);
-      }
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [session]);
-
-  if (status === "loading" || !session) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
-        Loading...
-      </div>
-    );
+  if (!session?.user?.id || session.user.role !== "ADMIN") {
+    redirect("/login");
   }
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
-        Loading orders...
-      </div>
-    );
-  }
+  const orders = await prisma.orders.findMany({
+    orderBy: { created_at: 'desc' },
+    include: {
+      users: true
+    }
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -95,40 +64,38 @@ export default function AdminOrdersPage() {
                     <tr key={order.id} className="border-b hover:bg-gray-50">
                       <td className="py-3 font-semibold">{order.id}</td>
                       <td className="py-3 text-gray-600">
-                        {order.user?.name || "Unknown"}
+                        {order.users?.name || "Unknown"}
                       </td>
                       <td className="py-3 text-gray-600">
-                        {new Date(order.createdAt).toLocaleDateString()}
+                        {order.created_at.toLocaleDateString()}
                       </td>
                       <td className="py-3 font-semibold">
-                        ₦{order.totalAmount.toLocaleString()}
+                        ₦{Number(order.amount).toLocaleString()}
                       </td>
                       <td className="py-3">
                         <Badge
                           variant={
-                            order.status === "delivered"
+                            order.status === "DELIVERED"
                               ? "success"
-                              : order.status === "pending"
+                              : order.status === "PENDING"
                                 ? "warning"
-                                : order.status === "cancelled"
+                                : order.status === "CANCELLED"
                                   ? "danger"
                                   : "primary"
                           }
                         >
-                          {order.status.charAt(0).toUpperCase() +
-                            order.status.slice(1)}
+                          {order.status}
                         </Badge>
                       </td>
                       <td className="py-3">
                         <Badge
                           variant={
-                            order.paymentStatus === "completed"
+                            order.status === "PAID"
                               ? "success"
                               : "warning"
                           }
                         >
-                          {order.paymentStatus.charAt(0).toUpperCase() +
-                            order.paymentStatus.slice(1)}
+                          {order.status === "PAID" ? "Completed" : "Pending"}
                         </Badge>
                       </td>
                     </tr>
@@ -142,3 +109,4 @@ export default function AdminOrdersPage() {
     </div>
   );
 }
+

@@ -5,7 +5,7 @@ import { AnimalCard } from "@/components/features/AnimalCard";
 import { FilterPanel } from "@/components/features/FilterPanel";
 import { Button } from "@/components/ui/Button";
 import { Animal, AnimalFilters } from "@/types";
-import { localStorageDb } from "@/lib/localStorageDb";
+
 import { useSession } from "@/lib/auth-client";
 
 export default function ListingsPage() {
@@ -16,13 +16,24 @@ export default function ListingsPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchAnimals = () => {
+    const fetchAnimals = async () => {
       setIsLoading(true);
       setError("");
 
       try {
-        const data = localStorageDb.getAnimals(filters);
-        setAnimals(data);
+        const params = new URLSearchParams();
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value) params.append(key, value.toString());
+        });
+        
+        const res = await fetch(`/api/animals?${params.toString()}`);
+        const result = await res.json();
+        
+        if (result.success) {
+          setAnimals(result.data);
+        } else {
+          setError(result.error || "Failed to fetch animals");
+        }
       } catch {
         setError("An error occurred while fetching animals");
       } finally {
@@ -40,8 +51,17 @@ export default function ListingsPage() {
     }
 
     try {
-      localStorageDb.addToCart(session.user.email, animal.id, 1);
-      alert("Added to cart!");
+      const res = await fetch('/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: session.user.email, animalId: animal.id, quantity: 1 }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Added to cart!");
+      } else {
+        alert(data.error || "Error adding to cart");
+      }
     } catch {
       alert("Error adding to cart");
     }

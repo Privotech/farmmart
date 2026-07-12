@@ -1,64 +1,88 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { executeQuery, executeInsert } from '@/lib/db';
-import { Animal } from '@/types';
+import { prisma } from '@/lib/prisma';
+import { Animal, AnimalsCategory, AnimalsStatus } from '@/types';
 
 // GET /api/animals - Get all animals or filter
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const type = searchParams.get('type');
+    const category = searchParams.get('category') as AnimalsCategory | null;
     const breed = searchParams.get('breed');
     const minPrice = searchParams.get('minPrice');
     const maxPrice = searchParams.get('maxPrice');
+    const state = searchParams.get('state');
     const search = searchParams.get('search');
     const sortBy = searchParams.get('sortBy') || 'newest';
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const offset = parseInt(searchParams.get('offset') || '0');
+    const sellerId = searchParams.get('sellerId');
+    const status = searchParams.get('status') as AnimalsStatus;
 
-    let sql = 'SELECT * FROM animals WHERE available = true';
-    const params: unknown[] = [];
+    const where: any = {};
 
-    if (type) {
-      sql += ' AND type = ?';
-      params.push(type);
+    if (category) {
+      where.category = category;
     }
+    
     if (breed) {
-      sql += ' AND breed = ?';
-      params.push(breed);
-    }
-    if (minPrice) {
-      sql += ' AND price >= ?';
-      params.push(parseInt(minPrice));
-    }
-    if (maxPrice) {
-      sql += ' AND price <= ?';
-      params.push(parseInt(maxPrice));
-    }
-    if (search) {
-      sql += ' AND (name LIKE ? OR description LIKE ?)';
-      const searchTerm = `%${search}%`;
-      params.push(searchTerm, searchTerm);
+      where.breed = { contains: breed, mode: 'insensitive' };
     }
 
-    // Sort
+    if (minPrice) {
+      where.price = { gte: parseFloat(minPrice) };
+    }
+
+    if (maxPrice) {
+      if (where.price) {
+        where.price.lte = parseFloat(maxPrice);
+      } else {
+        where.price = { lte: parseFloat(maxPrice) };
+      }
+    }
+
+    if (state) {
+      where.state = state;
+    }
+
+    if (sellerId) {
+      where.seller_id = sellerId;
+    }
+    
+    if (status) {
+      where.status = status;
+    } else {
+      // Default to available only
+      where.status = 'AVAILABLE';
+    }
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { breed: { contains: search, mode: 'insensitive' } }
+      ];
+    }
+
+    let orderBy: any = {};
     switch (sortBy) {
       case 'price_asc':
-        sql += ' ORDER BY price ASC';
+        orderBy = { price: 'asc' };
         break;
       case 'price_desc':
-        sql += ' ORDER BY price DESC';
+        orderBy = { price: 'desc' };
         break;
       case 'oldest':
-        sql += ' ORDER BY createdAt ASC';
+        orderBy = { created_at: 'asc' };
         break;
       default:
-        sql += ' ORDER BY createdAt DESC';
+        orderBy = { created_at: 'desc' };
     }
 
-    sql += ` LIMIT ? OFFSET ?`;
-    params.push(limit, offset);
-
-    const animals = await executeQuery<Animal>(sql, params);
+    const animals = await prisma.animals.findMany({
+      where,
+      orderBy,
+      include: {
+        users: true // Include seller data
+      }
+    });
 
     return NextResponse.json({
       success: true,
@@ -77,31 +101,43 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, type, breed, age, weight, price, description, images, sellerId, location, health_status } = body;
-
-    const sql = `
-      INSERT INTO animals (name, type, breed, age, weight, price, description, images, sellerId, location, health_status, available, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-    `;
-
-    const result = await executeInsert(sql, [
+    const {
       name,
-      type,
+      category,
       breed,
       age,
-      weight || null,
+      weight,
       price,
       description,
-      JSON.stringify(images),
+      images,
       sellerId,
       location,
-      health_status || 'unknown',
-      true,
-    ]);
+      state,
+      isNegotiable = false
+    } = body;
+
+    const animal = await prisma.animals.create({
+      data: {
+        name,
+        category: category as AnimalsCategory,
+        breed,
+        age: age ? parseInt(age) : null,
+        weight: weight ? parseFloat(weight) : null,
+        price: parseFloat(price),
+        description,
+        images: JSON.stringify(images || []),
+        seller_id: sellerId,
+        location,
+        state,
+        is_negotiable: isNegotiable,
+        status: 'AVAILABLE',
+        view_count: 0
+      }
+    });
 
     return NextResponse.json({
       success: true,
-      data: { id: result.insertId },
+      data: animal,
     });
   } catch (error) {
     console.error('Error creating animal:', error);

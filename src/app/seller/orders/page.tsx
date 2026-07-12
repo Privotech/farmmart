@@ -1,49 +1,31 @@
-"use client";
-
-import { useState, useEffect, useCallback } from "react";
-import { useSession } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { localStorageDb } from "@/lib/localStorageDb";
-import { Order } from "@/types";
+import Link from "next/link";
+import SellerOrderActions from "./SellerOrderActions";
 
-export default function SellerOrdersPage() {
-  const router = useRouter();
-  const { data: session, status } = useSession();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+export default async function SellerOrdersPage() {
+  const session = await getServerSession(authOptions);
 
-  const fetchOrders = useCallback(() => {
-    if (session) {
-      const sellerOrders = localStorageDb.getSellerOrders(session?.user?.id || "");
-      setOrders(sellerOrders);
-      setIsLoading(false);
-    }
-  }, [session]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      fetchOrders();
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [fetchOrders]);
-
-  const handleUpdateStatus = (orderId: string, newStatus: Order["status"]) => {
-    localStorageDb.updateOrderStatus(orderId, newStatus);
-    setOrders(
-      orders.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)),
-    );
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-emerald-400">
-        Loading orders...
-      </div>
-    );
+  if (!session?.user?.id || session.user.role !== "SELLER") {
+    redirect("/login");
   }
+
+  const orders = await prisma.orders.findMany({
+    where: {
+      animals: {
+        seller_id: session.user.id,
+      },
+    },
+    include: {
+      users: true,
+      animals: true,
+    },
+    orderBy: { created_at: "desc" },
+  });
 
   return (
     <div className="p-8">
@@ -58,12 +40,12 @@ export default function SellerOrdersPage() {
         {orders.length === 0 ? (
           <Card className="text-center py-12">
             <p className="text-emerald-400 text-lg mb-6">No orders yet</p>
-            <Button
-              variant="primary"
-              onClick={() => router.push("/seller/animals")}
+            <Link
+              href="/seller/animals"
+              className="inline-block px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-md"
             >
               Manage Listings
-            </Button>
+            </Link>
           </Card>
         ) : (
           <Card>
@@ -96,77 +78,32 @@ export default function SellerOrdersPage() {
                     <tr key={order.id} className="border-b border-emerald-800 hover:bg-emerald-900/30">
                       <td className="py-3 font-semibold text-emerald-100">{order.id}</td>
                       <td className="py-3 text-emerald-400">
-                        {new Date(order.createdAt).toLocaleDateString()}
+                        {new Date(order.created_at).toLocaleDateString()}
                       </td>
                       <td className="py-3 text-emerald-400">
-                        {order.user?.name || "Unknown"}
+                        {order.users?.name || "Unknown"}
                       </td>
                       <td className="py-3 font-semibold text-emerald-400">
-                        ₦{order.totalAmount.toLocaleString()}
+                        ₦{Number(order.amount).toLocaleString()}
                       </td>
                       <td className="py-3">
                         <Badge
                           variant={
-                            order.status === "delivered"
+                            order.status === "DELIVERED"
                               ? "success"
-                              : order.status === "pending"
+                              : order.status === "PENDING"
                                 ? "warning"
-                                : order.status === "cancelled"
+                                : order.status === "CANCELLED"
                                   ? "danger"
                                   : "primary"
                           }
                         >
                           {order.status.charAt(0).toUpperCase() +
-                            order.status.slice(1)}
+                            order.status.slice(1).toLowerCase()}
                         </Badge>
                       </td>
                       <td className="py-3">
-                        <div className="flex gap-2">
-                          {order.status === "pending" && (
-                            <>
-                              <Button
-                                variant="primary"
-                                size="sm"
-                                onClick={() =>
-                                  handleUpdateStatus(order.id, "confirmed")
-                                }
-                              >
-                                Confirm
-                              </Button>
-                              <Button
-                                variant="danger"
-                                size="sm"
-                                onClick={() =>
-                                  handleUpdateStatus(order.id, "cancelled")
-                                }
-                              >
-                                Cancel
-                              </Button>
-                            </>
-                          )}
-                          {order.status === "confirmed" && (
-                            <Button
-                              variant="primary"
-                              size="sm"
-                              onClick={() =>
-                                handleUpdateStatus(order.id, "shipped")
-                              }
-                            >
-                              Mark Shipped
-                            </Button>
-                          )}
-                          {order.status === "shipped" && (
-                            <Button
-                              variant="primary"
-                              size="sm"
-                              onClick={() =>
-                                handleUpdateStatus(order.id, "delivered")
-                              }
-                            >
-                              Mark Delivered
-                            </Button>
-                          )}
-                        </div>
+                        <SellerOrderActions orderId={order.id} status={order.status} />
                       </td>
                     </tr>
                   ))}
@@ -179,3 +116,4 @@ export default function SellerOrdersPage() {
     </div>
   );
 }
+

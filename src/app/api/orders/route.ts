@@ -1,29 +1,65 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { executeQuery, executeInsert } from '@/lib/db';
-import { Order } from '@/types';
+import { prisma } from '@/lib/prisma';
+import { jwtVerify } from 'jose';
+import crypto from 'crypto';
+
+// Helper to get user from token
+async function getUserFromToken(request: NextRequest) {
+  const token = request.cookies.get('farmmart_session_token')?.value;
+  if (!token) return null;
+  
+  try {
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'super_secret_jwt_key_for_farmmart_2026');
+    const { payload } = await jwtVerify(token, secret);
+    return payload;
+  } catch {
+    return null;
+  }
+}
 
 // GET /api/orders - Get user's orders
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
-    if (!session || !session.user) {
+    const user = await getUserFromToken(request);
+    if (!user) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    const sql = `
-      SELECT * FROM orders WHERE userId = ? ORDER BY createdAt DESC
-    `;
+    const userId = user.userId as string;
+    const userRole = user.role as string;
 
-    const orders = await executeQuery<Order>(sql, [session.user.email]);
+    let orders;
+    
+    if (userRole === 'SELLER' || userRole === 'ADMIN') {
+      // Seller can see orders for their animals
+      orders = await prisma.orders.findMany({
+        where: {
+          animals: {
+            seller_id: userId
+          }
+        },
+        include: {
+          users: true, // includes the buyer/user info
+          animals: true // includes the items
+        },
+        orderBy: { created_at: 'desc' }
+      });
+    } else {
+      // Buyer sees their own orders
+      orders = await prisma.orders.findMany({
+        where: { buyer_id: userId },
+        include: {
+          users: true, // includes the buyer/user info
+          animals: true // includes the items
+        },
+        orderBy: { created_at: 'desc' }
+      });
+    }
 
-    return NextResponse.json({
-      success: true,
-      data: orders,
-    });
+    return NextResponse.json({ success: true, data: orders });
   } catch (error) {
     console.error('Error fetching orders:', error);
     return NextResponse.json(
@@ -36,56 +72,41 @@ export async function GET() {
 // POST /api/orders - Create new order
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
-    if (!session || !session.user) {
+    const user = await getUserFromToken(request);
+    if (!user) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
+    const userId = user.userId as string;
     const {
-      items,
-      totalAmount,
+      animalId,
+      amount,
       deliveryAddress,
-      phoneNumber,
+      deliveryState,
+      deliveryCity,
+      notes,
     } = await request.json();
 
-    // Insert order
-    const orderSql = `
-      INSERT INTO orders (userId, totalAmount, status, paymentStatus, deliveryAddress, phoneNumber, createdAt, updatedAt)
-      VALUES (?, ?, 'pending', 'pending', ?, ?, NOW(), NOW())
-    `;
+    const paystackRef = crypto.randomUUID();
 
-    const orderResult = await executeInsert(orderSql, [
-      session.user.email,
-      totalAmount,
-      deliveryAddress,
-      phoneNumber,
-    ]);
-
-    const orderId = orderResult.insertId;
-
-    // Insert order items
-    for (const item of items) {
-      const itemSql = `
-        INSERT INTO orderitems (orderId, animalId, quantity, pricePerUnit, totalPrice)
-        VALUES (?, ?, ?, ?, ?)
-      `;
-
-      await executeInsert(itemSql, [
-        orderId,
-        item.animalId,
-        item.quantity,
-        item.price,
-        item.quantity * item.price,
-      ]);
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: { orderId },
+    const order = await prisma.orders.create({
+      data: {
+        buyer_id: userId,
+        animal_id: animalId,
+        amount: parseFloat(amount),
+        status: 'PENDING',
+        paystack_ref: paystackRef,
+        delivery_address: deliveryAddress,
+        delivery_state: deliveryState,
+        delivery_city: deliveryCity,
+        notes,
+      }
     });
+
+    return NextResponse.json({ success: true, data: order });
   } catch (error) {
     console.error('Error creating order:', error);
     return NextResponse.json(

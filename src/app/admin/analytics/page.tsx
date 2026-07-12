@@ -1,76 +1,46 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useSession } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/Card";
-import { localStorageDb } from "@/lib/localStorageDb";
-import { User, Order, Animal } from "@/types";
 
-export default function AdminAnalyticsPage() {
-  const router = useRouter();
-  const { data: session, status } = useSession();
-  const [isLoading, setIsLoading] = useState(true);
+export default async function AdminAnalyticsPage() {
+  const session = await getServerSession(authOptions);
 
-  useEffect(() => {
-    if (status !== "loading" && !session) {
-      router.push("/login");
-    }
-    if (status !== "loading" && session?.user?.role !== "admin") {
-      router.push("/dashboard");
-    }
-  }, [session, status, router]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (session) {
-        setIsLoading(false);
-      }
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [session]);
-
-  if (status === "loading" || !session) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
-        Loading...
-      </div>
-    );
+  if (!session?.user?.id || session.user.role !== "ADMIN") {
+    redirect("/login");
   }
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
-        Loading analytics...
-      </div>
-    );
-  }
+  const [allUsers, allAnimals, allOrders] = await Promise.all([
+    prisma.users.findMany(),
+    prisma.animals.findMany(),
+    prisma.orders.findMany()
+  ]);
 
-  const allUsers = localStorageDb.getUsers();
-  const allAnimals = localStorageDb.getAnimals({});
-  const allOrders = localStorageDb.getAllOrders();
-
-  const buyerCount = allUsers.filter((u: User) => u.role === "buyer").length;
-  const sellerCount = allUsers.filter((u: User) => u.role === "seller").length;
-  const adminCount = allUsers.filter((u: User) => u.role === "admin").length;
+  const buyerCount = allUsers.filter(u => u.role === "BUYER").length;
+  const sellerCount = allUsers.filter(u => u.role === "SELLER").length;
+  const adminCount = allUsers.filter(u => u.role === "ADMIN").length;
 
   const totalRevenue = allOrders.reduce(
-    (sum: number, order: Order) => sum + order.totalAmount,
-    0,
+    (sum, order) => sum + Number(order.amount),
+    0
   );
+  
   const deliveredOrders = allOrders.filter(
-    (o: Order) => o.status === "delivered",
+    (o) => o.status === "DELIVERED"
   ).length;
+  
   const pendingOrders = allOrders.filter(
-    (o: Order) => o.status === "pending",
+    (o) => o.status === "PENDING"
   ).length;
 
   const animalTypes = allAnimals.reduce(
-    (acc: Record<string, number>, animal: Animal) => {
-      acc[animal.type] = (acc[animal.type] || 0) + 1;
+    (acc: Record<string, number>, animal) => {
+      const type = animal.category.toLowerCase().replace('_', ' ');
+      acc[type] = (acc[type] || 0) + 1;
       return acc;
     },
-    {},
+    {}
   );
 
   return (
@@ -152,7 +122,7 @@ export default function AdminAnalyticsPage() {
             {Object.entries(animalTypes).map(([type, count]) => (
               <div key={type} className="text-center p-4 bg-gray-50 rounded-lg">
                 <div className="text-2xl font-bold text-green-600">
-                  {count as number}
+                  {count}
                 </div>
                 <div className="text-sm text-gray-600 capitalize">{type}</div>
               </div>
@@ -184,7 +154,7 @@ export default function AdminAnalyticsPage() {
             </div>
             <div className="text-center p-4 bg-emerald-50 rounded-lg">
               <div className="text-3xl font-bold text-emerald-600">
-                {allAnimals.filter((a: Animal) => a.available).length}
+                {allAnimals.filter(a => a.status === "AVAILABLE").length}
               </div>
               <div className="text-sm text-gray-600">Active Listings</div>
             </div>
@@ -194,3 +164,4 @@ export default function AdminAnalyticsPage() {
     </div>
   );
 }
+

@@ -1,47 +1,26 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useSession } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { localStorageDb } from "@/lib/localStorageDb";
 import Link from "next/link";
-import { Animal } from "@/types";
+import SellerAnimalActions from "./SellerAnimalActions";
 
-export default function SellerAnimalsPage() {
-  const router = useRouter();
-  const { data: session, status } = useSession();
-  const [animals, setAnimals] = useState<Animal[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (session) {
-        const sellerAnimals = localStorageDb.getAnimals({
-          sellerId: session.user?.id,
-        });
-        setAnimals(sellerAnimals);
-        setIsLoading(false);
-      }
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [session]);
+export default async function SellerAnimalsPage() {
+  const session = await getServerSession(authOptions);
 
-  const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this listing?")) {
-      localStorageDb.deleteAnimal(id);
-      setAnimals(animals.filter((a) => a.id !== id));
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-emerald-400">
-        Loading listings...
-      </div>
-    );
+  if (!session?.user?.id || session.user.role !== "SELLER") {
+    redirect("/login");
   }
+
+  const animals = await prisma.animals.findMany({
+    where: {
+      seller_id: session.user.id,
+    },
+    orderBy: { created_at: "desc" },
+  });
 
   return (
     <div className="p-8">
@@ -100,37 +79,20 @@ export default function SellerAnimalsPage() {
                         </div>
                       </td>
                       <td className="py-3 text-emerald-400 capitalize">
-                        {animal.type}
+                        {animal.category.toLowerCase().replace('_', ' ')}
                       </td>
                       <td className="py-3 font-semibold text-emerald-400">
-                        ₦{animal.price.toLocaleString()}
+                        ₦{Number(animal.price).toLocaleString()}
                       </td>
                       <td className="py-3">
                         <Badge
-                          variant={animal.available ? "success" : "warning"}
+                          variant={animal.status === "AVAILABLE" ? "success" : "warning"}
                         >
-                          {animal.available ? "Available" : "Sold"}
+                          {animal.status === "AVAILABLE" ? "Available" : "Sold"}
                         </Badge>
                       </td>
                       <td className="py-3">
-                        <div className="flex gap-2">
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() =>
-                              router.push(`/seller/animals/${animal.id}/edit`)
-                            }
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            variant="danger"
-                            size="sm"
-                            onClick={() => handleDelete(animal.id)}
-                          >
-                            Delete
-                          </Button>
-                        </div>
+                        <SellerAnimalActions animalId={animal.id} />
                       </td>
                     </tr>
                   ))}
@@ -143,3 +105,4 @@ export default function SellerAnimalsPage() {
     </div>
   );
 }
+

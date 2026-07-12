@@ -34,7 +34,7 @@ export const CartItem = ({
     <Card className="flex gap-4 items-center bg-gray-900 border-gray-800">
       <div className="relative w-28 h-28 flex-shrink-0 rounded-lg overflow-hidden bg-gray-800">
         <Image
-          src={item.animal.images[0] || "/placeholder-animal.jpg"}
+          src={JSON.parse(item.animal.images || "[]")[0] || "/placeholder-animal.jpg"}
           alt={item.animal.name}
           fill
           className="object-cover"

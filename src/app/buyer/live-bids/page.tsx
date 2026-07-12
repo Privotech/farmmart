@@ -66,7 +66,7 @@ export default function BuyerLiveBidsPage() {
     if (status !== "loading" && !session) {
       router.push("/login");
     }
-    if (status !== "loading" && session?.user?.role !== "buyer") {
+    if (status !== "loading" && session?.user?.role !== "BUYER") {
       router.push("/dashboard");
     }
   }, [session, status, router]);

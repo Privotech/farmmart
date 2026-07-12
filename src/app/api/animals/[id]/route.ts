@@ -1,19 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { executeQuery } from '@/lib/db';
-import { Animal } from '@/types';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Await params in Next.js 15+
     const { id } = await params;
     
-    const sql = 'SELECT * FROM animals WHERE id = ?';
-    const animals = await executeQuery<Animal>(sql, [id]);
+    // Increment view count
+    await prisma.animals.update({
+      where: { id },
+      data: {
+        view_count: { increment: 1 }
+      }
+    });
 
-    if (animals.length === 0) {
+    const animal = await prisma.animals.findUnique({
+      where: { id },
+      include: {
+        users: true, // Seller
+        reviews: {
+          include: {
+            users: true
+          }
+        }
+      }
+    });
+
+    if (!animal) {
       return NextResponse.json(
         { success: false, error: 'Animal not found' },
         { status: 404 }
@@ -22,12 +37,64 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      data: animals[0],
+      data: animal,
     });
   } catch (error) {
     console.error('Error fetching animal:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch animal' },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT /api/animals/[id] - Update animal
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const body = await request.json();
+
+    const animal = await prisma.animals.update({
+      where: { id },
+      data: body
+    });
+
+    return NextResponse.json({
+      success: true,
+      data: animal,
+    });
+  } catch (error) {
+    console.error('Error updating animal:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to update animal' },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE /api/animals/[id] - Delete animal
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    
+    await prisma.animals.delete({
+      where: { id }
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Animal deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting animal:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to delete animal' },
       { status: 500 }
     );
   }

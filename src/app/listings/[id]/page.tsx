@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Animal } from "@/types";
-import { localStorageDb } from "@/lib/localStorageDb";
+
 import { useSession } from "@/lib/auth-client";
 
 export default function AnimalDetailPage() {
@@ -21,16 +21,17 @@ export default function AnimalDetailPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchAnimal = () => {
+    const fetchAnimal = async () => {
       setIsLoading(true);
       setError("");
 
       try {
-        const data = localStorageDb.getAnimalById(id);
-        if (data) {
-          setAnimal(data);
+        const res = await fetch(`/api/animals/${id}`);
+        const result = await res.json();
+        if (result.success && result.data) {
+          setAnimal(result.data);
         } else {
-          setError("Failed to fetch animal details");
+          setError(result.error || "Failed to fetch animal details");
         }
       } catch {
         setError("An error occurred while fetching animal details");
@@ -52,8 +53,17 @@ export default function AnimalDetailPage() {
     }
 
     try {
-      localStorageDb.addToCart(session.user.email, animal.id, 1);
-      alert("Added to cart!");
+      const res = await fetch('/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ animalId: animal.id, quantity: 1 }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Added to cart!");
+      } else {
+        alert(data.error || "Error adding to cart");
+      }
     } catch {
       alert("Error adding to cart");
     }
@@ -91,7 +101,7 @@ export default function AnimalDetailPage() {
               <div className="relative w-full h-96">
                 <Image
                   src={
-                    animal.images[selectedImageIndex] ||
+                    JSON.parse(animal.images || "[]")[selectedImageIndex] ||
                     "/placeholder-animal.jpg"
                   }
                   alt={animal.name}
@@ -101,13 +111,13 @@ export default function AnimalDetailPage() {
               </div>
             </Card>
 
-            {animal.images.length > 1 && (
-              <div className="grid grid-cols-4 gap-2">
-                {animal.images.map((image, index) => (
+            {JSON.parse(animal.images || "[]").length > 1 && (
+              <div className="flex gap-4 mt-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-800">
+                {JSON.parse(animal.images || "[]").map((image: string, index: number) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImageIndex(index)}
-                    className={`relative h-20 border-2 rounded-lg overflow-hidden ${
+                    className={`relative w-20 h-20 border-2 rounded-lg overflow-hidden flex-shrink-0 ${
                       index === selectedImageIndex
                         ? "border-emerald-500"
                         : "border-gray-700"
@@ -158,10 +168,10 @@ export default function AnimalDetailPage() {
                 </div>
 
                 <div className="flex gap-2">
-                  <Badge variant="primary">{animal.type}</Badge>
+                  <Badge variant="primary">{animal.category}</Badge>
                   <Badge variant="success">{animal.health_status}</Badge>
-                  <Badge variant={animal.available ? "success" : "primary"}>
-                    {animal.available ? "Available" : "Sold Out"}
+                  <Badge variant={animal.status === "AVAILABLE" ? "success" : "primary"}>
+                    {animal.status === "AVAILABLE" ? "Available" : "Sold Out"}
                   </Badge>
                 </div>
               </div>
@@ -175,7 +185,7 @@ export default function AnimalDetailPage() {
             </Card>
 
             <div className="flex gap-4">
-              {animal.available ? (
+              {animal.status === "AVAILABLE" ? (
                 <Button
                   variant="primary"
                   size="lg"

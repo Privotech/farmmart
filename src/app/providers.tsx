@@ -1,3 +1,4 @@
+"use client"
 import { SessionProvider } from "@/lib/auth-client";
 import { ReactNode } from "react";
 

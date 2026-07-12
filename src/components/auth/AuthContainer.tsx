@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { localStorageDb } from "@/lib/localStorageDb";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 interface AuthContainerProps {
   initialMode: "login" | "register";
@@ -12,7 +13,7 @@ interface AuthContainerProps {
 
 export default function AuthContainer({ initialMode }: AuthContainerProps) {
   const router = useRouter();
-  const { signIn, signUp } = useAuth();
+  const { signIn } = useAuth();
   const [isLogin, setIsLogin] = useState(initialMode === "login");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -55,7 +56,6 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
       const result = await signIn("credentials", {
         email: loginEmail,
         password: loginPassword,
-        redirect: false,
       });
 
       if (!result?.ok) {
@@ -92,26 +92,44 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
     setIsLoading(true);
 
     try {
-      const result = await signUp(regName, regEmail, regPassword);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        regEmail,
+        regPassword,
+      );
+      const firebaseUser = userCredential.user;
+      const firebase_uid = firebaseUser.uid;
 
-      if (!result.ok) {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: regName,
+          email: regEmail,
+          password: regPassword,
+          firebase_uid: firebase_uid,
+          role: selectedRole,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
         setError(result.error || "Registration failed");
         return;
-      }
-
-      // Set role based on selection
-      const users = localStorageDb.getUsers();
-      const user = users.find((u) => u.email === regEmail);
-
-      if (user && selectedRole) {
-        localStorageDb.updateUserRole(user.id, selectedRole);
       }
 
       // Automatically log in after registration, or switch to login mode
       handleToggle("login");
       setLoginEmail(regEmail);
-    } catch {
-      setError("An error occurred. Please try again.");
+    } catch (error: any) {
+      if (error.code === "auth/email-already-in-use") {
+        setError("Email is already registered.");
+      } else {
+        setError("An error occurred. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -217,9 +235,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
 
           {/* Role Badge */}
           <div className="absolute top-4 right-4 z-50">
-            <span
-              className="px-3 py-1 rounded-full text-sm font-semibold bg-emerald-900/30 text-emerald-400"
-            >
+            <span className="px-3 py-1 rounded-full text-sm font-semibold bg-emerald-900/30 text-emerald-400">
               {selectedRole === "buyer" ? "Buyer" : "Seller"}
             </span>
           </div>
