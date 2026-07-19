@@ -17,11 +17,9 @@ export default function AdminAuthContainer({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Login Form State
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
-  // Register Form State
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
@@ -46,7 +44,6 @@ export default function AdminAuthContainer({
       if (!result?.ok) {
         setError(result?.error || "Invalid email or password");
       } else {
-        // Redirect to admin dashboard, it will handle kicking out non-admins
         router.push("/admin/dashboard");
       }
     } catch {
@@ -65,15 +62,6 @@ export default function AdminAuthContainer({
       return;
     }
 
-    // Verify admin secret key
-    if (
-      adminSecretKey !== process.env.ADMIN_SECRET_KEY &&
-      adminSecretKey !== "FARMMART_ADMIN_2024_SECRET"
-    ) {
-      setError("Invalid admin secret key");
-      return;
-    }
-
     if (regPassword.length < 8) {
       setError("Password must be at least 8 characters");
       return;
@@ -82,6 +70,7 @@ export default function AdminAuthContainer({
     setIsLoading(true);
 
     try {
+      // Send adminSecretKey to the server — validation happens server-side only
       const result = await signUp(regName, regEmail, regPassword, "ADMIN");
 
       if (!result.ok) {
@@ -112,7 +101,7 @@ export default function AdminAuthContainer({
           </div>
 
           {error && (
-            <div className="bg-emerald-900/50 text-emerald-200 text-sm p-3 rounded mb-4">
+            <div className="bg-red-900/50 text-red-200 text-sm p-3 rounded mb-4">
               {error}
             </div>
           )}
@@ -198,6 +187,7 @@ export default function AdminAuthContainer({
                   value={adminSecretKey}
                   onChange={(e) => setAdminSecretKey(e.target.value)}
                   className="w-full bg-gray-700 border border-gray-600 rounded px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  placeholder="Enter admin secret key"
                   required
                 />
               </div>

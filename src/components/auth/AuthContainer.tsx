@@ -4,8 +4,6 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 
 interface AuthContainerProps {
   initialMode: "login" | "register";
@@ -18,20 +16,17 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Login Form State
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
-  // Register Form State
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
 
-  // Role Selection State
-  const [selectedRole, setSelectedRole] = useState<"buyer" | "seller" | null>(
-    null,
-  );
+  const [selectedRole, setSelectedRole] = useState<
+    "BUYER" | "SELLER" | null
+  >(null);
 
   const handleToggle = (mode: "login" | "register") => {
     setIsLogin(mode === "login");
@@ -39,7 +34,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
     setError("");
   };
 
-  const handleRoleSelect = (role: "buyer" | "seller") => {
+  const handleRoleSelect = (role: "BUYER" | "SELLER") => {
     setSelectedRole(role);
   };
 
@@ -92,24 +87,13 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
     setIsLoading(true);
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        regEmail,
-        regPassword,
-      );
-      const firebaseUser = userCredential.user;
-      const firebase_uid = firebaseUser.uid;
-
       const response = await fetch("/api/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: regName,
           email: regEmail,
           password: regPassword,
-          firebase_uid: firebase_uid,
           role: selectedRole,
         }),
       });
@@ -121,25 +105,31 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
         return;
       }
 
-      // Automatically log in after registration, or switch to login mode
-      handleToggle("login");
-      setLoginEmail(regEmail);
-    } catch (error: any) {
-      if (error.code === "auth/email-already-in-use") {
-        setError("Email is already registered.");
+      // Auto sign in after registration
+      const signInResult = await signIn("credentials", {
+        email: regEmail,
+        password: regPassword,
+      });
+
+      if (!signInResult?.ok) {
+        setError(signInResult?.error || "Login after registration failed.");
+        handleToggle("login");
+        setLoginEmail(regEmail);
       } else {
-        setError("An error occurred. Please try again.");
+        router.push("/dashboard");
       }
+    } catch {
+      setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+    <div className="h-screen w-screen bg-black flex items-center justify-center">
       {!selectedRole && (
-        <div className="w-full max-w-md">
-          <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-800">
+        <div className="w-full">
+          <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-800 text-center">
             <h1 className="text-3xl font-bold text-gray-100 mb-2 text-center">
               Choose Your Role
             </h1>
@@ -149,7 +139,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
 
             <div className="space-y-4">
               <button
-                onClick={() => handleRoleSelect("buyer")}
+                onClick={() => handleRoleSelect("BUYER")}
                 className="w-full p-6 border-2 border-gray-800 rounded-xl hover:border-emerald-500 hover:bg-gray-800 transition-all group"
               >
                 <div className="flex items-center gap-4">
@@ -178,7 +168,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
               </button>
 
               <button
-                onClick={() => handleRoleSelect("seller")}
+                onClick={() => handleRoleSelect("SELLER")}
                 className="w-full p-6 border-2 border-gray-800 rounded-xl hover:border-emerald-500 hover:bg-gray-800 transition-all group"
               >
                 <div className="flex items-center gap-4">
@@ -210,10 +200,8 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
         </div>
       )}
 
-      {/* Main Container */}
       {selectedRole && (
-        <div className="relative w-full max-w-[850px] h-[550px] bg-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-800">
-          {/* Back Button */}
+        <div className="relative w-full h-full bg-gray-900 shadow-2xl overflow-hidden border border-gray-800">
           <button
             onClick={handleBackToRoleSelection}
             className="absolute top-4 left-4 z-50 p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors text-gray-400"
@@ -233,45 +221,40 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
             </svg>
           </button>
 
-          {/* Role Badge */}
           <div className="absolute top-4 right-4 z-50">
             <span className="px-3 py-1 rounded-full text-sm font-semibold bg-emerald-900/30 text-emerald-400">
-              {selectedRole === "buyer" ? "Buyer" : "Seller"}
+              {selectedRole === "BUYER" ? "Buyer" : "Seller"}
             </span>
           </div>
 
-          {/* Sign Up Form (Left Side conceptually, but absolute positioned) */}
+          {/* Sign Up Form */}
           <div
             className={`absolute top-0 left-0 h-full w-1/2 transition-all duration-700 ease-in-out ${
               isLogin
                 ? "opacity-0 z-10 translate-x-0"
-                : "opacity-100 z-50 translate-x-[100%]"
+                : "opacity-100 z-50 translate-x-full"
             }`}
           >
             <div className="flex flex-col justify-center items-center h-full px-12 text-center bg-gray-900">
               <h1 className="text-4xl font-bold text-gray-100 mb-4">Sign Up</h1>
 
-              {/* Social Icons */}
               <div className="flex justify-center gap-4 mb-6">
-                {[
-                  { icon: "f", label: "Facebook" },
-                  { icon: "X", label: "Twitter" },
-                  { icon: "G", label: "Github" },
-                  { icon: "in", label: "LinkedIn" },
-                ].map((social, i) => (
+                {/* Social buttons disabled — only credentials auth supported */}
+                {[{ icon: "f" }, { icon: "X" }, { icon: "G" }, { icon: "in" }].map((s, i) => (
                   <button
                     key={i}
-                    className="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center text-gray-400 hover:bg-gray-800 transition-colors"
+                    disabled
+                    className="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center text-gray-600 cursor-not-allowed"
                   >
-                    <span className="font-semibold">{social.icon}</span>
+                    <span className="font-semibold">{s.icon}</span>
                   </button>
                 ))}
               </div>
 
               <div className="flex items-center w-full mb-6 text-gray-600">
-                <div className="flex-1 h-[1px] bg-gray-800"></div>
+                <div className="flex-1 h-px bg-gray-800"></div>
                 <span className="px-3 text-sm">Or</span>
-                <div className="flex-1 h-[1px] bg-gray-800"></div>
+                <div className="flex-1 h-px bg-gray-800"></div>
               </div>
 
               {error && !isLogin && (
@@ -336,38 +319,34 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
             </div>
           </div>
 
-          {/* Sign In Form (Right Side conceptually, now using left-0 base) */}
+          {/* Sign In Form */}
           <div
             className={`absolute top-0 left-0 h-full w-1/2 transition-all duration-700 ease-in-out ${
               isLogin
                 ? "opacity-100 z-50 translate-x-0"
-                : "opacity-0 z-10 translate-x-[100%]"
+                : "opacity-0 z-10 translate-x-full"
             }`}
           >
             <div className="flex flex-col justify-center items-center h-full px-12 text-center bg-gray-900">
               <h1 className="text-4xl font-bold text-gray-100 mb-4">Sign In</h1>
 
-              {/* Social Icons */}
               <div className="flex justify-center gap-4 mb-6">
-                {[
-                  { icon: "f", label: "Facebook" },
-                  { icon: "X", label: "Twitter" },
-                  { icon: "G", label: "Github" },
-                  { icon: "in", label: "LinkedIn" },
-                ].map((social, i) => (
+                {/* Social buttons disabled — only credentials auth supported */}
+                {[{ icon: "f" }, { icon: "X" }, { icon: "G" }, { icon: "in" }].map((s, i) => (
                   <button
                     key={i}
-                    className="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center text-gray-400 hover:bg-gray-800 transition-colors"
+                    disabled
+                    className="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center text-gray-600 cursor-not-allowed"
                   >
-                    <span className="font-semibold">{social.icon}</span>
+                    <span className="font-semibold">{s.icon}</span>
                   </button>
                 ))}
               </div>
 
               <div className="flex items-center w-full mb-6 text-gray-600">
-                <div className="flex-1 h-[1px] bg-gray-800"></div>
+                <div className="flex-1 h-px bg-gray-800"></div>
                 <span className="px-3 text-sm">Or</span>
-                <div className="flex-1 h-[1px] bg-gray-800"></div>
+                <div className="flex-1 h-px bg-gray-800"></div>
               </div>
 
               {error && isLogin && (
@@ -399,7 +378,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
 
                 <div className="flex justify-between items-center mt-2 mb-4 px-1">
                   <Link
-                    href="#"
+                    href="/forgot-password"
                     className="text-sm text-gray-400 hover:text-emerald-500"
                   >
                     Forgot password?
@@ -417,22 +396,20 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
             </div>
           </div>
 
-          {/* Overlay (Conceptual Right/Left side that moves) */}
+          {/* Overlay */}
           <div
             className={`absolute top-0 left-1/2 h-full w-1/2 overflow-hidden transition-all duration-700 ease-in-out z-100 ${
-              isLogin ? "translate-x-0" : "translate-x-[-100%]"
+              isLogin ? "translate-x-0" : "-translate-x-full"
             }`}
           >
             <div
-              className={`relative h-full w-[200%] translate-x-0 transition-all duration-700 ease-in-out bg-emerald-600 text-white ${
+              className={`relative h-full w-[200%] transition-all duration-700 ease-in-out bg-emerald-600 text-white ${
                 isLogin ? "translate-x-[-50%]" : "translate-x-0"
               }`}
             >
-              <div className="absolute inset-0 bg-linear-to-br from-emerald-600 to-green-900"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 to-green-900"></div>
 
-              {/* Overlay Panels */}
               <div className="relative flex h-full">
-                {/* Left Panel */}
                 <div
                   className={`flex flex-col justify-center items-center h-full w-1/2 px-10 text-center transition-all duration-700 ${
                     isLogin ? "translate-x-0" : "translate-x-[-20%]"
@@ -440,8 +417,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                 >
                   <h1 className="text-4xl font-bold mb-4">Hello, Friend!</h1>
                   <p className="mb-8">
-                    Register with your personal details to use all of site
-                    features
+                    Register with your personal details to use all of site features
                   </p>
                   <button
                     onClick={() => handleToggle("register")}
@@ -451,7 +427,6 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                   </button>
                 </div>
 
-                {/* Right Panel */}
                 <div
                   className={`flex flex-col justify-center items-center h-full w-1/2 px-10 text-center transition-all duration-700 ${
                     isLogin ? "translate-x-[20%]" : "translate-x-0"
@@ -459,8 +434,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                 >
                   <h1 className="text-4xl font-bold mb-4">Welcome Back!</h1>
                   <p className="mb-8">
-                    To keep connected with us please login with your personal
-                    info
+                    To keep connected with us please login with your personal info
                   </p>
                   <button
                     onClick={() => handleToggle("login")}

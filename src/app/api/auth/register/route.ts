@@ -1,40 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { rateLimit } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
+import { randomUUID } from "crypto";
 
-// 1. Force this  to run strictly as a standard dynamic Node.js server route
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
-    const rlResponse = rateLimit(req, 10, 60 * 60 * 1000); // 10 requests per hour
-    if (rlResponse) return rlResponse;
-
-    const { name, email, password, role, adminSecretKey, firebase_uid } = await req.json();
+    const body = await req.json();
+    const { name, email, password, role, adminSecretKey, firebase_uid } = body;
 
     if (!name || !email || (!password && !firebase_uid)) {
-      return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "Missing required fields" },
+        { status: 400 }
+      );
     }
 
-    const existingUser = await prisma.users.findUnique({
-      where: { email },
-    });
-
+    const existingUser = await prisma.users.findUnique({ where: { email } });
     if (existingUser) {
-      return NextResponse.json({ success: false, error: "Email is already registered" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "Email is already registered" },
+        { status: 400 }
+      );
     }
 
     type UserRole = "BUYER" | "SELLER" | "ADMIN";
-    let assignedRole: UserRole = "BUYER"; 
-    
+    let assignedRole: UserRole = "BUYER";
+
     if (role === "admin" || role === "ADMIN") {
       if (!process.env.ADMIN_SECRET_KEY) {
-        throw new Error("ADMIN_SECRET_KEY is not set in the environment variables");
+        throw new Error("ADMIN_SECRET_KEY is not set in environment variables");
       }
       if (adminSecretKey !== process.env.ADMIN_SECRET_KEY) {
-        return NextResponse.json({ success: false, error: "Invalid admin secret key" }, { status: 403 });
+        return NextResponse.json(
+          { success: false, error: "Invalid admin secret key" },
+          { status: 403 }
+        );
       }
       assignedRole = "ADMIN";
     } else if (role === "seller" || role === "SELLER") {
@@ -47,19 +50,35 @@ export async function POST(req: NextRequest) {
       data: {
         name,
         email,
-        firebase_uid: firebase_uid || '',
+        // If no firebase_uid provided, generate a unique placeholder
+        // so the unique constraint on uq_users_firebase_uid never collides
+        firebase_uid: firebase_uid || `credentials_${randomUUID()}`,
         password: hashedPassword,
         role: assignedRole,
-        is_verified: true
+        is_verified: true,
       },
     });
 
-    return NextResponse.json({ 
-      success: true, 
-      user: { id: user.id, email: user.email, name: user.name, role: user.role } 
-    }, { status: 201 });
+    return NextResponse.json(
+      {
+        success: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+        },
+      },
+      { status: 201 }
+    );
   } catch (error: unknown) {
-    console.error("Register API error:", error);
-    return NextResponse.json({ success: false, error: "An error occurred during registration" }, { status: 500 });
+    console.error("Register API error:", JSON.stringify(error, null, 2));
+    if (error instanceof Error) {
+      console.error("Error message:", error.message);
+    }
+    return NextResponse.json(
+      { success: false, error: "An error occurred during registration" },
+      { status: 500 }
+    );
   }
 }

@@ -10,18 +10,26 @@ export async function GET(req: NextRequest) {
     const token = req.cookies.get("farmmart_session_token")?.value;
 
     if (!token) {
-      return NextResponse.json({ success: false, error: "Not authenticated" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Not authenticated" },
+        { status: 401 }
+      );
     }
 
     if (!process.env.JWT_SECRET) {
       throw new Error("JWT_SECRET is not set in the environment variables");
     }
 
-    let decoded: any;
+    let decoded: { userId: string };
     try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (error) {
-      return NextResponse.json({ success: false, error: "Invalid token" }, { status: 401 });
+      decoded = jwt.verify(token, process.env.JWT_SECRET) as {
+        userId: string;
+      };
+    } catch {
+      return NextResponse.json(
+        { success: false, error: "Invalid token" },
+        { status: 401 }
+      );
     }
 
     const user = await prisma.users.findUnique({
@@ -29,7 +37,10 @@ export async function GET(req: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "User not found" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({
