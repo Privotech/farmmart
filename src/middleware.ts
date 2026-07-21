@@ -30,6 +30,7 @@ export async function middleware(req: NextRequest) {
       }
       
       if (pathname.startsWith('/seller') && role !== 'SELLER' && role !== 'ADMIN') {
+        console.warn(`Unauthorized access attempt to seller path by role: ${role}`);
         return NextResponse.redirect(new URL('/login', req.url));
       }
       
@@ -40,12 +41,15 @@ export async function middleware(req: NextRequest) {
       
       return NextResponse.next({
         request: {
-          headers: requestHeaders,
+           headers: requestHeaders,
         },
       });
 
-    } catch (err) {
-      console.error('JWT Verification failed in middleware:', err);
+    } catch (err: any) {
+      console.error('🚨 JWT Verification failed in middleware:');
+      console.error('Error name:', err.name);
+      console.error('Error message:', err.message);
+      
       // Token is invalid or expired
       const response = NextResponse.redirect(new URL('/login', req.url));
       response.cookies.delete('farmmart_session_token');
