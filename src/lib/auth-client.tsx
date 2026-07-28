@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { User } from "@/types";
 
 interface Session {
   user: {
@@ -11,6 +10,10 @@ interface Session {
     name: string;
     role: "BUYER" | "SELLER" | "ADMIN";
     image?: string;
+    phone?: string;
+    address?: string;
+    state?: string;
+    city?: string;
   };
 }
 
@@ -30,8 +33,8 @@ interface AuthContextType {
   status: "loading" | "authenticated" | "unauthenticated";
   signIn: (provider: string, options?: SignInOptions) => Promise<{ ok: boolean; error?: string }>;
   signOut: (options?: SignOutOptions) => Promise<void>;
-  signUp: (name: string, email: string, password?: string, role?: string) => Promise<{ ok: boolean; error?: string }>;
-  updateSession: (userUpdates: Partial<Session['user']>) => Promise<Session | null>;
+  signUp: (name: string, email: string, password?: string, role?: string, adminSecretKey?: string) => Promise<{ ok: boolean; error?: string }>;
+  updateSession: (userUpdates: Partial<Session["user"]>) => Promise<Session | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,7 +47,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        const response = await fetch('/api/auth/me');
+        const response = await fetch("/api/auth/me");
         const data = await response.json();
 
         if (response.ok && data.success) {
@@ -67,27 +70,31 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const signIn = async (provider: string, options: SignInOptions = {}) => {
     if (provider === "credentials") {
       const { email, password } = options;
-      
+
       try {
-        const response = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
         });
 
         const data = await response.json();
 
         if (response.ok && data.success) {
-          const sessionData: Session = {
+          // Update session state immediately
+          setSession({
             user: {
               id: data.user.id,
               email: data.user.email,
               name: data.user.name,
               role: data.user.role,
               image: data.user.image,
+              phone: data.user.phone,
+              address: data.user.address,
+              state: data.user.state,
+              city: data.user.city,
             },
-          };
-          setSession(sessionData);
+          });
           setStatus("authenticated");
           return { ok: true };
         } else {
@@ -104,7 +111,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const signOut = async (options: SignOutOptions = {}) => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await fetch("/api/auth/logout", { method: "POST" });
     } catch (error) {
       console.error("SignOut error:", error);
     } finally {
@@ -116,12 +123,18 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (name: string, email: string, password?: string, role?: string) => {
+  const signUp = async (
+    name: string,
+    email: string,
+    password?: string,
+    role?: string,
+    adminSecretKey?: string
+  ) => {
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, role }),
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, role, adminSecretKey }),
       });
 
       const data = await response.json();
@@ -137,16 +150,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateSession = async (userUpdates: Partial<Session['user']>) => {
-    // This function should ideally make a request to the server to update the user's session.
-    // For now, we'll just update the local state.
+  const updateSession = async (userUpdates: Partial<Session["user"]>) => {
     if (session) {
       const updated = {
         ...session,
-        user: {
-          ...session.user,
-          ...userUpdates
-        }
+        user: { ...session.user, ...userUpdates },
       };
       setSession(updated);
       return updated;
@@ -155,7 +163,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ session, status, signIn, signOut, signUp, updateSession }}>
+    <AuthContext.Provider
+      value={{ session, status, signIn, signOut, signUp, updateSession }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -169,9 +179,9 @@ export function useSession() {
   return {
     data: context.session,
     status: context.status,
-    update: async (userUpdates: Partial<Session['user']>) => {
+    update: async (userUpdates: Partial<Session["user"]>) => {
       return context.updateSession(userUpdates);
-    }
+    },
   };
 }
 
@@ -181,4 +191,10 @@ export function useAuth() {
     throw new Error("useAuth must be used within a SessionProvider (from auth-client)");
   }
   return context;
+}
+
+export function signOut(options?: SignOutOptions) {
+  return fetch("/api/auth/logout", { method: "POST" }).finally(() => {
+    window.location.href = options?.callbackUrl || "/";
+  });
 }

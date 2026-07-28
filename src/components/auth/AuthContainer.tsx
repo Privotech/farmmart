@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 interface AuthContainerProps {
@@ -10,7 +9,6 @@ interface AuthContainerProps {
 }
 
 export default function AuthContainer({ initialMode }: AuthContainerProps) {
-  const router = useRouter();
   const { signIn } = useAuth();
   const [isLogin, setIsLogin] = useState(initialMode === "login");
   const [isLoading, setIsLoading] = useState(false);
@@ -24,9 +22,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
   const [regPassword, setRegPassword] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
 
-  const [selectedRole, setSelectedRole] = useState<
-    "BUYER" | "SELLER" | null
-  >(null);
+  const [selectedRole, setSelectedRole] = useState<"BUYER" | "SELLER" | null>(null);
 
   const handleToggle = (mode: "login" | "register") => {
     setIsLogin(mode === "login");
@@ -56,7 +52,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
       if (!result?.ok) {
         setError(result?.error || "Invalid email or password");
       } else {
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       }
     } catch {
       setError("An error occurred. Please try again.");
@@ -114,9 +110,8 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
       if (!signInResult?.ok) {
         setError(signInResult?.error || "Login after registration failed.");
         handleToggle("login");
-        setLoginEmail(regEmail);
       } else {
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       }
     } catch {
       setError("An error occurred. Please try again.");
@@ -128,12 +123,12 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
   return (
     <div className="h-screen w-screen bg-black flex items-center justify-center">
       {!selectedRole && (
-        <div className="w-full">
+        <div className="w-full max-w-md px-4">
           <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-800 text-center">
-            <h1 className="text-3xl font-bold text-gray-100 mb-2 text-center">
+            <h1 className="text-3xl font-bold text-gray-100 mb-2">
               Choose Your Role
             </h1>
-            <p className="text-gray-400 text-center mb-8">
+            <p className="text-gray-400 mb-8">
               Select how you want to use FarmMart
             </p>
 
@@ -239,7 +234,6 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
               <h1 className="text-4xl font-bold text-gray-100 mb-4">Sign Up</h1>
 
               <div className="flex justify-center gap-4 mb-6">
-                {/* Social buttons disabled — only credentials auth supported */}
                 {[{ icon: "f" }, { icon: "X" }, { icon: "G" }, { icon: "in" }].map((s, i) => (
                   <button
                     key={i}
@@ -331,7 +325,6 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
               <h1 className="text-4xl font-bold text-gray-100 mb-4">Sign In</h1>
 
               <div className="flex justify-center gap-4 mb-6">
-                {/* Social buttons disabled — only credentials auth supported */}
                 {[{ icon: "f" }, { icon: "X" }, { icon: "G" }, { icon: "in" }].map((s, i) => (
                   <button
                     key={i}
@@ -417,7 +410,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                 >
                   <h1 className="text-4xl font-bold mb-4">Hello, Friend!</h1>
                   <p className="mb-8">
-                    Register with your personal details to use all of site features
+                    Register with your personal details to use all site features
                   </p>
                   <button
                     onClick={() => handleToggle("register")}

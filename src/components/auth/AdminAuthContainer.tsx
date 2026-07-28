@@ -71,7 +71,7 @@ export default function AdminAuthContainer({
 
     try {
       // Send adminSecretKey to the server — validation happens server-side only
-      const result = await signUp(regName, regEmail, regPassword, "ADMIN");
+      const result = await signUp(regName, regEmail, regPassword, "ADMIN", adminSecretKey);
 
       if (!result.ok) {
         setError(result.error || "Registration failed");

@@ -1,36 +1,33 @@
 "use client";
 
 import { useSession } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function DashboardRedirect() {
-  const router = useRouter();
   const { data: session, status } = useSession();
 
   useEffect(() => {
     if (status === "loading") return;
 
     if (!session) {
-      router.push("/login");
+      window.location.href = "/login";
       return;
     }
 
-    // Redirect based on user role
     switch (session.user?.role) {
       case "BUYER":
-        router.push("/buyer/dashboard");
+        window.location.href = "/buyer/dashboard";
         break;
       case "SELLER":
-        router.push("/seller/dashboard");
+        window.location.href = "/seller/dashboard";
         break;
       case "ADMIN":
-        router.push("/admin/dashboard");
+        window.location.href = "/admin/dashboard";
         break;
       default:
-        router.push("/buyer/listings");
+        window.location.href = "/buyer/listings";
     }
-  }, [session, status, router]);
+  }, [session, status]);
 
   return (
     <div className="min-h-screen flex items-center justify-center text-gray-500">

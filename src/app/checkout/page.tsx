@@ -1,23 +1,18 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { CheckoutClient } from "./CheckoutClient";
 
 export default async function CheckoutPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
 
-  if (!session?.user?.id) {
+  if (!session?.userId) {
     redirect("/login");
   }
 
   const cartData = await prisma.cart.findMany({
-    where: {
-      user_id: session.user.id,
-    },
-    include: {
-      animals: true,
-    },
+    where: { user_id: session.userId },
+    include: { animals: true },
   });
 
   const cartTotal = cartData.reduce(
@@ -38,4 +33,3 @@ export default async function CheckoutPage() {
     />
   );
 }
-

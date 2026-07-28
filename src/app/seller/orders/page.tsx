@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/Card";
@@ -8,16 +7,16 @@ import Link from "next/link";
 import SellerOrderActions from "./SellerOrderActions";
 
 export default async function SellerOrdersPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
 
-  if (!session?.user?.id || session.user.role !== "SELLER") {
+  if (!session?.userId || session.role !== "SELLER") {
     redirect("/login");
   }
 
   const orders = await prisma.orders.findMany({
     where: {
       animals: {
-        seller_id: session.user.id,
+        seller_id: session.userId,
       },
     },
     include: {
@@ -53,24 +52,12 @@ export default async function SellerOrdersPage() {
               <table className="w-full">
                 <thead className="border-b border-emerald-800">
                   <tr>
-                    <th className="text-left py-3 font-semibold text-emerald-300">
-                      Order ID
-                    </th>
-                    <th className="text-left py-3 font-semibold text-emerald-300">
-                      Date
-                    </th>
-                    <th className="text-left py-3 font-semibold text-emerald-300">
-                      Customer
-                    </th>
-                    <th className="text-left py-3 font-semibold text-emerald-300">
-                      Amount
-                    </th>
-                    <th className="text-left py-3 font-semibold text-emerald-300">
-                      Status
-                    </th>
-                    <th className="text-left py-3 font-semibold text-emerald-300">
-                      Actions
-                    </th>
+                    <th className="text-left py-3 font-semibold text-emerald-300">Order ID</th>
+                    <th className="text-left py-3 font-semibold text-emerald-300">Date</th>
+                    <th className="text-left py-3 font-semibold text-emerald-300">Customer</th>
+                    <th className="text-left py-3 font-semibold text-emerald-300">Amount</th>
+                    <th className="text-left py-3 font-semibold text-emerald-300">Status</th>
+                    <th className="text-left py-3 font-semibold text-emerald-300">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -116,4 +103,3 @@ export default async function SellerOrdersPage() {
     </div>
   );
 }
-

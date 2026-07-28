@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/Card";
@@ -8,22 +7,16 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 
 export default async function BuyerOrdersPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
 
-  if (!session?.user?.id || session.user.role !== "BUYER") {
+  if (!session?.userId || session.role !== "BUYER") {
     redirect("/login");
   }
 
   const orders = await prisma.orders.findMany({
-    where: {
-      buyer_id: session.user.id
-    },
-    orderBy: {
-      created_at: 'desc'
-    },
-    include: {
-      animals: true
-    }
+    where: { buyer_id: session.userId },
+    orderBy: { created_at: "desc" },
+    include: { animals: true },
   });
 
   return (
@@ -36,7 +29,7 @@ export default async function BuyerOrdersPage() {
 
         {orders.length === 0 ? (
           <Card className="text-center py-12">
-            <p className="text-gray-600 text-lg mb-6">You haven't placed any orders yet</p>
+            <p className="text-gray-600 text-lg mb-6">You haven&apos;t placed any orders yet</p>
             <Link href="/buyer/listings">
               <Button variant="primary">Browse Listings</Button>
             </Link>
@@ -47,32 +40,24 @@ export default async function BuyerOrdersPage() {
               <table className="w-full">
                 <thead className="border-b">
                   <tr>
-                    <th className="text-left py-3 font-semibold text-gray-700">Order ID</th>
-                    <th className="text-left py-3 font-semibold text-gray-700">Date</th>
-                    <th className="text-left py-3 font-semibold text-gray-700">Items</th>
-                    <th className="text-left py-3 font-semibold text-gray-700">Amount</th>
-                    <th className="text-left py-3 font-semibold text-gray-700">Status</th>
-                    <th className="text-left py-3 font-semibold text-gray-700">Payment</th>
+                    {["Order ID", "Date", "Items", "Amount", "Status", "Payment"].map((h) => (
+                      <th key={h} className="text-left py-3 font-semibold text-gray-700">{h}</th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
                   {orders.map((order) => (
                     <tr key={order.id} className="border-b hover:bg-gray-50">
                       <td className="py-3 font-semibold">{order.id}</td>
-                      <td className="py-3 text-gray-600">
-                        {order.created_at.toLocaleDateString()}
-                      </td>
+                      <td className="py-3 text-gray-600">{order.created_at.toLocaleDateString()}</td>
                       <td className="py-3 text-gray-600">1 item</td>
                       <td className="py-3 font-semibold">₦{Number(order.amount).toLocaleString()}</td>
                       <td className="py-3">
                         <Badge
                           variant={
-                            order.status === "DELIVERED"
-                              ? "success"
-                              : order.status === "PENDING"
-                                ? "warning"
-                                : order.status === "CANCELLED"
-                                  ? "danger"
+                            order.status === "DELIVERED" ? "success"
+                              : order.status === "PENDING" ? "warning"
+                                : order.status === "CANCELLED" ? "danger"
                                   : "primary"
                           }
                         >
@@ -80,9 +65,7 @@ export default async function BuyerOrdersPage() {
                         </Badge>
                       </td>
                       <td className="py-3">
-                        <Badge
-                          variant={order.status === "PAID" ? "success" : "warning"}
-                        >
+                        <Badge variant={order.status === "PAID" ? "success" : "warning"}>
                           {order.status === "PAID" ? "Completed" : "Pending"}
                         </Badge>
                       </td>
@@ -97,4 +80,3 @@ export default async function BuyerOrdersPage() {
     </div>
   );
 }
-

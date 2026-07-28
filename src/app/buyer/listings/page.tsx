@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -10,33 +9,25 @@ export default async function BuyerListingsPage({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
 
-  if (!session?.user?.id || session.user.role !== "BUYER") {
+  if (!session?.userId || session.role !== "BUYER") {
     redirect("/login");
   }
 
-  // Parse searchParams
   const category = searchParams.type as string;
   const minPrice = searchParams.minPrice as string;
   const maxPrice = searchParams.maxPrice as string;
   const search = searchParams.search as string;
   const sortBy = searchParams.sortBy as string;
 
-  const where: any = {
-    status: "AVAILABLE",
-  };
+  const where: Record<string, unknown> = { status: "AVAILABLE" };
 
-  if (category) {
-    where.category = category.toUpperCase();
-  }
-
+  if (category) where.category = category.toUpperCase();
   if (minPrice) where.price = { gte: parseFloat(minPrice) };
   if (maxPrice) {
-    where.price = where.price || {};
-    where.price.lte = parseFloat(maxPrice);
+    where.price = { ...(where.price as object || {}), lte: parseFloat(maxPrice) };
   }
-
   if (search) {
     where.OR = [
       { name: { contains: search, mode: "insensitive" } },
@@ -45,20 +36,12 @@ export default async function BuyerListingsPage({
     ];
   }
 
-  let orderBy: any = {};
-  switch (sortBy) {
-    case "price_asc":
-      orderBy = { price: "asc" };
-      break;
-    case "price_desc":
-      orderBy = { price: "desc" };
-      break;
-    case "oldest":
-      orderBy = { createdAt: "asc" };
-      break;
-    default:
-      orderBy = { createdAt: "desc" };
-  }
+  const orderByMap: Record<string, object> = {
+    price_asc: { price: "asc" },
+    price_desc: { price: "desc" },
+    oldest: { created_at: "asc" },
+  };
+  const orderBy = orderByMap[sortBy] || { created_at: "desc" };
 
   const animalsData = await prisma.animals.findMany({
     where,
@@ -82,16 +65,11 @@ export default async function BuyerListingsPage({
         <div className="p-8">
           <div className="flex justify-between items-start mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-emerald-100 mb-1">
-                Browse Marketplace
-              </h1>
-              <p className="text-sm text-emerald-400 font-medium">
-                Find and procure quality livestock
-              </p>
+              <h1 className="text-3xl font-bold text-emerald-100 mb-1">Browse Marketplace</h1>
+              <p className="text-sm text-emerald-400 font-medium">Find and procure quality livestock</p>
             </div>
           </div>
-
-          <BuyerListingsClient animals={animals as any} />
+          <BuyerListingsClient animals={animals as never} />
         </div>
       </main>
     </div>

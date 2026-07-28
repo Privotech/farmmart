@@ -1,31 +1,26 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 
 export default async function AdminOrdersPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
 
-  if (!session?.user?.id || session.user.role !== "ADMIN") {
+  if (!session?.userId || session.role !== "ADMIN") {
     redirect("/login");
   }
 
   const orders = await prisma.orders.findMany({
-    orderBy: { created_at: 'desc' },
-    include: {
-      users: true
-    }
+    orderBy: { created_at: "desc" },
+    include: { users: true },
   });
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-6 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Order Management
-          </h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Order Management</h1>
           <p className="text-gray-600">View all platform orders</p>
         </div>
 
@@ -39,48 +34,24 @@ export default async function AdminOrdersPage() {
               <table className="w-full">
                 <thead className="border-b">
                   <tr>
-                    <th className="text-left py-3 font-semibold text-gray-700">
-                      Order ID
-                    </th>
-                    <th className="text-left py-3 font-semibold text-gray-700">
-                      Customer
-                    </th>
-                    <th className="text-left py-3 font-semibold text-gray-700">
-                      Date
-                    </th>
-                    <th className="text-left py-3 font-semibold text-gray-700">
-                      Amount
-                    </th>
-                    <th className="text-left py-3 font-semibold text-gray-700">
-                      Status
-                    </th>
-                    <th className="text-left py-3 font-semibold text-gray-700">
-                      Payment
-                    </th>
+                    {["Order ID", "Customer", "Date", "Amount", "Status", "Payment"].map((h) => (
+                      <th key={h} className="text-left py-3 font-semibold text-gray-700">{h}</th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
                   {orders.map((order) => (
                     <tr key={order.id} className="border-b hover:bg-gray-50">
                       <td className="py-3 font-semibold">{order.id}</td>
-                      <td className="py-3 text-gray-600">
-                        {order.users?.name || "Unknown"}
-                      </td>
-                      <td className="py-3 text-gray-600">
-                        {order.created_at.toLocaleDateString()}
-                      </td>
-                      <td className="py-3 font-semibold">
-                        ₦{Number(order.amount).toLocaleString()}
-                      </td>
+                      <td className="py-3 text-gray-600">{order.users?.name || "Unknown"}</td>
+                      <td className="py-3 text-gray-600">{order.created_at.toLocaleDateString()}</td>
+                      <td className="py-3 font-semibold">₦{Number(order.amount).toLocaleString()}</td>
                       <td className="py-3">
                         <Badge
                           variant={
-                            order.status === "DELIVERED"
-                              ? "success"
-                              : order.status === "PENDING"
-                                ? "warning"
-                                : order.status === "CANCELLED"
-                                  ? "danger"
+                            order.status === "DELIVERED" ? "success"
+                              : order.status === "PENDING" ? "warning"
+                                : order.status === "CANCELLED" ? "danger"
                                   : "primary"
                           }
                         >
@@ -88,13 +59,7 @@ export default async function AdminOrdersPage() {
                         </Badge>
                       </td>
                       <td className="py-3">
-                        <Badge
-                          variant={
-                            order.status === "PAID"
-                              ? "success"
-                              : "warning"
-                          }
-                        >
+                        <Badge variant={order.status === "PAID" ? "success" : "warning"}>
                           {order.status === "PAID" ? "Completed" : "Pending"}
                         </Badge>
                       </td>
@@ -109,4 +74,3 @@ export default async function AdminOrdersPage() {
     </div>
   );
 }
-

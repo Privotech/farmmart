@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import SellerEditAnimalForm from "./SellerEditAnimalForm";
@@ -9,14 +8,12 @@ export default async function EditAnimalPage({
 }: {
   params: { id: string };
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
 
-  if (!session?.user?.id || session.user.role !== "SELLER") {
+  if (!session?.userId || session.role !== "SELLER") {
     redirect("/login");
   }
 
-  // Next.js 14+: params are asynchronous
-  // Wait for it if we are using Next 15 but this is likely Next 14, params.id is available sync but await params might be required in future.
   const { id } = await params;
 
   const animal = await prisma.animals.findUnique({
@@ -31,7 +28,7 @@ export default async function EditAnimalPage({
     );
   }
 
-  if (animal.seller_id !== session.user.id) {
+  if (animal.seller_id !== session.userId) {
     return (
       <div className="min-h-screen flex items-center justify-center text-rose-400">
         You do not have permission to edit this listing
@@ -46,9 +43,7 @@ export default async function EditAnimalPage({
           <h1 className="text-4xl font-bold text-emerald-100 mb-2">
             Edit Animal Listing
           </h1>
-          <p className="text-emerald-400">
-            Update your animal listing information
-          </p>
+          <p className="text-emerald-400">Update your animal listing information</p>
         </div>
 
         <SellerEditAnimalForm
