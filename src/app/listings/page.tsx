@@ -5,8 +5,8 @@ import { AnimalCard } from "@/components/features/AnimalCard";
 import { FilterPanel } from "@/components/features/FilterPanel";
 import { Button } from "@/components/ui/Button";
 import { Animal, AnimalFilters } from "@/types";
-
 import { useSession } from "@/lib/auth-client";
+import { addToCart } from "@/actions/cart";
 
 export default function ListingsPage() {
   const { data: session } = useSession();
@@ -45,25 +45,19 @@ export default function ListingsPage() {
   }, [filters]);
 
   const handleAddToCart = async (animal: Animal) => {
-    if (!session || !session.user) {
-      alert("Please log in to add items to cart");
+    if (!session) {
+      alert("Please log in to add items to your cart.");
       return;
     }
-
     try {
-      const res = await fetch('/api/cart', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: session.user.email, animalId: animal.id, quantity: 1 }),
-      });
-      const data = await res.json();
-      if (data.success) {
+      const result = await addToCart(animal.id, 1);
+      if (result.success) {
         alert("Added to cart!");
       } else {
-        alert(data.error || "Error adding to cart");
+        alert(result.error || "Error adding to cart");
       }
-    } catch {
-      alert("Error adding to cart");
+    } catch (err) {
+      alert("An unexpected error occurred.");
     }
   };
 

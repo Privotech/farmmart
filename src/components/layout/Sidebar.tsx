@@ -95,7 +95,7 @@ export const Sidebar = () => {
     { href: "/seller/orders", label: "Buyer Orders", icon: <OrdersIcon /> },
     { href: "/seller/animals", label: "Inventory Track", icon: <InventoryIcon /> },
     { href: "/seller/analytics", label: "Seller Analytics", icon: <AnalyticsIcon /> },
-    { href: "/settings", label: "Settings", icon: <SettingsIcon /> },
+    { href: "/seller/settings", label: "Settings", icon: <SettingsIcon /> },
   ];
 
   const dashboardLinks = session?.user?.role === "SELLER" ? sellerLinks : buyerLinks;

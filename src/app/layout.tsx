@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { NavbarWrapper } from "@/components/layout/NavbarWrapper";
 import { Providers } from "./providers";
@@ -9,16 +8,14 @@ export const metadata: Metadata = {
   description: "Your trusted farm animal marketplace",
 };
 
-
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <Providers>
           <NavbarWrapper />
           <main>{children}</main>

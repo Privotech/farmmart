@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/Card";
@@ -9,21 +8,23 @@ import Link from "next/link";
 import SellerAnimalActions from "./SellerAnimalActions";
 
 export default async function SellerAnimalsPage() {
-  const session = await getServerSession(authOptions);
+  // Use custom getSession() instead of NextAuth getServerSession
+  const session = await getSession();
 
-  if (!session?.user?.id || session.user.role !== "SELLER") {
+  // Validate session and check SELLER role cleanly
+  if (!session?.userId || !session?.role || session.role.toUpperCase() !== "SELLER") {
     redirect("/login");
   }
 
   const animals = await prisma.animals.findMany({
     where: {
-      seller_id: session.user.id,
+      seller_id: session.userId,
     },
     orderBy: { created_at: "desc" },
   });
 
   return (
-    <div className="p-8">
+    <div className="p-8 bg-black min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -71,22 +72,29 @@ export default async function SellerAnimalsPage() {
                 </thead>
                 <tbody>
                   {animals.map((animal) => (
-                    <tr key={animal.id} className="border-b border-emerald-800 hover:bg-emerald-900/30">
+                    <tr
+                      key={animal.id}
+                      className="border-b border-emerald-800 hover:bg-emerald-900/30"
+                    >
                       <td className="py-3">
-                        <div className="font-semibold text-emerald-100">{animal.name}</div>
+                        <div className="font-semibold text-emerald-100">
+                          {animal.name}
+                        </div>
                         <div className="text-sm text-emerald-400">
                           {animal.breed}
                         </div>
                       </td>
                       <td className="py-3 text-emerald-400 capitalize">
-                        {animal.category.toLowerCase().replace('_', ' ')}
+                        {animal.category.toLowerCase().replace("_", " ")}
                       </td>
                       <td className="py-3 font-semibold text-emerald-400">
                         ₦{Number(animal.price).toLocaleString()}
                       </td>
                       <td className="py-3">
                         <Badge
-                          variant={animal.status === "AVAILABLE" ? "success" : "warning"}
+                          variant={
+                            animal.status === "AVAILABLE" ? "success" : "warning"
+                          }
                         >
                           {animal.status === "AVAILABLE" ? "Available" : "Sold"}
                         </Badge>
@@ -105,4 +113,3 @@ export default async function SellerAnimalsPage() {
     </div>
   );
 }
-

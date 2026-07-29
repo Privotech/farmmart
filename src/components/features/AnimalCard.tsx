@@ -12,6 +12,45 @@ interface AnimalCardProps {
   onAddToCart?: (animal: Animal) => void;
 }
 
+// Safely unwraps nested/double-serialized JSON strings
+function getImageUrl(imagesRaw: unknown): string {
+  if (!imagesRaw) return "/placeholder-animal.jpg";
+
+  let parsed: unknown = imagesRaw;
+
+  // Un-stringify recursively in case of double/triple stringified JSON
+  while (typeof parsed === "string") {
+    const trimmed = parsed.trim();
+    
+    // Check if it's a URL directly
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("/")) {
+      return trimmed;
+    }
+
+    // Attempt parsing if it looks like JSON array or stringified JSON
+    if (trimmed.startsWith("[") || trimmed.startsWith('"')) {
+      try {
+        parsed = JSON.parse(trimmed);
+      } catch {
+        break; // Stop loop if string parsing fails
+      }
+    } else {
+      break;
+    }
+  }
+
+  // Handle parsed Array
+  if (Array.isArray(parsed) && parsed.length > 0) {
+    const firstItem = parsed[0];
+    if (typeof firstItem === "string" && firstItem.trim().length > 0) {
+      return firstItem.trim();
+    }
+  }
+
+  // Default fallback if array was empty or invalid
+  return "/placeholder-animal.jpg";
+}
+
 export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
   const healthStatusColors = {
     healthy: "success",
@@ -20,14 +59,15 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
     unknown: "danger",
   } as const;
 
+  // Safely get the image URL
+  const imageSrc = getImageUrl(animal.images);
+
   return (
     <Card className="overflow-hidden hover:shadow-xl transition-shadow animate-fade-up card-hover-raise">
       <div className="relative w-full h-56 mb-4 rounded-lg overflow-hidden">
         <Image
-          src={
-            JSON.parse(animal.images || "[]")[0] || "/placeholder-animal.jpg"
-          }
-          alt={animal.name}
+          src={imageSrc}
+          alt={animal.name || "Livestock listing"}
           fill
           className="object-cover"
         />

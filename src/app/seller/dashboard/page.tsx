@@ -8,6 +8,48 @@ import Link from "next/link";
 import Image from "next/image";
 import { Animal, Order } from "@/types";
 
+// Helper function to safely unwrap images from double/single JSON strings or direct URLs
+function getImageUrl(imagesRaw: unknown): string {
+  if (!imagesRaw) return "/placeholder-animal.jpg";
+
+  let parsed: unknown = imagesRaw;
+
+  // Un-stringify recursively if double/triple-stringified
+  while (typeof parsed === "string") {
+    const trimmed = parsed.trim();
+
+    // Direct HTTP or absolute path check
+    if (
+      trimmed.startsWith("http://") ||
+      trimmed.startsWith("https://") ||
+      trimmed.startsWith("/")
+    ) {
+      return trimmed;
+    }
+
+    // Try parsing if string starts with JSON tokens
+    if (trimmed.startsWith("[") || trimmed.startsWith('"')) {
+      try {
+        parsed = JSON.parse(trimmed);
+      } catch {
+        break;
+      }
+    } else {
+      break;
+    }
+  }
+
+  // Extract first valid image string from parsed array
+  if (Array.isArray(parsed) && parsed.length > 0) {
+    const firstItem = parsed[0];
+    if (typeof firstItem === "string" && firstItem.trim().length > 0) {
+      return firstItem.trim();
+    }
+  }
+
+  return "/placeholder-animal.jpg";
+}
+
 export default function SellerDashboard() {
   const router = useRouter();
   const { data: session } = useSession();
@@ -279,11 +321,8 @@ export default function SellerDashboard() {
                 <div className="flex items-center gap-6">
                   <div className="w-32 h-32 bg-emerald-900 rounded-xl relative overflow-hidden flex-shrink-0">
                     <Image
-                      src={
-                        JSON.parse(animal.images || "[]")?.[0] ||
-                        "/placeholder-animal.jpg"
-                      }
-                      alt={animal.name}
+                      src={getImageUrl(animal.images)}
+                      alt={animal.name || "Livestock listing"}
                       fill
                       className="object-cover"
                     />

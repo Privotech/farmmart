@@ -26,6 +26,7 @@ export default async function CheckoutPage() {
 
   return (
     <CheckoutClient
+      cartItems={cartData}
       cartTotal={cartTotal}
       shippingCost={shippingCost}
       tax={tax}
