@@ -32,7 +32,7 @@ function getImageUrl(imagesRaw: unknown): string {
       try {
         parsed = JSON.parse(trimmed);
       } catch {
-        break; // Stop loop if string parsing fails
+        break;
       }
     } else {
       break;
@@ -47,7 +47,6 @@ function getImageUrl(imagesRaw: unknown): string {
     }
   }
 
-  // Default fallback if array was empty or invalid
   return "/placeholder-animal.jpg";
 }
 
@@ -59,7 +58,6 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
     unknown: "danger",
   } as const;
 
-  // Safely get the image URL
   const imageSrc = getImageUrl(animal.images);
 
   return (
@@ -84,7 +82,9 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
         <div className="flex gap-2 flex-wrap">
           <Badge variant="primary">{animal.category}</Badge>
           <Badge
-            variant={healthStatusColors[animal.health_status ?? "unknown"]}
+            variant={
+              (healthStatusColors as Record<string, any>)[animal.health_status ?? "unknown"] || "danger"
+            }
           >
             {animal.health_status}
           </Badge>
@@ -99,7 +99,7 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
         <div className="flex justify-between items-center pt-4 border-t border-emerald-800">
           <div>
             <p className="text-2xl font-bold text-emerald-400">
-              ₦{animal.price.toLocaleString()}
+              ₦{Number(animal.price || 0).toLocaleString()}
             </p>
             {animal.weight && (
               <p className="text-xs text-emerald-400">{animal.weight} kg</p>

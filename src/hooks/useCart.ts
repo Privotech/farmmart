@@ -14,7 +14,7 @@ export function useCart() {
       setIsLoading(false);
       return;
     }
-    
+
     setIsLoading(true);
     setError("");
     try {
@@ -22,7 +22,12 @@ export function useCart() {
       const data = await res.json();
       if (data.success) {
         setCartItems(data.data);
-        const total = data.data.reduce((sum: number, item: CartItem) => sum + (item.animal.price * item.quantity), 0);
+
+        const total = data.data.reduce(
+          (sum: number, item: CartItem) =>
+            sum + Number(item.animal?.price || 0) * (item.quantity || 1),
+          0,
+        );
         setTotalPrice(total);
       } else {
         setError(data.error || "Failed to fetch cart");
@@ -43,7 +48,7 @@ export function useCart() {
       const res = await fetch("/api/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ animalId, quantity })
+        body: JSON.stringify({ animalId, quantity }),
       });
       const data = await res.json();
       if (data.success) {
@@ -58,10 +63,12 @@ export function useCart() {
 
   const removeFromCart = async (cartItemId: string) => {
     try {
-      const res = await fetch(`/api/cart?id=${cartItemId}`, { method: "DELETE" });
+      const res = await fetch(`/api/cart?id=${cartItemId}`, {
+        method: "DELETE",
+      });
       const data = await res.json();
       if (data.success) {
-        setCartItems(prev => prev.filter(item => item.id !== cartItemId));
+        setCartItems((prev) => prev.filter((item) => item.id !== cartItemId));
         await fetchCart(); // update total price
       }
     } catch (err: unknown) {
@@ -79,5 +86,14 @@ export function useCart() {
     }
   };
 
-  return { cartItems, isLoading, error, totalPrice, fetchCart, addToCart, removeFromCart, clearCart };
+  return {
+    cartItems,
+    isLoading,
+    error,
+    totalPrice,
+    fetchCart,
+    addToCart,
+    removeFromCart,
+    clearCart,
+  };
 }

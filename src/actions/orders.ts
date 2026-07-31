@@ -86,3 +86,35 @@ export async function updateOrderStatus(orderId: string, newStatus: 'PENDING' | 
     return { success: false, error: "Failed to update status" };
   }
 }
+
+export async function getSellerOrders() {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const sellerId = session.user.id;
+
+  try {
+    const orders = await prisma.orders.findMany({
+      where: {
+        animals: {
+          seller_id: sellerId,
+        },
+      },
+      include: {
+        animals: true,
+        users: true,
+      },
+      orderBy: {
+        created_at: "desc",
+      },
+    });
+
+    return orders;
+  } catch (error) {
+    console.error("Error fetching seller orders:", error);
+    return [];
+  }
+}

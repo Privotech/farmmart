@@ -1,7 +1,6 @@
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { Sidebar } from "@/components/layout/Sidebar";
 import { BuyerListingsClient } from "./BuyerListingsClient";
 
 export default async function BuyerListingsPage({
@@ -59,10 +58,7 @@ export default async function BuyerListingsPage({
   }));
 
   return (
-    <div className="flex min-h-screen bg-black">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-8">
+    <div className="p-8">
           <div className="flex justify-between items-start mb-8">
             <div>
               <h1 className="text-3xl font-bold text-emerald-100 mb-1">Browse Marketplace</h1>
@@ -71,7 +67,5 @@ export default async function BuyerListingsPage({
           </div>
           <BuyerListingsClient animals={animals as never} />
         </div>
-      </main>
-    </div>
   );
 }

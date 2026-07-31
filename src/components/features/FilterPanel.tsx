@@ -7,11 +7,12 @@ import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 
 interface FilterPanelProps {
+  initialFilters?: AnimalFilters;
   onFilterChange?: (filters: AnimalFilters) => void;
 }
 
-export const FilterPanel = ({ onFilterChange }: FilterPanelProps) => {
-  const [filters, setFilters] = useState<AnimalFilters>({});
+export const FilterPanel = ({ initialFilters = {}, onFilterChange }: FilterPanelProps) => {
+  const [filters, setFilters] = useState<AnimalFilters>(initialFilters);
 
   const animalTypes = ["cattle", "goat", "sheep", "pig", "poultry", "other"];
   const healthStatuses = ["healthy", "vaccinated", "treated", "unknown"];

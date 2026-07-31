@@ -1,4 +1,3 @@
-
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -19,8 +18,10 @@ export default async function AdminUsers() {
   return (
     <div>
       <h1 className="text-4xl font-bold text-gray-900 mb-8">Manage Users</h1>
-      <AdminUsersClient users={allUsers as User[]} currentUserId={session.userId} />
+      <AdminUsersClient
+        users={allUsers as unknown as User[]}
+        currentUserId={session.userId}
+      />{" "}
     </div>
   );
 }
-    

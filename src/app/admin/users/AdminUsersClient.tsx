@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { User } from "@/types";
+import { User, UserRole } from "@/types";
 import { updateUserRole, deleteUser } from "@/actions/users";
 import { useTransition } from "react";
 
@@ -11,7 +11,8 @@ export function AdminUsersClient({ users, currentUserId }: { users: User[], curr
 
   const handleRoleChange = (userId: string, newRole: User["role"]) => {
     startTransition(async () => {
-      const res = await updateUserRole(userId, newRole);
+      // Cast newRole to the union expected by your server action
+      const res = await updateUserRole(userId, newRole as "BUYER" | "SELLER" | "ADMIN");
       if (!res.success) {
         alert(res.error || "Failed to update role");
       }
@@ -62,7 +63,7 @@ export function AdminUsersClient({ users, currentUserId }: { users: User[], curr
                   </select>
                 </td>
                 <td className="py-3 text-gray-600">
-                  {new Date(user.createdAt).toLocaleDateString()}
+                  {new Date(user.createdAt || user.created_at || Date.now()).toLocaleDateString()}
                 </td>
                 <td className="py-3">
                   {user.id !== currentUserId && (

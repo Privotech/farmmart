@@ -2,12 +2,29 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { createOrder } from "@/actions/orders";
+import { Animal } from "@/types";
 
-export function CheckoutClient({ cartTotal, shippingCost, tax, total }: { cartTotal: number, shippingCost: number, tax: number, total: number }) {
+interface CartItem {
+  id: string;
+  quantity: number;
+  animals: Animal;
+}
+
+interface CheckoutClientProps {
+  cartItems: CartItem[];
+  cartTotal: number;
+  shippingCost: number;
+  tax: number;
+  total: number;
+}
+
+export function CheckoutClient({ cartItems, cartTotal, shippingCost, tax, total }: CheckoutClientProps) {
   const router = useRouter();
   const [formData, setFormData] = useState({
     deliveryAddress: "",
@@ -52,6 +69,18 @@ export function CheckoutClient({ cartTotal, shippingCost, tax, total }: { cartTo
       setIsLoading(false);
     }
   };
+  
+  if (cartItems.length === 0) {
+    return (
+      <div className="container mx-auto text-center py-20">
+        <h2 className="text-2xl font-bold mb-4">Your Cart is Empty</h2>
+        <p className="text-gray-500 mb-8">Looks like you haven't added any animals to your cart yet.</p>
+        <Link href="/listings">
+          <Button variant="primary">Browse Animals</Button>
+        </Link>
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -128,6 +157,22 @@ export function CheckoutClient({ cartTotal, shippingCost, tax, total }: { cartTo
 
         <div>
           <Card>
+            <h3 className="text-xl font-bold mb-4">Your Cart</h3>
+            <div className="space-y-4 mb-6">
+              {cartItems.map(item => (
+                <div key={item.id} className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-md bg-gray-100">
+                    <Image src={item.animals.images?.[0] || '/cow.svg'} alt={item.animals.name} width={64} height={64} className="object-cover rounded-md" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">{item.animals.name}</p>
+                    <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                  </div>
+                  <p className="ml-auto font-semibold">₦{(item.animals.price * item.quantity).toLocaleString()}</p>
+                </div>
+              ))}
+            </div>
+            
             <h3 className="text-xl font-bold mb-4">Order Summary</h3>
 
             <div className="space-y-3 mb-6 pb-6 border-b">

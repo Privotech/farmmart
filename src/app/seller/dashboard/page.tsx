@@ -131,7 +131,7 @@ export default function SellerDashboard() {
       subtitle: `${a.breed} • ${a.location}`,
       value: "Listed",
       status: "active",
-      date: new Date(a.createdAt),
+      date: new Date(a.createdAt || a.created_at || Date.now()),
       color: "blue",
     })),
   ]

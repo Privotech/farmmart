@@ -2,7 +2,6 @@ import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { Sidebar } from "@/components/layout/Sidebar";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -41,11 +40,7 @@ export default async function BuyerDashboard() {
     .reduce((sum, o) => sum + Number(o.amount), 0);
 
   return (
-    <div className="flex min-h-screen bg-black">
-      <Sidebar />
-
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-8">
+    <div className="p-8">
           {/* Header */}
           <div className="flex justify-between items-start mb-8">
             <div>
@@ -453,7 +448,5 @@ export default async function BuyerDashboard() {
             </div>
           </div>
         </div>
-      </main>
-    </div>
   );
 }

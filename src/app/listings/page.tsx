@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AnimalCard } from "@/components/features/AnimalCard";
 import { FilterPanel } from "@/components/features/FilterPanel";
 import { Button } from "@/components/ui/Button";
@@ -8,12 +9,21 @@ import { Animal, AnimalFilters } from "@/types";
 import { useSession } from "@/lib/auth-client";
 import { addToCart } from "@/actions/cart";
 
-export default function ListingsPage() {
+function ListingsPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
+
   const [animals, setAnimals] = useState<Animal[]>([]);
-  const [filters, setFilters] = useState<AnimalFilters>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Extract current filters directly from URL searchParams
+  const category = searchParams.get("category") || "";
+  const breed = searchParams.get("breed") || "";
+  const minPrice = searchParams.get("minPrice") || "";
+  const maxPrice = searchParams.get("maxPrice") || "";
+  const location = searchParams.get("location") || "";
 
   useEffect(() => {
     const fetchAnimals = async () => {
@@ -22,13 +32,15 @@ export default function ListingsPage() {
 
       try {
         const params = new URLSearchParams();
-        Object.entries(filters).forEach(([key, value]) => {
-          if (value) params.append(key, value.toString());
-        });
-        
+        if (category) params.append("category", category);
+        if (breed) params.append("breed", breed);
+        if (minPrice) params.append("minPrice", minPrice);
+        if (maxPrice) params.append("maxPrice", maxPrice);
+        if (location) params.append("location", location);
+
         const res = await fetch(`/api/animals?${params.toString()}`);
         const result = await res.json();
-        
+
         if (result.success) {
           setAnimals(result.data);
         } else {
@@ -42,7 +54,17 @@ export default function ListingsPage() {
     };
 
     fetchAnimals();
-  }, [filters]);
+  }, [category, breed, minPrice, maxPrice, location]);
+
+  const handleFilterChange = (newFilters: AnimalFilters) => {
+    const params = new URLSearchParams();
+    Object.entries(newFilters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        params.set(key, value.toString());
+      }
+    });
+    router.push(`/listings?${params.toString()}`);
+  };
 
   const handleAddToCart = async (animal: Animal) => {
     if (!session) {
@@ -56,11 +78,10 @@ export default function ListingsPage() {
       } else {
         alert(result.error || "Error adding to cart");
       }
-    } catch (err) {
+    } catch {
       alert("An unexpected error occurred.");
     }
   };
-
 
   return (
     <div className="container mx-auto px-4 py-8 bg-[#121212] min-h-screen">
@@ -69,7 +90,16 @@ export default function ListingsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Filter Sidebar */}
         <div className="lg:col-span-1">
-          <FilterPanel onFilterChange={setFilters} />
+          <FilterPanel 
+            initialFilters={{
+              category,
+              breed,
+              minPrice: minPrice ? Number(minPrice) : undefined,
+              maxPrice: maxPrice ? Number(maxPrice) : undefined,
+              location,
+            }}
+            onFilterChange={handleFilterChange} 
+          />
         </div>
 
         {/* Animals Grid */}
@@ -89,7 +119,7 @@ export default function ListingsPage() {
               <p className="text-gray-400 mb-4">No animals found</p>
               <Button
                 variant="primary"
-                onClick={() => setFilters({})}
+                onClick={() => handleFilterChange({})}
                 className="mt-4"
               >
                 Clear Filters
@@ -109,5 +139,13 @@ export default function ListingsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ListingsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-gray-400">Loading listings...</div>}>
+      <ListingsPageContent />
+    </Suspense>
   );
 }

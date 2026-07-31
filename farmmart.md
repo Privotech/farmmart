@@ -33,6 +33,7 @@ The project is now in a much more stable state with the main application structu
   - admin dashboard and management pages
 - Implemented reusable UI components such as buttons, cards, badges, and inputs
 - Improved layout and navigation consistency across the app
+- Implemented a `useCart` hook to manage client-side shopping cart state, including fetching, adding, removing, and clearing cart items.
 
 ### Backend and Data Layer
 

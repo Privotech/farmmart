@@ -22,15 +22,19 @@ export function AdminOrdersClient({ orders }: { orders: Order[] }) {
             {orders.map((order) => (
               <tr key={order.id} className="border-b hover:bg-gray-50">
                 <td className="py-3 font-semibold">{order.id}</td>
-                <td className="py-3 text-gray-600">{order.users?.name || "Unknown"}</td>
-                <td className="py-3 text-gray-600">₦{Number(order.amount).toLocaleString()}</td>
+                <td className="py-3 text-gray-600">
+                  {order.users?.name || order.user?.name || order.buyer?.name || "Unknown"}
+                </td>
+                <td className="py-3 text-gray-600">
+                  ₦{Number(order.amount || order.totalAmount || 0).toLocaleString()}
+                </td>
                 <td className="py-3">
                   <Badge variant={order.status === "DELIVERED" ? "success" : order.status === "PENDING" ? "primary" : "warning"}>
                     {order.status}
                   </Badge>
                 </td>
                 <td className="py-3 text-gray-600">
-                  {new Date(order.created_at).toLocaleDateString()}
+                  {new Date(order.created_at || order.createdAt || Date.now()).toLocaleDateString()}
                 </td>
               </tr>
             ))}

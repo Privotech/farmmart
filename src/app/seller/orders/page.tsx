@@ -1,105 +1,121 @@
-import { getSession } from "@/lib/session";
-import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import Link from "next/link";
-import SellerOrderActions from "./SellerOrderActions";
+"use client";
 
-export default async function SellerOrdersPage() {
-  const session = await getSession();
+import React from 'react';
+import { getSellerOrders, updateOrderStatus } from '@/actions/orders';
+import { Card } from '@/components/ui/Card';
 
-  if (!session?.userId || session.role !== "SELLER") {
-    redirect("/login");
-  }
+// Interactive component handling status updates
+const OrderStatusUpdater = ({ orderId, currentStatus }: { orderId: string; currentStatus: string }) => {
+  const [status, setStatus] = React.useState(currentStatus);
+  const [isUpdating, setIsUpdating] = React.useState(false);
 
-  const orders = await prisma.orders.findMany({
-    where: {
-      animals: {
-        seller_id: session.userId,
-      },
-    },
-    include: {
-      users: true,
-      animals: true,
-    },
-    orderBy: { created_at: "desc" },
-  });
+  const handleUpdate = async (newStatus: string) => {
+    setIsUpdating(true);
+    const result = await updateOrderStatus(orderId, newStatus as any);
+    if (result.success) {
+      setStatus(newStatus);
+    } else {
+      alert("Failed to update status");
+    }
+    setIsUpdating(false);
+  };
 
   return (
-    <div className="p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-emerald-100 mb-2">
-            Order Management
-          </h1>
-          <p className="text-emerald-400">View and manage incoming orders</p>
-        </div>
+    <select
+      value={status}
+      onChange={(e) => handleUpdate(e.target.value)}
+      disabled={isUpdating}
+      className="bg-gray-800 text-white rounded p-1 border border-gray-700 focus:outline-none"
+    >
+      <option value="PAID">Paid</option>
+      <option value="CONFIRMED">Confirmed</option>
+      <option value="SHIPPED">Shipped</option>
+      <option value="DELIVERED">Delivered</option>
+      <option value="CANCELLED">Cancelled</option>
+    </select>
+  );
+};
 
-        {orders.length === 0 ? (
-          <Card className="text-center py-12">
-            <p className="text-emerald-400 text-lg mb-6">No orders yet</p>
-            <Link
-              href="/seller/animals"
-              className="inline-block px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-md"
-            >
-              Manage Listings
-            </Link>
-          </Card>
-        ) : (
-          <Card>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="border-b border-emerald-800">
-                  <tr>
-                    <th className="text-left py-3 font-semibold text-emerald-300">Order ID</th>
-                    <th className="text-left py-3 font-semibold text-emerald-300">Date</th>
-                    <th className="text-left py-3 font-semibold text-emerald-300">Customer</th>
-                    <th className="text-left py-3 font-semibold text-emerald-300">Amount</th>
-                    <th className="text-left py-3 font-semibold text-emerald-300">Status</th>
-                    <th className="text-left py-3 font-semibold text-emerald-300">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map((order) => (
-                    <tr key={order.id} className="border-b border-emerald-800 hover:bg-emerald-900/30">
-                      <td className="py-3 font-semibold text-emerald-100">{order.id}</td>
-                      <td className="py-3 text-emerald-400">
-                        {new Date(order.created_at).toLocaleDateString()}
-                      </td>
-                      <td className="py-3 text-emerald-400">
-                        {order.users?.name || "Unknown"}
-                      </td>
-                      <td className="py-3 font-semibold text-emerald-400">
-                        ₦{Number(order.amount).toLocaleString()}
-                      </td>
-                      <td className="py-3">
-                        <Badge
-                          variant={
-                            order.status === "DELIVERED"
-                              ? "success"
-                              : order.status === "PENDING"
-                                ? "warning"
-                                : order.status === "CANCELLED"
-                                  ? "danger"
-                                  : "primary"
-                          }
-                        >
-                          {order.status.charAt(0).toUpperCase() +
-                            order.status.slice(1).toLowerCase()}
-                        </Badge>
-                      </td>
-                      <td className="py-3">
-                        <SellerOrderActions orderId={order.id} status={order.status} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-        )}
+export default function SellerOrdersPage() {
+  const [orders, setOrders] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function fetchOrders() {
+      try {
+        const rawOrders = await getSellerOrders();
+        // Sanitize Prisma Decimals & Dates for React serialization
+        const cleanOrders = JSON.parse(JSON.stringify(rawOrders));
+        setOrders(cleanOrders);
+      } catch (err) {
+        console.error("Failed to load seller orders:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchOrders();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center text-gray-400">
+        Loading seller orders...
       </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6 text-white">My Orders</h1>
+
+      {orders.length === 0 ? (
+        <Card>
+          <div className="text-center py-12">
+            <p className="text-gray-400">You have not received any orders yet.</p>
+          </div>
+        </Card>
+      ) : (
+        <Card>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-700">
+              <thead className="bg-gray-800">
+                <tr>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Order ID</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Buyer</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Animal</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Amount</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody className="bg-gray-900 divide-y divide-gray-700">
+                {orders.map((order) => (
+                  <tr key={order.id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                      {order.id.substring(0, 8)}...
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                      {new Date(order.created_at || order.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                      {order.users?.name || order.buyer?.name || "Unknown"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                      {order.animals?.name || order.animal?.name || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                      ₦{Number(order.amount || order.totalAmount || 0).toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <OrderStatusUpdater orderId={order.id} currentStatus={order.status} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }

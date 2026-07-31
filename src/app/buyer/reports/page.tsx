@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { Sidebar } from "@/components/layout/Sidebar";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
@@ -108,11 +107,7 @@ export default function BuyerReportsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#121212]">
-      <Sidebar />
-
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-8">
+    <div className="p-8">
           {/* Header */}
           <div className="flex justify-between items-start mb-8">
             <div>
@@ -172,7 +167,5 @@ export default function BuyerReportsPage() {
             </div>
           </div>
         </div>
-      </main>
-    </div>
   );
 }
