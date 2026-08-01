@@ -90,7 +90,7 @@ export const Sidebar = () => {
 
   const buyerLinks: SidebarLink[] = [
     { href: "/buyer/dashboard", label: "DASHBOARD", icon: <OverviewIcon /> },
-    { href: "/cart", label: "CART", icon: <CartIcon /> },
+    { href: "/buyer/cart", label: "CART", icon: <CartIcon /> },
     { href: "/buyer/live-bids", label: "LIVE BIDS", icon: <BuyerLiveBidsIcon /> },
     { href: "/buyer/supply-chain", label: "SUPPLY CHAIN", icon: <BuyerSupplyChainIcon /> },
     { href: "/buyer/price-index", label: "PRICE INDEX", icon: <BuyerPriceIndexIcon /> },

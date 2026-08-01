@@ -39,7 +39,7 @@ export async function addToCart(animalId: string, quantity: number = 1) {
       });
     }
 
-    revalidatePath("/cart");
+    revalidatePath("/buyer/cart");
     revalidatePath("/checkout");
     return { success: true };
   } catch (error) {
@@ -63,7 +63,7 @@ export async function removeFromCart(cartItemId: string) {
       },
     });
     
-    revalidatePath("/cart");
+    revalidatePath("/buyer/cart");
     revalidatePath("/checkout");
     return { success: true };
   } catch (error) {
@@ -88,7 +88,7 @@ export async function updateCartQuantity(cartItemId: string, quantity: number) {
       data: { quantity },
     });
     
-    revalidatePath("/cart");
+    revalidatePath("/buyer/cart");
     revalidatePath("/checkout");
     return { success: true };
   } catch (error) {
@@ -111,7 +111,7 @@ export async function clearCart() {
       },
     });
     
-    revalidatePath("/cart");
+    revalidatePath("/buyer/cart");
     revalidatePath("/checkout");
     return { success: true };
   } catch (error) {
