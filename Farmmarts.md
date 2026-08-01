@@ -6,7 +6,7 @@ FarmMart (also known as TerraTrace Pro) is a comprehensive digital marketplace f
 Key Technologies
 - Framework: Next.js 16.2.6 (App Router)
 - Language: TypeScript for type safety and better developer experience
-- Database: MariaDB/MySQL with Prisma ORM 7.8.0
+- Database: PostgreSQL (Neon-compatible) with Prisma ORM 6.19.3
 - Authentication: JWT with HTTP-only cookies (not localStorage)
 - Payment Integration: Paystack
 - Styling: Tailwind CSS 4.x for responsive and consistent UI
@@ -38,7 +38,7 @@ Core Features
 
 4. Order Management
 - Full checkout flow with payment processing via Paystack
-- Cart persistence using MySQL database (Prisma cart model)
+- Cart persistence using PostgreSQL (Prisma `cart` model)
 - Order status tracking (Pending, Paid, Cancelled, Refunded)
 
 5. Image Handling
@@ -55,7 +55,7 @@ Root Directory
 - public/: Stores static assets (icons, logos, images)
 - src/: Main source code of application
 - .gitignore: Prevents tracking of sensitive files like node_modules and .env
-- .env.example: Example environment variables (newly added)
+- .env: Environment variables for local development; production values are configured in Vercel.
 - package.json: Lists project dependencies and automation scripts
 - tsconfig.json: Configures TypeScript settings
 - middleware.ts: Controls page access and authentication redirects with JWT verification
@@ -68,7 +68,8 @@ prisma/
 - schema.prisma: Database schema with models:
   - users, animals, cart, inquiries, orders, reviews, loginAttempt, passwordReset
 - migrations/: Database migration files
-  - 20260704114411_init/: Initial migration
+  - The existing initial migration targets MySQL and must not be applied to PostgreSQL.
+  - For a fresh PostgreSQL database, use `npx prisma db push` until a PostgreSQL baseline migration is created.
 
 public/
 - Static assets including icons (cow.svg, file.svg, globe.svg, handshake.svg, lock.svg, logo.svg, next.svg, vercel.svg, window.svg)
@@ -117,7 +118,6 @@ src/hooks/ (Custom React Hooks)
 
 src/lib/ (Utilities & Services)
 - prisma.ts: Singleton Prisma client with proper initialization and logging
-- db.ts: (Legacy, but kept for reference) Handles direct SQL queries using mysql2
 - paystack.ts: Logic for Paystack payment API communication
 - cloudinary.ts: Configuration for image uploads to cloud
 - auth-client.tsx: Manages user session and login/logout on frontend
@@ -138,9 +138,11 @@ How to Access and Edit
 
 2. Updating Database
 - Edit prisma/schema.prisma
-- Run 'npx prisma db push' to sync changes
+- Set `DATABASE_URL` in `.env` to a PostgreSQL URL, for example: `postgresql://USER:PASSWORD@HOST:5432/DATABASE?schema=public`
+- Run `npx prisma db push` to sync changes to a fresh PostgreSQL database
 - Use 'npx prisma studio' for GUI-based data management
 - Run 'npx prisma generate' to regenerate Prisma Client types
+- Do not run the legacy MySQL migration against PostgreSQL.
 
 3. UI Changes
 - Global styles: src/app/globals.css
@@ -196,8 +198,8 @@ Current Progress and Roadmap
     - Uses new API endpoint, not localStorageDb
     - Added fields: state, isNegotiable
     - Uses proper category enum (CATTLE, GOAT, SHEEP, PIG, POULTRY, RABBIT, HORSE, OTHER)
-11. Environment Example:
-    - Created .env.example with all necessary variables
+11. Environment Configuration:
+    - `.env` contains the local environment variables required by the application
 12. New API Endpoints:
     - api/inquiries/: For buyer-seller inquiries
     - api/reviews/: For animal reviews & ratings
@@ -207,13 +209,19 @@ Current Progress and Roadmap
 
 Recent Changes (July 2026)
 
+PostgreSQL Migration:
+1. Updated `prisma/schema.prisma` to use the PostgreSQL provider and PostgreSQL-native UUID, timestamp, text, and integer types.
+2. Removed MySQL-only annotations and the MySQL full-text index; PostgreSQL search indexing can be added separately when required.
+3. Removed the unused `mysql2` dependency and legacy `src/lib/db.ts` connection pool.
+4. Configured `.env` to use a PostgreSQL `DATABASE_URL`.
+
 Files Modified:
 1. src/types/index.ts:
    - Complete rewrite to exactly match Prisma schema
    - Added all proper enum types
    - Updated all interfaces
-2. .env.example:
-   - Created new file with all required environment variables
+2. .env:
+   - Contains the local environment configuration
 3. src/app/api/animals/route.ts:
    - Rewrote GET for filtering, sorting, status
    - Rewrote POST to match schema
@@ -241,7 +249,7 @@ Files Modified:
     - All created with complete content!
 
 Files Created:
-- /.env.example
+- /.env
 - src/app/api/inquiries/route.ts
 - src/app/api/reviews/route.ts
 - src/app/logistics/page.tsx
@@ -251,10 +259,13 @@ Files Created:
 - src/app/vision/page.tsx
 
 Current Issues and Errors
-✅ All resolved!
-- No TypeScript errors!
-- All APIs use Prisma properly!
-- Navigation works great!
+
+Prisma Client generation may fail on Windows with an `EPERM` rename error for `query_engine-windows.dll.node`. This is a Windows file lock, usually caused by a running Node/Next.js process, VS Code extension, antivirus, or indexer. Close the app and editor, restart Windows if needed, then run:
+
+```bat
+rmdir /s /q node_modules\.prisma\client
+npx prisma generate
+```
 
 Troubleshooting Steps for User:
 1. Generate Prisma Client first (always after changing schema):
@@ -264,8 +275,7 @@ Troubleshooting Steps for User:
    ```
 
 2. Setup .env file:
-   - Copy .env.example and rename to .env
-   - Fill in your database URL, JWT secret, Cloudinary, Paystack, Firebase credentials
+   - Fill in your database URL, JWT secret, Cloudinary, Paystack, and Firebase credentials
 
 3. Verify Database Setup:
    ```bash

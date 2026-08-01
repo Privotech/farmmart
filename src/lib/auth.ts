@@ -1,6 +1,7 @@
 import { type NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
+import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 
 export const authOptions: NextAuthOptions = {
@@ -32,12 +33,12 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
-          // In production, compare hashed passwords
-          // For now, just checking if password matches (NOT SECURE - USE BCRYPT!)
-          // const passwordMatch = await bcrypt.compare(credentials.password, user.password);
-          
-          // Mock password check - REPLACE WITH ACTUAL BCRYPT
-          if (credentials.password === process.env.DEMO_PASSWORD) {
+          if (!user.password) {
+            return null;
+          }
+
+          const passwordMatch = await bcrypt.compare(credentials.password, user.password);
+          if (passwordMatch) {
             return {
               id: user.id,
               email: user.email,
@@ -60,7 +61,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role || 'BUYER';
+        token.role = (user as { role?: string }).role || 'BUYER';
       }
       return token;
     },

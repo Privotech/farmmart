@@ -5,9 +5,7 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 if (!process.env.DATABASE_URL) {
-  console.warn(
-    "Warning: DATABASE_URL is not set. Database calls will fail."
-  );
+  throw new Error("DATABASE_URL must be set before the application starts.");
 }
 
 export const prisma =
