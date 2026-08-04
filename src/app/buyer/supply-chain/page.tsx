@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { Card } from "@/components/ui/Card";
-import Image from "next/image";
 
 // Mock supply chain data
 const mockShipments = [
@@ -46,7 +44,7 @@ const mockShipments = [
 export default function BuyerSupplyChainPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const [shipments, setShipments] = useState(mockShipments);
+  const shipments = mockShipments;
 
   useEffect(() => {
     if (status !== "loading" && !session) {

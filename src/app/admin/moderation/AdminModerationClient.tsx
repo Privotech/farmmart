@@ -5,8 +5,11 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { updateAnimalStatus, deleteAnimal } from "@/actions/animals";
 import { useTransition } from "react";
+import type { Animal } from "@/types";
 
-export function AdminModerationClient({ animals }: { animals: any[] }) {
+type ModerationAnimal = Animal & { sellerName?: string };
+
+export function AdminModerationClient({ animals }: { animals: ModerationAnimal[] }) {
   const [isPending, startTransition] = useTransition();
 
   const handleApprove = (id: string) => {

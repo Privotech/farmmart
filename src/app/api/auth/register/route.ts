@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { randomUUID } from "crypto";
+import { sendEmail } from "@/lib/mailer";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -14,7 +15,7 @@ export async function POST(req: NextRequest) {
     if (!name || !email || (!password && !firebase_uid)) {
       return NextResponse.json(
         { success: false, error: "Missing required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -22,7 +23,7 @@ export async function POST(req: NextRequest) {
     if (existingUser) {
       return NextResponse.json(
         { success: false, error: "Email is already registered" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
       if (adminSecretKey !== process.env.ADMIN_SECRET_KEY) {
         return NextResponse.json(
           { success: false, error: "Invalid admin secret key" },
-          { status: 403 }
+          { status: 403 },
         );
       }
       assignedRole = "ADMIN";
@@ -59,6 +60,21 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    try {
+      await sendEmail({
+        to: email,
+        subject: "Welcome to FarmMart",
+        html: `
+          <p>Hi ${name},</p>
+          <p>Your FarmMart account has been created successfully.</p>
+          <p>You can now log in and start using the platform.</p>
+          <p>Regards,<br />FarmMart Support</p>
+        `,
+      });
+    } catch (mailError) {
+      console.error("Registration email send failed:", mailError);
+    }
+
     return NextResponse.json(
       {
         success: true,
@@ -69,7 +85,7 @@ export async function POST(req: NextRequest) {
           role: user.role,
         },
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error: unknown) {
     console.error("Register API error:", JSON.stringify(error, null, 2));
@@ -78,7 +94,7 @@ export async function POST(req: NextRequest) {
     }
     return NextResponse.json(
       { success: false, error: "An error occurred during registration" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

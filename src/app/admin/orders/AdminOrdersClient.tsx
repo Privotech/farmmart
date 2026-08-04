@@ -4,6 +4,10 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Order } from "@/types";
 
+function formatOrderDate(value: Date | string | undefined) {
+  return value ? new Date(value).toLocaleDateString() : "—";
+}
+
 export function AdminOrdersClient({ orders }: { orders: Order[] }) {
   return (
     <Card>
@@ -34,7 +38,7 @@ export function AdminOrdersClient({ orders }: { orders: Order[] }) {
                   </Badge>
                 </td>
                 <td className="py-3 text-gray-600">
-                  {new Date(order.created_at || order.createdAt || Date.now()).toLocaleDateString()}
+                  {formatOrderDate(order.created_at ?? order.createdAt)}
                 </td>
               </tr>
             ))}

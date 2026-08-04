@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/Button";
 
 export default function MissionPage() {
   return (
@@ -30,7 +28,7 @@ export default function MissionPage() {
               <h2 className="text-4xl font-bold text-gray-900 mb-8">What Drives Us</h2>
               <p className="text-lg text-gray-600 mb-6 leading-relaxed">
                 At TerraTrace Pro, our mission is rooted in a deep belief that African agriculture
-                holds the key to the continent's future prosperity. We're committed to removing
+                holds the key to the continent&apos;s future prosperity. We&apos;re committed to removing
                 barriers that have long prevented smallholder farmers from accessing fair markets.
               </p>
               <p className="text-lg text-gray-600 mb-6 leading-relaxed">
@@ -38,7 +36,7 @@ export default function MissionPage() {
                 and every buyer deserves access to quality, traceable produce.
               </p>
               <p className="text-lg text-gray-600 leading-relaxed">
-                Through our platform, we're creating an ecosystem where trust, transparency, and
+                Through our platform, we&apos;re creating an ecosystem where trust, transparency, and
                 collaboration thrive – ensuring that agriculture works for everyone.
               </p>
             </div>

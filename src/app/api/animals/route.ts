@@ -38,10 +38,11 @@ export async function POST(req: Request) {
 
     // 3. Return clean JSON without altering the session cookie
     return NextResponse.json({ success: true, data: animal });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error creating listing:", error);
+    const message = error instanceof Error ? error.message : "Failed to create listing";
     return NextResponse.json(
-      { success: false, error: error.message || "Failed to create listing" },
+      { success: false, error: message },
       { status: 500 }
     );
   }

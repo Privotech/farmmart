@@ -32,7 +32,7 @@ export function useCart() {
       } else {
         setError(data.error || "Failed to fetch cart");
       }
-    } catch (err: unknown) {
+    } catch {
       setError("Network error fetching cart");
     } finally {
       setIsLoading(false);
@@ -40,7 +40,8 @@ export function useCart() {
   }, [session]);
 
   useEffect(() => {
-    fetchCart();
+    const timeout = setTimeout(() => void fetchCart(), 0);
+    return () => clearTimeout(timeout);
   }, [fetchCart]);
 
   const addToCart = async (animalId: string, quantity: number = 1) => {
@@ -71,8 +72,7 @@ export function useCart() {
         setCartItems((prev) => prev.filter((item) => item.id !== cartItemId));
         await fetchCart(); // update total price
       }
-    } catch (err: unknown) {
-      console.error(err);
+    } catch {
     }
   };
 
@@ -81,8 +81,7 @@ export function useCart() {
       await fetch("/api/cart?clear=true", { method: "DELETE" });
       setCartItems([]);
       setTotalPrice(0);
-    } catch (err: unknown) {
-      console.error(err);
+    } catch {
     }
   };
 

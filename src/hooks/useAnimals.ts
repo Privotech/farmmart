@@ -26,7 +26,7 @@ export function useAnimals(initialFilters: AnimalFilters = {}) {
       } else {
         setError(data.error || "Failed to fetch animals");
       }
-    } catch (err: unknown) {
+    } catch {
       setError("An error occurred while fetching animals");
     } finally {
       setIsLoading(false);
@@ -34,7 +34,8 @@ export function useAnimals(initialFilters: AnimalFilters = {}) {
   }, [filters]);
 
   useEffect(() => {
-    fetchAnimals();
+    const timeout = setTimeout(() => void fetchAnimals(), 0);
+    return () => clearTimeout(timeout);
   }, [fetchAnimals]);
 
   return { animals, isLoading, error, filters, setFilters, refetch: fetchAnimals };

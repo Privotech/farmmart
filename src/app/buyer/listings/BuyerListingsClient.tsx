@@ -12,7 +12,7 @@ export function BuyerListingsClient({ animals }: { animals: Animal[] }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const handleFilterChange = (filters: any) => {
+  const handleFilterChange = (filters: AnimalFilters) => {
     const params = new URLSearchParams(searchParams.toString());
     
     // Clear old filters

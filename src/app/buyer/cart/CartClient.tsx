@@ -6,8 +6,9 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { removeFromCart, updateCartQuantity } from "@/actions/cart";
 import { useTransition } from "react";
+import type { CartItem } from "@/types";
 
-export function CartClient({ initialCartItems }: { initialCartItems: any[] }) {
+export function CartClient({ initialCartItems }: { initialCartItems: CartItem[] }) {
   const [isPending, startTransition] = useTransition();
 
   const handleRemoveItem = (itemId: string) => {
@@ -23,7 +24,7 @@ export function CartClient({ initialCartItems }: { initialCartItems: any[] }) {
   };
 
   const totalPrice = initialCartItems.reduce(
-    (sum, item) => sum + item.animal.price * item.quantity,
+    (sum, item) => sum + Number(item.animal?.price ?? 0) * item.quantity,
     0
   );
 

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import nodemailer from "nodemailer";
 import { rateLimit } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
+import { sendEmail } from "@/lib/mailer";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,14 +15,21 @@ export async function POST(req: NextRequest) {
     const { email } = await req.json();
 
     if (!email) {
-      return NextResponse.json({ success: false, error: "Email is required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "Email is required" },
+        { status: 400 },
+      );
     }
 
     const user = await prisma.users.findUnique({ where: { email } });
 
     if (!user) {
       // Return success even if user not found to prevent email enumeration
-      return NextResponse.json({ success: true, message: "If an account with that email exists, we have sent a reset link." });
+      return NextResponse.json({
+        success: true,
+        message:
+          "If an account with that email exists, we have sent a reset link.",
+      });
     }
 
     const token = crypto.randomBytes(32).toString("hex");
@@ -36,20 +43,9 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Send Email
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || "587"),
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+    const resetUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/reset-password?token=${token}`;
 
-    const resetUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
-
-    await transporter.sendMail({
-      from: '"FarmMart Support" <support@farmmart.com>',
+    await sendEmail({
       to: email,
       subject: "Password Reset Request",
       html: `
@@ -60,9 +56,16 @@ export async function POST(req: NextRequest) {
       `,
     });
 
-    return NextResponse.json({ success: true, message: "If an account with that email exists, we have sent a reset link." });
+    return NextResponse.json({
+      success: true,
+      message:
+        "If an account with that email exists, we have sent a reset link.",
+    });
   } catch (error: unknown) {
     console.error("Forgot Password API error:", error);
-    return NextResponse.json({ success: false, error: "An unexpected error occurred" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "An unexpected error occurred" },
+      { status: 500 },
+    );
   }
 }

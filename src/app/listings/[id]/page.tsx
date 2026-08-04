@@ -158,7 +158,7 @@ export default function AnimalDetailPage() {
                 {animal.weight && (
                   <div className="flex items-center justify-between">
                     <span className="text-gray-400">Weight</span>
-                    <span className="font-semibold text-gray-100">{animal.weight} kg</span>
+                    <span className="font-semibold text-gray-100">{Number(animal.weight)} kg</span>
                   </div>
                 )}
 

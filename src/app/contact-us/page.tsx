@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
@@ -30,7 +29,7 @@ export default function ContactUsPage() {
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
             Have questions about our platform? Want to partner with us?
-            We'd love to hear from you.
+            We&apos;d love to hear from you.
           </p>
           </div>
         </div>
@@ -52,7 +51,7 @@ export default function ContactUsPage() {
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">Thank You!</h3>
                   <p className="text-gray-600 mb-8">
-                    Your message has been sent successfully. We'll get back to you within 24-48 hours.
+                    Your message has been sent successfully. We&apos;ll get back to you within 24-48 hours.
                   </p>
                   <Button
                     className="bg-emerald-600 hover:bg-emerald-700"
@@ -98,7 +97,7 @@ export default function ContactUsPage() {
                     <textarea
                       required
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition resize-vertical min-h-[180px]"
-                      placeholder="Tell us what you're thinking..."
+                      placeholder="Tell us what you&apos;re thinking..."
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     />

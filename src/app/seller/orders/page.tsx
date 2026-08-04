@@ -4,6 +4,9 @@ import React from 'react';
 import { getSellerOrders, updateOrderStatus } from '@/actions/orders';
 import { Card } from '@/components/ui/Card';
 
+type OrderStatus = 'PENDING' | 'PAID' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'REFUNDED';
+type SellerOrder = Awaited<ReturnType<typeof getSellerOrders>>[number];
+
 // Interactive component handling status updates
 const OrderStatusUpdater = ({ orderId, currentStatus }: { orderId: string; currentStatus: string }) => {
   const [status, setStatus] = React.useState(currentStatus);
@@ -11,7 +14,7 @@ const OrderStatusUpdater = ({ orderId, currentStatus }: { orderId: string; curre
 
   const handleUpdate = async (newStatus: string) => {
     setIsUpdating(true);
-    const result = await updateOrderStatus(orderId, newStatus as any);
+    const result = await updateOrderStatus(orderId, newStatus as OrderStatus);
     if (result.success) {
       setStatus(newStatus);
     } else {
@@ -37,16 +40,14 @@ const OrderStatusUpdater = ({ orderId, currentStatus }: { orderId: string; curre
 };
 
 export default function SellerOrdersPage() {
-  const [orders, setOrders] = React.useState<any[]>([]);
+  const [orders, setOrders] = React.useState<SellerOrder[]>([]);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     async function fetchOrders() {
       try {
         const rawOrders = await getSellerOrders();
-        // Sanitize Prisma Decimals & Dates for React serialization
-        const cleanOrders = JSON.parse(JSON.stringify(rawOrders));
-        setOrders(cleanOrders);
+        setOrders(rawOrders);
       } catch (err) {
         console.error("Failed to load seller orders:", err);
       } finally {
@@ -95,16 +96,16 @@ export default function SellerOrdersPage() {
                       {order.id.substring(0, 8)}...
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                      {new Date(order.created_at || order.createdAt).toLocaleDateString()}
+                      {new Date(order.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                      {order.users?.name || order.buyer?.name || "Unknown"}
+                      {order.users?.name || "Unknown"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                      {order.animals?.name || order.animal?.name || "N/A"}
+                      {order.animals?.name || "N/A"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                      ₦{Number(order.amount || order.totalAmount || 0).toLocaleString()}
+                      ₦{Number(order.amount ?? 0).toLocaleString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <OrderStatusUpdater orderId={order.id} currentStatus={order.status} />

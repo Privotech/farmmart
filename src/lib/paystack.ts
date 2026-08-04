@@ -1,9 +1,20 @@
-import axios from 'axios';
+import axios from "axios";
+
+const paystackSecretKey = process.env.PAYSTACK_SECRET_KEY;
+const paystackPublicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
+
+if (!paystackSecretKey) {
+  throw new Error(
+    "Paystack secret key is missing. Set PAYSTACK_SECRET_KEY and NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY in your .env file.",
+  );
+}
+
+export const PAYSTACK_PUBLIC_KEY = paystackPublicKey || "";
 
 const paystackApi = axios.create({
-  baseURL: 'https://api.paystack.co',
+  baseURL: "https://api.paystack.co",
   headers: {
-    Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+    Authorization: `Bearer ${paystackSecretKey}`,
   },
 });
 
@@ -70,7 +81,7 @@ export interface VerifyPaymentResponse {
 
 export async function initializePayment(params: InitializePaymentParams) {
   try {
-    const response = await paystackApi.post('/transaction/initialize', {
+    const response = await paystackApi.post("/transaction/initialize", {
       email: params.email,
       amount: params.amount,
       reference: params.reference,
@@ -79,33 +90,33 @@ export async function initializePayment(params: InitializePaymentParams) {
 
     return response.data;
   } catch (error) {
-    console.error('Paystack initialization error:', error);
+    console.error("Paystack initialization error:", error);
     throw error;
   }
 }
 
-export async function verifyPayment(reference: string): Promise<VerifyPaymentResponse> {
+export async function verifyPayment(
+  reference: string,
+): Promise<VerifyPaymentResponse> {
   try {
-    const response = await paystackApi.get(
-      `/transaction/verify/${reference}`
-    );
+    const response = await paystackApi.get(`/transaction/verify/${reference}`);
 
     return response.data;
   } catch (error) {
-    console.error('Paystack verification error:', error);
+    console.error("Paystack verification error:", error);
     throw error;
   }
 }
 
 export async function createRecipient(
-  type: 'nuban' | 'mobile_money' | 'ghipss',
+  type: "nuban" | "mobile_money" | "ghipss",
   name: string,
   accountNumber: string,
   bankCode?: string,
-  currency?: string
+  currency?: string,
 ) {
   try {
-    const response = await paystackApi.post('/transferrecipient', {
+    const response = await paystackApi.post("/transferrecipient", {
       type,
       name,
       account_number: accountNumber,
@@ -115,7 +126,7 @@ export async function createRecipient(
 
     return response.data;
   } catch (error) {
-    console.error('Paystack recipient creation error:', error);
+    console.error("Paystack recipient creation error:", error);
     throw error;
   }
 }
@@ -124,11 +135,11 @@ export async function initiateTransfer(
   recipientCode: string,
   amount: number,
   reference: string,
-  reason?: string
+  reason?: string,
 ) {
   try {
-    const response = await paystackApi.post('/transfer', {
-      source: 'balance',
+    const response = await paystackApi.post("/transfer", {
+      source: "balance",
       recipient: recipientCode,
       amount,
       reference,
@@ -137,7 +148,7 @@ export async function initiateTransfer(
 
     return response.data;
   } catch (error) {
-    console.error('Paystack transfer error:', error);
+    console.error("Paystack transfer error:", error);
     throw error;
   }
 }

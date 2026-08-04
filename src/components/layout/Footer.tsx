@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -10,7 +11,7 @@ export const Footer = () => {
           {/* About */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src="/logo.svg" alt="FarmMart" className="w-10 h-10" />
+              <Image src="/logo.svg" alt="FarmMart" width={40} height={40} className="w-10 h-10" />
               <h3 className="text-2xl font-bold text-emerald-100">FarmMart</h3>
             </div>
             <p className="text-emerald-400">

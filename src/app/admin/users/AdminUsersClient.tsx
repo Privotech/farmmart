@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { User, UserRole } from "@/types";
+import { User } from "@/types";
 import { updateUserRole, deleteUser } from "@/actions/users";
 import { useTransition } from "react";
 
@@ -44,41 +44,45 @@ export function AdminUsersClient({ users, currentUserId }: { users: User[], curr
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
-              <tr key={user.id} className="border-b hover:bg-gray-50">
-                <td className="py-3 font-semibold">{user.name}</td>
-                <td className="py-3 text-gray-600">{user.email}</td>
-                <td className="py-3">
-                  <select
-                    value={user.role}
-                    onChange={(e) =>
-                      handleRoleChange(user.id, e.target.value as User["role"])
-                    }
-                    className="px-3 py-1 border rounded-lg text-sm"
-                    disabled={user.id === currentUserId || isPending}
-                  >
-                    <option value="BUYER">Buyer</option>
-                    <option value="SELLER">Seller</option>
-                    <option value="ADMIN">Admin</option>
-                  </select>
-                </td>
-                <td className="py-3 text-gray-600">
-                  {new Date(user.createdAt || user.created_at || Date.now()).toLocaleDateString()}
-                </td>
-                <td className="py-3">
-                  {user.id !== currentUserId && (
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => handleDeleteUser(user.id)}
-                      disabled={isPending}
+            {users.map((user) => {
+              const joinedDate = user.createdAt ?? user.created_at;
+
+              return (
+                <tr key={user.id} className="border-b hover:bg-gray-50">
+                  <td className="py-3 font-semibold">{user.name}</td>
+                  <td className="py-3 text-gray-600">{user.email}</td>
+                  <td className="py-3">
+                    <select
+                      value={user.role}
+                      onChange={(e) =>
+                        handleRoleChange(user.id, e.target.value as User["role"])
+                      }
+                      className="px-3 py-1 border rounded-lg text-sm"
+                      disabled={user.id === currentUserId || isPending}
                     >
-                      Delete
-                    </Button>
-                  )}
-                </td>
-              </tr>
-            ))}
+                      <option value="BUYER">Buyer</option>
+                      <option value="SELLER">Seller</option>
+                      <option value="ADMIN">Admin</option>
+                    </select>
+                  </td>
+                  <td className="py-3 text-gray-600">
+                    {joinedDate ? new Date(joinedDate).toLocaleDateString() : "—"}
+                  </td>
+                  <td className="py-3">
+                    {user.id !== currentUserId && (
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => handleDeleteUser(user.id)}
+                        disabled={isPending}
+                      >
+                        Delete
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

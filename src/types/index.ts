@@ -11,6 +11,8 @@ export type AnimalsCategory =
   | "CATTLE" | "POULTRY" | "GOAT" | "SHEEP" | "PIG" | "FISH" | "OTHER"
   | string;
 
+export type Numeric = number | { toString(): string };
+
 export interface User {
   id: string;
   name: string;
@@ -31,8 +33,8 @@ export interface Animal {
   name: string;
   breed?: string | null;
   category?: AnimalsCategory;
-  price: number | any;
-  weight?: number | any;
+  price: Numeric;
+  weight?: Numeric | null;
   age?: number | null;
   description?: string | null;
   images?: string;
@@ -74,8 +76,8 @@ export interface CartItem {
 
 export interface Order {
   id: string;
-  amount?: number | any;     // Enables order.amount
-  totalAmount?: number | any;
+  amount?: Numeric;
+  totalAmount?: Numeric;
   status: OrdersStatus;
   paymentStatus?: string;
   created_at?: Date | string;

@@ -9,7 +9,7 @@ import { Animal } from "@/types";
 
 interface AnimalFormProps {
   animal?: Animal;
-  action: (animalId: string, data: Record<string, unknown>) => Promise<any>;
+  action: (animalId: string, data: Record<string, unknown>) => Promise<{ success: boolean; error?: string }>;
 }
 
 export function AnimalForm({ animal, action }: AnimalFormProps) {
@@ -19,8 +19,8 @@ export function AnimalForm({ animal, action }: AnimalFormProps) {
     category: animal?.category || "CATTLE",
     breed: animal?.breed || "",
     age: animal?.age || 0,
-    weight: animal?.weight || 0,
-    price: animal?.price || 0,
+    weight: Number(animal?.weight ?? 0),
+    price: Number(animal?.price ?? 0),
     description: animal?.description || "",
     location: animal?.location || "",
     state: animal?.state || "",

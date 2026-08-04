@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { createOrder } from "@/actions/orders";
+import { createOrder, initializePaystackPayment } from "@/actions/orders";
 import { Animal } from "@/types";
 
 interface CartItem {
@@ -24,7 +24,13 @@ interface CheckoutClientProps {
   total: number;
 }
 
-export function CheckoutClient({ cartItems, cartTotal, shippingCost, tax, total }: CheckoutClientProps) {
+export function CheckoutClient({
+  cartItems,
+  cartTotal,
+  shippingCost,
+  tax,
+  total,
+}: CheckoutClientProps) {
   const router = useRouter();
   const [formData, setFormData] = useState({
     deliveryAddress: "",
@@ -34,6 +40,27 @@ export function CheckoutClient({ cartItems, cartTotal, shippingCost, tax, total 
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [paystackReady, setPaystackReady] = useState(false);
+
+  useEffect(() => {
+    const scriptId = "paystack-inline-script";
+    if (document.getElementById(scriptId)) {
+      setPaystackReady(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.src = "https://js.paystack.co/v1/inline.js";
+    script.async = true;
+    script.onload = () => setPaystackReady(true);
+    document.body.appendChild(script);
+
+    return () => {
+      const existingScript = document.getElementById(scriptId);
+      existingScript?.remove();
+    };
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -52,34 +79,91 @@ export function CheckoutClient({ cartItems, cartTotal, shippingCost, tax, total 
         return;
       }
 
-      const res = await createOrder({
+      const initRes = await initializePaystackPayment({
         deliveryAddress: `${formData.deliveryAddress}, ${formData.city}, ${formData.state}`,
-        phoneNumber: formData.phoneNumber
+        phoneNumber: formData.phoneNumber,
       });
 
-      if (res.success) {
-        alert("Payment simulated successfully! Order created.");
-        router.push("/buyer/orders");
-      } else {
-        setError(res.error || "Failed to create order.");
+      if (!initRes.success || !initRes.authorizationUrl) {
+        setError(initRes.error || "Failed to initialize payment.");
+        setIsLoading(false);
+        return;
       }
+
+      const paystackPublicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
+      if (
+        !paystackReady ||
+        !paystackPublicKey ||
+        typeof window === "undefined"
+      ) {
+        setError("Paystack is not ready yet. Please refresh and try again.");
+        setIsLoading(false);
+        return;
+      }
+
+      const paystackWindow = window as Window & {
+        PaystackPop?: {
+          setup: (options: {
+            key: string;
+            email: string;
+            amount: number;
+            ref: string;
+            currency?: string;
+            callback: (response: { reference: string }) => void;
+            onClose: () => void;
+          }) => {
+            openIframe: () => void;
+          };
+        };
+      };
+
+      const paystackHandler = paystackWindow.PaystackPop?.setup({
+        key: paystackPublicKey,
+        email: initRes.email,
+        amount: initRes.amount,
+        ref: initRes.reference,
+        currency: "NGN",
+        callback: async (response) => {
+          const res = await createOrder({
+            deliveryAddress: `${formData.deliveryAddress}, ${formData.city}, ${formData.state}`,
+            phoneNumber: formData.phoneNumber,
+            paystackRef: response.reference,
+          });
+
+          if (res.success) {
+            alert("Payment successful! Your order has been created.");
+            router.push("/buyer/orders");
+          } else {
+            setError(
+              res.error || "Payment succeeded but order creation failed.",
+            );
+          }
+        },
+        onClose: () => {
+          setError("Payment cancelled. You can try again.");
+        },
+      });
+
+      paystackHandler?.openIframe();
     } catch {
       setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
-  
+
   if (cartItems.length === 0) {
     return (
       <div className="container mx-auto text-center py-20">
         <h2 className="text-2xl font-bold mb-4">Your Cart is Empty</h2>
-        <p className="text-gray-500 mb-8">Looks like you haven't added any animals to your cart yet.</p>
+        <p className="text-gray-500 mb-8">
+          Looks like you haven&apos;t added any animals to your cart yet.
+        </p>
         <Link href="/listings">
           <Button variant="primary">Browse Animals</Button>
         </Link>
       </div>
-    )
+    );
   }
 
   return (
@@ -159,20 +243,33 @@ export function CheckoutClient({ cartItems, cartTotal, shippingCost, tax, total 
           <Card>
             <h3 className="text-xl font-bold mb-4">Your Cart</h3>
             <div className="space-y-4 mb-6">
-              {cartItems.map(item => (
+              {cartItems.map((item) => (
                 <div key={item.id} className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-md bg-gray-100">
-                    <Image src={item.animals.images?.[0] || '/cow.svg'} alt={item.animals.name} width={64} height={64} className="object-cover rounded-md" />
+                    <Image
+                      src={item.animals.images?.[0] || "/cow.svg"}
+                      alt={item.animals.name}
+                      width={64}
+                      height={64}
+                      className="object-cover rounded-md"
+                    />
                   </div>
                   <div>
                     <p className="font-semibold">{item.animals.name}</p>
-                    <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                    <p className="text-sm text-gray-500">
+                      Qty: {item.quantity}
+                    </p>
                   </div>
-                  <p className="ml-auto font-semibold">₦{(item.animals.price * item.quantity).toLocaleString()}</p>
+                  <p className="ml-auto font-semibold">
+                    ₦
+                    {(
+                      Number(item.animals.price) * item.quantity
+                    ).toLocaleString()}
+                  </p>
                 </div>
               ))}
             </div>
-            
+
             <h3 className="text-xl font-bold mb-4">Order Summary</h3>
 
             <div className="space-y-3 mb-6 pb-6 border-b">

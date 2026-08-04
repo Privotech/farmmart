@@ -104,19 +104,19 @@ export default function SellerDashboard() {
 
   // Calculate seller revenue (sum of item totals for this seller's products)
   const revenue = orders
-    .filter((o: any) => o.status !== "CANCELLED")
-    .reduce((sum, o: any) => sum + Number(o.amount || 0), 0);
+    .filter((order) => order.status !== "CANCELLED")
+    .reduce((sum, order) => sum + Number(order.amount ?? 0), 0);
 
   // Generate activities based on orders and health clearances
   const activities = [
-    ...orders.map((o: any) => ({
+    ...orders.map((o) => ({
       type: "order" as const,
       id: o.id,
       title: `Order ${o.status === "DELIVERED" || o.status === "PAID" ? "Confirmed" : o.status.charAt(0).toUpperCase() + o.status.slice(1).toLowerCase()}: ${o.id}`,
       subtitle: `By ${o.users?.name || "Customer"}`,
       value: `₦${Number(o.amount || 0).toLocaleString()}`,
       status: o.status,
-      date: new Date(o.created_at || o.createdAt),
+      date: new Date(o.created_at ?? o.createdAt ?? 0),
       color:
         o.status === "PAID"
           ? "emerald"
@@ -131,7 +131,7 @@ export default function SellerDashboard() {
       subtitle: `${a.breed} • ${a.location}`,
       value: "Listed",
       status: "active",
-      date: new Date(a.createdAt || a.created_at || Date.now()),
+      date: new Date(a.createdAt ?? a.created_at ?? 0),
       color: "blue",
     })),
   ]

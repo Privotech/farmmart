@@ -83,7 +83,7 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
           <Badge variant="primary">{animal.category}</Badge>
           <Badge
             variant={
-              (healthStatusColors as Record<string, any>)[animal.health_status ?? "unknown"] || "danger"
+              healthStatusColors[animal.health_status as keyof typeof healthStatusColors] ?? "danger"
             }
           >
             {animal.health_status}
@@ -102,7 +102,7 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
               ₦{Number(animal.price || 0).toLocaleString()}
             </p>
             {animal.weight && (
-              <p className="text-xs text-emerald-400">{animal.weight} kg</p>
+              <p className="text-xs text-emerald-400">{Number(animal.weight)} kg</p>
             )}
           </div>
 

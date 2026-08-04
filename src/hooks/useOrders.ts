@@ -24,7 +24,7 @@ export function useOrders() {
       } else {
         setError(data.error || "Failed to fetch orders");
       }
-    } catch (err: unknown) {
+    } catch {
       setError("Network error fetching orders");
     } finally {
       setIsLoading(false);
@@ -32,7 +32,8 @@ export function useOrders() {
   }, [session]);
 
   useEffect(() => {
-    fetchOrders();
+    const timeout = setTimeout(() => void fetchOrders(), 0);
+    return () => clearTimeout(timeout);
   }, [fetchOrders]);
 
   const createOrder = async (items: CartItem[], deliveryAddress: string, phoneNumber: string, totalAmount: number) => {

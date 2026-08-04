@@ -7,22 +7,19 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import ImageUpload from "@/components/ImageUpload";
 import { updateAnimal } from "@/actions/animals";
-import { z } from "zod";
 
-const animalSchema = z.object({
-  id: z.string(),
-  name: z.string().min(1, "Name is required"),
-  category: z.string().min(1, "Category is required"),
-  breed: z.string().min(1, "Breed is required"),
-  age: z.string(),
-  weight: z.string(),
-  price: z.string().min(1, "Price is required"),
-  description: z.string().min(1, "Description is required"),
-  location: z.string().min(1, "Location is required"),
-  images: z.string().optional(),
-});
-
-type Animal = z.infer<typeof animalSchema>;
+interface Animal {
+  id: string;
+  name: string;
+  category: string;
+  breed: string;
+  age: string;
+  weight: string;
+  price: string;
+  description: string;
+  location: string;
+  images?: string;
+}
 
 export default function SellerEditAnimalForm({ animal }: { animal: Animal }) {
   const router = useRouter();

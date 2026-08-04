@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/Button";
 
 export default function AboutPage() {
   return (
@@ -12,7 +10,7 @@ export default function AboutPage() {
             About TerraTrace Pro
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
-            We're revolutionizing agricultural commerce by connecting farmers, buyers, and
+            We&apos;re revolutionizing agricultural commerce by connecting farmers, buyers, and
             markets with cutting-edge technology and transparent practices.
           </p>
           </div>
@@ -30,11 +28,11 @@ export default function AboutPage() {
                 to markets, and every buyer deserves transparency in their supply chain.
               </p>
               <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                Founded by a team of agricultural experts and technology innovators, we've
+                Founded by a team of agricultural experts and technology innovators, we&apos;ve
                 built a platform that bridges the gap between traditional farming and modern commerce.
               </p>
               <p className="text-lg text-gray-600 leading-relaxed">
-                Today, we're proud to serve thousands of farmers and buyers across Nigeria,
+                Today, we&apos;re proud to serve thousands of farmers and buyers across Nigeria,
                 helping them connect, trade, and grow together.
               </p>
             </div>
@@ -68,7 +66,7 @@ export default function AboutPage() {
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">What We Do</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              We're building the future of agricultural commerce, one connection at a time.
+              We&apos;re building the future of agricultural commerce, one connection at a time.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">

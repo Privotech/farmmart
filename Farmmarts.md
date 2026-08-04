@@ -215,6 +215,13 @@ PostgreSQL Migration:
 3. Removed the unused `mysql2` dependency and legacy `src/lib/db.ts` connection pool.
 4. Configured `.env` to use a PostgreSQL `DATABASE_URL`.
 
+Production Readiness (August 2026):
+1. Credentials authentication verifies individual bcrypt password hashes; no shared demo-password bypass remains.
+2. Prisma requires `DATABASE_URL` at startup, and deployment installs/builds generate Prisma Client automatically.
+3. Middleware no longer logs session tokens, JWT payloads, or secret values.
+4. The buyer cart is served at `/buyer/cart`; the former `/cart` route redirects there for backward compatibility.
+5. Source type safety, React rendering patterns, and unused imports were cleaned up. `npm run lint` completes with no warnings or errors.
+
 Files Modified:
 1. src/types/index.ts:
    - Complete rewrite to exactly match Prisma schema
@@ -260,7 +267,9 @@ Files Created:
 
 Current Issues and Errors
 
-Prisma Client generation may fail on Windows with an `EPERM` rename error for `query_engine-windows.dll.node`. This is a Windows file lock, usually caused by a running Node/Next.js process, VS Code extension, antivirus, or indexer. Close the app and editor, restart Windows if needed, then run:
+Code quality verification is complete: `npm run lint` passes with no warnings or errors.
+
+Prisma Client generation can still fail locally on Windows with an `EPERM` rename error for `query_engine-windows.dll.node`. This is an operating-system file lock, usually caused by a running Node/Next.js process, VS Code extension, antivirus, or indexer. Close the app and editor, restart Windows if needed, then run:
 
 ```bat
 rmdir /s /q node_modules\.prisma\client
