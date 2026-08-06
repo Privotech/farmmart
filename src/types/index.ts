@@ -2,13 +2,27 @@
 
 export type UserRole = "BUYER" | "SELLER" | "ADMIN";
 
-export type OrdersStatus = 
-  | "PENDING" | "CONFIRMED" | "SHIPPED" | "DELIVERED" 
-  | "pending" | "confirmed" | "shipped" | "delivered"
-  | "completed" | "PAID" | "CANCELLED";
+export type OrdersStatus =
+  | "PENDING"
+  | "CONFIRMED"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "pending"
+  | "confirmed"
+  | "shipped"
+  | "delivered"
+  | "completed"
+  | "PAID"
+  | "CANCELLED";
 
-export type AnimalsCategory = 
-  | "CATTLE" | "POULTRY" | "GOAT" | "SHEEP" | "PIG" | "FISH" | "OTHER"
+export type AnimalsCategory =
+  | "CATTLE"
+  | "POULTRY"
+  | "GOAT"
+  | "SHEEP"
+  | "PIG"
+  | "FISH"
+  | "OTHER"
   | string;
 
 export type Numeric = number | { toString(): string };
@@ -37,11 +51,11 @@ export interface Animal {
   weight?: Numeric | null;
   age?: number | null;
   description?: string | null;
-  images?: string;
+  images?: string | string[] | null;
   type?: string;
-  status?: string;           // Enables animal.status === "AVAILABLE"
-  location?: string | null;   // Enables animal.location
-  state?: string | null;      // Enables animal.state
+  status?: string;
+  location?: string | null;
+  state?: string | null;
   health_status?: string;
   is_negotiable?: boolean;
   isNegotiable?: boolean;

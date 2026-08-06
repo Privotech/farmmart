@@ -3,9 +3,17 @@
 import React from 'react';
 import { getSellerOrders, updateOrderStatus } from '@/actions/orders';
 import { Card } from '@/components/ui/Card';
+import { Prisma } from '@prisma/client';
 
 type OrderStatus = 'PENDING' | 'PAID' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'REFUNDED';
-type SellerOrder = Awaited<ReturnType<typeof getSellerOrders>>[number];
+
+// Define the exact shape of an order returned by getSellerOrders
+type SellerOrder = Prisma.ordersGetPayload<{
+  include: {
+    animals: true;
+    users: true;
+  };
+}>;
 
 // Interactive component handling status updates
 const OrderStatusUpdater = ({ orderId, currentStatus }: { orderId: string; currentStatus: string }) => {
@@ -46,8 +54,10 @@ export default function SellerOrdersPage() {
   React.useEffect(() => {
     async function fetchOrders() {
       try {
-        const rawOrders = await getSellerOrders();
-        setOrders(rawOrders);
+        const res = await getSellerOrders();
+        if (res.success && res.orders) {
+          setOrders(res.orders as SellerOrder[]);
+        }
       } catch (err) {
         console.error("Failed to load seller orders:", err);
       } finally {

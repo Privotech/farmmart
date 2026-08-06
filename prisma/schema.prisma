@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -82,6 +83,7 @@ model orders {
   paystack_ref     String        @unique(map: "uq_orders_paystack_ref") @db.VarChar(200)
   paystack_channel String?       @db.VarChar(50)
   delivery_address String?       @db.Text
+  delivery_phone   String?       @db.VarChar(20)  // <--- ADD THIS FIELD
   delivery_state   String?       @db.VarChar(100)
   delivery_city    String?       @db.VarChar(100)
   notes            String?       @db.Text

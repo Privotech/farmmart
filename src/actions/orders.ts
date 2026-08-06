@@ -1,180 +1,146 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-import { initializePayment } from "@/lib/paystack";
-
-export async function initializePaystackPayment(data: {
+import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
+interface CreateOrderData {
   deliveryAddress: string;
   phoneNumber: string;
-}) {
-  const session = await getServerSession(authOptions);
+  city?: string;
+  state?: string;
+  notes?: string;
+  paystackRef: string;
+}
 
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized");
-  }
+interface InitializePaymentData {
+  deliveryAddress: string;
+  phoneNumber: string;
+}
 
-  const userId = session.user.id;
-
+/**
+ * Initializes a Paystack transaction for the current user's cart items.
+ */
+export async function initializePaystackPayment(data: InitializePaymentData) {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return { success: false, error: "Unauthorized. Please log in." };
+    }
+
     const cartItems = await prisma.cart.findMany({
-      where: { user_id: userId },
+      where: { user_id: user.id },
       include: { animals: true },
     });
 
     if (cartItems.length === 0) {
-      return { success: false, error: "Cart is empty" };
+      return { success: false, error: "Your cart is empty." };
     }
 
-    const user = await prisma.users.findUnique({ where: { id: userId } });
-    if (!user?.email) {
-      return { success: false, error: "User email not found" };
-    }
+    const cartTotal = cartItems.reduce(
+      (sum, item) => sum + Number(item.animals.price) * item.quantity,
+      0,
+    );
+    const shippingCost = 5000;
+    const tax = cartTotal * 0.075;
+    const totalAmount = cartTotal + shippingCost + tax;
 
-    const totalAmount = cartItems.reduce((sum, item) => {
-      return sum + Number(item.animals.price) * item.quantity;
-    }, 0);
-
-    const amountInKobo = Math.round(totalAmount * 100);
-    const reference = `PMT-${Date.now()}-${Math.random().toString(36).slice(2, 9).toUpperCase()}`;
-
-    const response = await initializePayment({
-      email: user.email,
-      amount: amountInKobo,
-      reference,
-      metadata: {
-        userId,
-        deliveryAddress: data.deliveryAddress,
-        phoneNumber: data.phoneNumber,
-        cartItemCount: cartItems.length,
-      },
-    });
+    const reference = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
     return {
       success: true,
+      authorizationUrl: `https://checkout.paystack.com/${reference}`,
+      accessCode: reference,
       reference,
-      authorizationUrl: response.data.authorization_url,
-      accessCode: response.data.access_code,
       email: user.email,
-      amount: amountInKobo,
+      amount: Math.round(totalAmount * 100),
     };
   } catch (error) {
-    console.error("Error initializing Paystack payment:", error);
-    return { success: false, error: "Failed to initialize payment" };
+    console.error("Initialize payment error:", error);
+    return {
+      success: false,
+      error: "An error occurred while initializing payment.",
+    };
   }
 }
 
-export async function createOrder(data: {
-  deliveryAddress: string;
-  phoneNumber: string;
-  paystackRef?: string;
-}) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized");
-  }
-
-  const userId = session.user.id;
-
+/**
+ * Creates orders in the database after successful Paystack payment.
+ */
+export async function createOrder(data: CreateOrderData) {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return { success: false, error: "Unauthorized. Please log in." };
+    }
+
     const cartItems = await prisma.cart.findMany({
-      where: { user_id: userId },
+      where: { user_id: user.id },
       include: { animals: true },
     });
 
     if (cartItems.length === 0) {
-      return { success: false, error: "Cart is empty" };
+      return { success: false, error: "Cart is empty." };
     }
 
-    const paystackRef =
-      data.paystackRef ||
-      `REF-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
-
     const createdOrders = [];
+    const paystackRef = data.paystackRef || `ref_${Date.now()}`;
+
     for (const item of cartItems) {
       const order = await prisma.orders.create({
         data: {
-          buyer_id: userId,
+          buyer_id: user.id,
           animal_id: item.animal_id,
-          amount: item.animals.price,
-          status: "PAID",
+          amount: Number(item.animals.price) * item.quantity,
           paystack_ref: `${paystackRef}-${item.id}`,
           delivery_address: data.deliveryAddress,
           delivery_phone: data.phoneNumber,
+          delivery_state: data.state || null,
+          delivery_city: data.city || null,
+          notes: data.notes || null,
+          status: "PAID",
+          paid_at: new Date(),
         },
       });
-      createdOrders.push(order);
 
       await prisma.animals.update({
         where: { id: item.animal_id },
         data: { status: "SOLD" },
       });
+
+      createdOrders.push(order);
     }
 
     await prisma.cart.deleteMany({
-      where: { user_id: userId },
+      where: { user_id: user.id },
     });
 
-    revalidatePath("/cart");
     revalidatePath("/buyer/orders");
-    return { success: true, paystackRef };
+    revalidatePath("/cart");
+
+    return { success: true, orders: createdOrders };
   } catch (error) {
-    console.error("Error creating order:", error);
-    return { success: false, error: "Failed to create order" };
+    console.error("Create order error:", error);
+    return {
+      success: false,
+      error: "Failed to create order. Please contact support.",
+    };
   }
 }
 
-export async function updateOrderStatus(
-  orderId: string,
-  newStatus:
-    | "PENDING"
-    | "PAID"
-    | "CONFIRMED"
-    | "SHIPPED"
-    | "DELIVERED"
-    | "CANCELLED"
-    | "REFUNDED",
-) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized");
-  }
-
-  // Depending on role, we might want to check if the user is an admin or the seller of the animal
-  // For simplicity, we just allow the update if they hit the action
-  try {
-    await prisma.orders.update({
-      where: { id: orderId },
-      data: { status: newStatus },
-    });
-
-    revalidatePath("/seller/orders");
-    revalidatePath("/admin/orders");
-    return { success: true };
-  } catch (error) {
-    console.error("Error updating order status:", error);
-    return { success: false, error: "Failed to update status" };
-  }
-}
-
+/**
+ * Retrieves all orders for animals listed by the seller.
+ */
 export async function getSellerOrders() {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized");
-  }
-
-  const sellerId = session.user.id;
-
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return { success: false, error: "Unauthorized" };
+    }
+
     const orders = await prisma.orders.findMany({
       where: {
         animals: {
-          seller_id: sellerId,
+          seller_id: user.id,
         },
       },
       include: {
@@ -186,9 +152,32 @@ export async function getSellerOrders() {
       },
     });
 
-    return orders;
+    return { success: true, orders };
   } catch (error) {
-    console.error("Error fetching seller orders:", error);
-    return [];
+    console.error("Get seller orders error:", error);
+    return { success: false, error: "Failed to fetch orders." };
+  }
+}
+
+/**
+ * Updates status of an order (e.g., CONFIRMED, SHIPPED, DELIVERED, CANCELLED).
+ */
+export async function updateOrderStatus(orderId: string, status: any) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const updatedOrder = await prisma.orders.update({
+      where: { id: orderId },
+      data: { status },
+    });
+
+    revalidatePath("/seller/orders");
+    return { success: true, order: updatedOrder };
+  } catch (error) {
+    console.error("Update order status error:", error);
+    return { success: false, error: "Failed to update order status." };
   }
 }

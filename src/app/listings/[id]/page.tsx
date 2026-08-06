@@ -11,6 +11,31 @@ import { Animal } from "@/types";
 
 import { useSession } from "@/lib/auth-client";
 
+function getAnimalImages(
+  images: string | string[] | null | undefined,
+): string[] {
+  if (Array.isArray(images)) {
+    return images.filter((image): image is string => typeof image === "string");
+  }
+
+  if (!images) {
+    return [];
+  }
+
+  if (typeof images === "string") {
+    try {
+      const parsed = JSON.parse(images);
+      return Array.isArray(parsed)
+        ? parsed.filter((image): image is string => typeof image === "string")
+        : [];
+    } catch {
+      return [];
+    }
+  }
+
+  return [];
+}
+
 export default function AnimalDetailPage() {
   const params = useParams();
   const id = params.id as string;
@@ -45,6 +70,8 @@ export default function AnimalDetailPage() {
     }
   }, [id]);
 
+  const images = animal ? getAnimalImages(animal.images) : [];
+
   const handleAddToCart = async () => {
     if (!animal) return;
     if (!session || !session.user) {
@@ -53,9 +80,9 @@ export default function AnimalDetailPage() {
     }
 
     try {
-      const res = await fetch('/api/cart', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ animalId: animal.id, quantity: 1 }),
       });
       const data = await res.json();
@@ -69,7 +96,6 @@ export default function AnimalDetailPage() {
     }
   };
 
-
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8 bg-[#121212] min-h-screen text-gray-100">
@@ -81,7 +107,9 @@ export default function AnimalDetailPage() {
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8 bg-[#121212] min-h-screen">
-        <div className="bg-emerald-900/30 text-emerald-400 p-4 rounded-lg border border-emerald-800">{error}</div>
+        <div className="bg-emerald-900/30 text-emerald-400 p-4 rounded-lg border border-emerald-800">
+          {error}
+        </div>
         <Link href="/listings">
           <Button variant="primary" className="mt-4">
             Back to Listings
@@ -100,10 +128,7 @@ export default function AnimalDetailPage() {
             <Card className="mb-4">
               <div className="relative w-full h-96">
                 <Image
-                  src={
-                    JSON.parse(animal.images || "[]")[selectedImageIndex] ||
-                    "/placeholder-animal.jpg"
-                  }
+                  src={images[selectedImageIndex] || "/placeholder-animal.jpg"}
                   alt={animal.name}
                   fill
                   className="object-cover"
@@ -111,9 +136,9 @@ export default function AnimalDetailPage() {
               </div>
             </Card>
 
-            {JSON.parse(animal.images || "[]").length > 1 && (
+            {images.length > 1 && (
               <div className="flex gap-4 mt-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-800">
-                {JSON.parse(animal.images || "[]").map((image: string, index: number) => (
+                {images.map((image: string, index: number) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImageIndex(index)}
@@ -158,19 +183,27 @@ export default function AnimalDetailPage() {
                 {animal.weight && (
                   <div className="flex items-center justify-between">
                     <span className="text-gray-400">Weight</span>
-                    <span className="font-semibold text-gray-100">{Number(animal.weight)} kg</span>
+                    <span className="font-semibold text-gray-100">
+                      {Number(animal.weight)} kg
+                    </span>
                   </div>
                 )}
 
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Location</span>
-                  <span className="font-semibold text-gray-100">{animal.location}</span>
+                  <span className="font-semibold text-gray-100">
+                    {animal.location}
+                  </span>
                 </div>
 
                 <div className="flex gap-2">
                   <Badge variant="primary">{animal.category}</Badge>
                   <Badge variant="success">{animal.health_status}</Badge>
-                  <Badge variant={animal.status === "AVAILABLE" ? "success" : "primary"}>
+                  <Badge
+                    variant={
+                      animal.status === "AVAILABLE" ? "success" : "primary"
+                    }
+                  >
                     {animal.status === "AVAILABLE" ? "Available" : "Sold Out"}
                   </Badge>
                 </div>
@@ -178,7 +211,9 @@ export default function AnimalDetailPage() {
             </Card>
 
             <Card className="mb-6">
-              <h3 className="text-xl font-bold mb-4 text-gray-100">Description</h3>
+              <h3 className="text-xl font-bold mb-4 text-gray-100">
+                Description
+              </h3>
               <p className="text-gray-400 whitespace-pre-wrap">
                 {animal.description}
               </p>

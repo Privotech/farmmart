@@ -1,156 +1,122 @@
-import axios from "axios";
+/**
+ * src/lib/paystack.ts
+ * Paystack API helper — initialize, verify, and webhook validation.
+ * Server-side only. Never import in client components.
+ */
 
-const paystackSecretKey = process.env.PAYSTACK_SECRET_KEY;
-const paystackPublicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
+import crypto from "crypto";
 
-if (!paystackSecretKey) {
-  throw new Error(
-    "Paystack secret key is missing. Set PAYSTACK_SECRET_KEY and NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY in your .env file.",
-  );
+const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY!;
+const BASE_URL = "https://api.paystack.co";
+
+if (!PAYSTACK_SECRET) {
+  console.warn("[paystack] PAYSTACK_SECRET_KEY is not set in .env");
 }
 
-export const PAYSTACK_PUBLIC_KEY = paystackPublicKey || "";
+// ── Types ─────────────────────────────────────────────────
 
-const paystackApi = axios.create({
-  baseURL: "https://api.paystack.co",
-  headers: {
-    Authorization: `Bearer ${paystackSecretKey}`,
-  },
-});
-
-export interface InitializePaymentParams {
+export interface PaystackInitPayload {
   email: string;
-  amount: number; // in kobo (smallest currency unit)
+  amount: number; // in kobo (Naira × 100)
   reference: string;
+  currency?: string;
   metadata?: Record<string, unknown>;
 }
 
-export interface VerifyPaymentResponse {
+export interface PaystackInitResponse {
+  status: boolean;
+  message: string;
+  data: {
+    authorization_url: string;
+    access_code: string;
+    reference: string;
+  };
+}
+
+export interface PaystackVerifyResponse {
   status: boolean;
   message: string;
   data: {
     id: number;
-    domain: string;
-    status: string;
     reference: string;
+    status: "success" | "failed" | "abandoned" | "pending";
     amount: number;
-    message: string | null;
-    gateway_response: string;
-    paid_at: string;
-    created_at: string;
-    channel: string;
     currency: string;
-    ip_address: string;
-    metadata: Record<string, unknown>;
-    fees: number;
-    logs: null;
-    time_spent: number;
+    paid_at: string;
     customer: {
-      id: number;
-      first_name: string;
-      last_name: string;
       email: string;
-      customer_code: string;
-      phone: string;
-      metadata: null;
-      risk_action: string;
-      international_format_phone: null;
+      id: number;
     };
-    authorization: {
-      authorization_code: string;
-      bin: string;
-      last4: string;
-      exp_month: string;
-      exp_year: string;
-      channel: string;
-      card_type: string;
-      bank: string;
-      country_code: string;
-      brand: string;
-      reusable: boolean;
-      signature: string;
-    };
-    plan: null;
-    split: Record<string, unknown>;
-    order_id: null;
-    paidAt: string;
-    createdAt: string;
-    requested_amount: number;
+    metadata?: Record<string, unknown>;
+    gateway_response: string;
+    channel: string;
   };
 }
 
-export async function initializePayment(params: InitializePaymentParams) {
-  try {
-    const response = await paystackApi.post("/transaction/initialize", {
-      email: params.email,
-      amount: params.amount,
-      reference: params.reference,
-      metadata: params.metadata,
-    });
+// ── Initialize payment ────────────────────────────────────
 
-    return response.data;
-  } catch (error) {
-    console.error("Paystack initialization error:", error);
-    throw error;
+export async function initializePayment(
+  payload: PaystackInitPayload
+): Promise<PaystackInitResponse> {
+  const res = await fetch(`${BASE_URL}/transaction/initialize`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${PAYSTACK_SECRET}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email: payload.email,
+      amount: payload.amount,
+      reference: payload.reference,
+      currency: payload.currency ?? "NGN",
+      metadata: payload.metadata ?? {},
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Paystack init failed (${res.status}): ${err}`);
   }
+
+  return res.json() as Promise<PaystackInitResponse>;
 }
+
+// ── Verify payment ────────────────────────────────────────
+// Always call this SERVER-SIDE before creating any order.
+// Never trust a client callback alone.
 
 export async function verifyPayment(
-  reference: string,
-): Promise<VerifyPaymentResponse> {
-  try {
-    const response = await paystackApi.get(`/transaction/verify/${reference}`);
+  reference: string
+): Promise<PaystackVerifyResponse> {
+  const res = await fetch(
+    `${BASE_URL}/transaction/verify/${encodeURIComponent(reference)}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${PAYSTACK_SECRET}`,
+      },
+      cache: "no-store",
+    }
+  );
 
-    return response.data;
-  } catch (error) {
-    console.error("Paystack verification error:", error);
-    throw error;
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Paystack verify failed (${res.status}): ${err}`);
   }
+
+  return res.json() as Promise<PaystackVerifyResponse>;
 }
 
-export async function createRecipient(
-  type: "nuban" | "mobile_money" | "ghipss",
-  name: string,
-  accountNumber: string,
-  bankCode?: string,
-  currency?: string,
-) {
-  try {
-    const response = await paystackApi.post("/transferrecipient", {
-      type,
-      name,
-      account_number: accountNumber,
-      bank_code: bankCode,
-      currency,
-    });
+// ── Webhook signature validation ──────────────────────────
 
-    return response.data;
-  } catch (error) {
-    console.error("Paystack recipient creation error:", error);
-    throw error;
-  }
+export function validateWebhookSignature(
+  rawBody: string,
+  paystackSignature: string
+): boolean {
+  const hash = crypto
+    .createHmac("sha512", PAYSTACK_SECRET)
+    .update(rawBody)
+    .digest("hex");
+
+  return hash === paystackSignature;
 }
-
-export async function initiateTransfer(
-  recipientCode: string,
-  amount: number,
-  reference: string,
-  reason?: string,
-) {
-  try {
-    const response = await paystackApi.post("/transfer", {
-      source: "balance",
-      recipient: recipientCode,
-      amount,
-      reference,
-      reason,
-    });
-
-    return response.data;
-  } catch (error) {
-    console.error("Paystack transfer error:", error);
-    throw error;
-  }
-}
-
-export default paystackApi;
