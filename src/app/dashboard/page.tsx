@@ -25,7 +25,7 @@ export default function DashboardRedirect() {
         window.location.href = "/admin/dashboard";
         break;
       default:
-        window.location.href = "/buyer/listings";
+        window.location.href = "/buyer/listing";
     }
   }, [session, status]);
 

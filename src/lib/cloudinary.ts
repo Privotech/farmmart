@@ -21,28 +21,49 @@ export async function uploadImage(
   folder: string = "farmmart",
 ) {
   try {
-    let data: Buffer | string;
-
-    if (typeof Buffer !== "undefined" && file instanceof Buffer) {
-      data = file;
-    } else if (typeof File !== "undefined" && file instanceof File) {
-      data = Buffer.from(await file.arrayBuffer());
-    } else {
-      data = file as unknown as Buffer | string;
+    if (typeof file === "string") {
+      return await cloudinary.uploader.upload(file, {
+        folder,
+        resource_type: "auto",
+        timeout: 60000,
+      });
     }
 
-    const dataUri =
-      typeof data === "string"
-        ? data
-        : `data:image/jpeg;base64,${data.toString("base64")}`;
+    let buffer: Buffer;
+    if (typeof Buffer !== "undefined" && file instanceof Buffer) {
+      buffer = file;
+    } else {
+      const fileObj = file as File;
+      const arrayBuffer = await fileObj.arrayBuffer();
+      buffer = Buffer.from(arrayBuffer);
+    }
 
-    const result = await cloudinary.uploader.upload(dataUri, {
-      folder,
-      resource_type: "auto",
-      timeout: 60000, // 60 seconds — default is 60s but some envs override it lower
+    const filename =
+      typeof File !== "undefined" && file instanceof File && file.name
+        ? file.name
+        : undefined;
+
+    return await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder,
+          resource_type: "auto",
+          timeout: 60000,
+          filename_override: filename,
+          use_filename: Boolean(filename),
+        },
+        (error, result) => {
+          if (error || !result) {
+            reject(error ?? new Error("Cloudinary upload failed"));
+            return;
+          }
+
+          resolve(result);
+        },
+      );
+
+      stream.end(buffer);
     });
-
-    return result;
   } catch (error) {
     console.error("Cloudinary upload error:", error);
     throw error;

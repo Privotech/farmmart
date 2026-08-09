@@ -3,6 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
+import { initializePayment, verifyPayment } from "@/lib/paystack";
+import { Numeric } from "@/types";
+
 interface CreateOrderData {
   deliveryAddress: string;
   phoneNumber: string;
@@ -15,6 +18,33 @@ interface CreateOrderData {
 interface InitializePaymentData {
   deliveryAddress: string;
   phoneNumber: string;
+  city?: string;
+  state?: string;
+}
+
+function calculateCartTotals(
+  cartItems: Array<{
+    quantity: number;
+    animals: {
+      price: unknown;
+    };
+  }>,
+) {
+  const cartTotal = cartItems.reduce(
+    (sum, item) => sum + Number(item.animals.price) * item.quantity,
+    0,
+  );
+  const shippingCost = 5000;
+  const tax = cartTotal * 0.075;
+  const totalAmount = cartTotal + shippingCost + tax;
+
+  return {
+    cartTotal,
+    shippingCost,
+    tax,
+    totalAmount,
+    totalAmountInKobo: Math.round(totalAmount * 100),
+  };
 }
 
 /**
@@ -36,23 +66,40 @@ export async function initializePaystackPayment(data: InitializePaymentData) {
       return { success: false, error: "Your cart is empty." };
     }
 
-    const cartTotal = cartItems.reduce(
-      (sum, item) => sum + Number(item.animals.price) * item.quantity,
-      0,
-    );
-    const shippingCost = 5000;
-    const tax = cartTotal * 0.075;
-    const totalAmount = cartTotal + shippingCost + tax;
+    if (!user.email) {
+      return {
+        success: false,
+        error: "Your account is missing an email address.",
+      };
+    }
 
     const reference = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const totals = calculateCartTotals(cartItems);
+    const metadata = {
+      userId: user.id,
+      deliveryAddress: data.deliveryAddress,
+      phoneNumber: data.phoneNumber,
+      deliveryCity: data.city ?? null,
+      deliveryState: data.state ?? null,
+      itemCount: cartItems.length,
+      cancel_action: "/checkout",
+    };
+
+    const paystackResponse = await initializePayment({
+      email: user.email,
+      amount: totals.totalAmountInKobo,
+      reference,
+      currency: "NGN",
+      metadata,
+    });
 
     return {
       success: true,
-      authorizationUrl: `https://checkout.paystack.com/${reference}`,
-      accessCode: reference,
-      reference,
+      authorizationUrl: paystackResponse.data.authorization_url,
+      accessCode: paystackResponse.data.access_code,
+      reference: paystackResponse.data.reference,
       email: user.email,
-      amount: Math.round(totalAmount * 100),
+      amount: totals.totalAmountInKobo,
     };
   } catch (error) {
     console.error("Initialize payment error:", error);
@@ -82,40 +129,112 @@ export async function createOrder(data: CreateOrderData) {
       return { success: false, error: "Cart is empty." };
     }
 
-    const createdOrders = [];
-    const paystackRef = data.paystackRef || `ref_${Date.now()}`;
-
-    for (const item of cartItems) {
-      const order = await prisma.orders.create({
-        data: {
-          buyer_id: user.id,
-          animal_id: item.animal_id,
-          amount: Number(item.animals.price) * item.quantity,
-          paystack_ref: `${paystackRef}-${item.id}`,
-          delivery_address: data.deliveryAddress,
-          delivery_phone: data.phoneNumber,
-          delivery_state: data.state || null,
-          delivery_city: data.city || null,
-          notes: data.notes || null,
-          status: "PAID",
-          paid_at: new Date(),
-        },
-      });
-
-      await prisma.animals.update({
-        where: { id: item.animal_id },
-        data: { status: "SOLD" },
-      });
-
-      createdOrders.push(order);
+    if (!data.paystackRef) {
+      return { success: false, error: "Missing payment reference." };
     }
 
-    await prisma.cart.deleteMany({
-      where: { user_id: user.id },
+    const totals = calculateCartTotals(cartItems);
+    const verification = await verifyPayment(data.paystackRef);
+
+    if (!verification.status || verification.data.status !== "success") {
+      return {
+        success: false,
+        error: "Payment could not be verified. Please contact support.",
+      };
+    }
+
+    if (verification.data.amount !== totals.totalAmountInKobo) {
+      return {
+        success: false,
+        error: "Payment amount does not match your cart total.",
+      };
+    }
+
+    if (
+      user.email &&
+      verification.data.customer.email.toLowerCase() !== user.email.toLowerCase()
+    ) {
+      return {
+        success: false,
+        error: "Payment email does not match your signed-in account.",
+      };
+    }
+
+    const existingOrder = await prisma.orders.findFirst({
+      where: {
+        paystack_ref: {
+          startsWith: verification.data.reference,
+        },
+      },
+    });
+
+    if (existingOrder) {
+      return { success: true, orders: [], alreadyProcessed: true };
+    }
+
+    const createdOrders: Array<{
+      id: string;
+      buyer_id: string;
+      animal_id: string;
+      amount: Numeric;
+      paystack_ref: string;
+      paystack_channel: string | null;
+      delivery_address: string;
+      delivery_phone: string;
+      delivery_state: string | null;
+      delivery_city: string | null;
+      notes: string | null;
+      status: string;
+      paid_at: Date | null;
+    }> = [];
+
+    await prisma.$transaction(async (tx) => {
+      for (const item of cartItems) {
+        const animal = await tx.animals.findUnique({
+          where: { id: item.animal_id },
+          select: { status: true },
+        });
+
+        if (!animal || animal.status !== "AVAILABLE") {
+          throw new Error("One or more items in your cart are no longer available.");
+        }
+
+        const order = await tx.orders.create({
+          data: {
+            buyer_id: user.id,
+            animal_id: item.animal_id,
+            amount: Number(item.animals.price) * item.quantity,
+            paystack_ref: `${verification.data.reference}-${item.id}`,
+            paystack_channel: verification.data.channel,
+            delivery_address: data.deliveryAddress,
+            delivery_phone: data.phoneNumber,
+            delivery_state: data.state || null,
+            delivery_city: data.city || null,
+            notes: data.notes || null,
+            status: "PAID",
+            paid_at: verification.data.paid_at
+              ? new Date(verification.data.paid_at)
+              : new Date(),
+          },
+        });
+
+        await tx.animals.update({
+          where: { id: item.animal_id },
+          data: { status: "SOLD" },
+        });
+
+        createdOrders.push(order as (typeof createdOrders)[number]);
+      }
+
+      await tx.cart.deleteMany({
+        where: { user_id: user.id },
+      });
     });
 
     revalidatePath("/buyer/orders");
     revalidatePath("/cart");
+    revalidatePath("/seller/orders");
+    revalidatePath("/seller/animals");
 
     return { success: true, orders: createdOrders };
   } catch (error) {
@@ -162,7 +281,7 @@ export async function getSellerOrders() {
 /**
  * Updates status of an order (e.g., CONFIRMED, SHIPPED, DELIVERED, CANCELLED).
  */
-export async function updateOrderStatus(orderId: string, status: any) {
+export async function updateOrderStatus(orderId: string, status: "PENDING" | "PAID" | "CONFIRMED" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "REFUNDED") {
   try {
     const user = await getCurrentUser();
     if (!user) {

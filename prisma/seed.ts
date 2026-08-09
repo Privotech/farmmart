@@ -70,7 +70,7 @@ async function main() {
 
     listingsToCreate.push({
       name: `Healthy ${breed} ${category.toLowerCase()}`,
-      category: category as any,
+      category: category as AnimalCategory,
       breed,
       age: Math.floor(Math.random() * 24) + 6,
       weight: Math.floor(Math.random() * 150) + 20,

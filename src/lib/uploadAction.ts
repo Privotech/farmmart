@@ -8,6 +8,6 @@ export async function uploadImageAction(formData: FormData, folder: string = "fa
     throw new Error("No file provided");
   }
 
-  const result = await uploadImage(file, folder);
+  const result = (await uploadImage(file, folder)) as { secure_url: string };
   return { secure_url: result.secure_url };
 }

@@ -3,6 +3,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
+import { cookies } from "next/headers";
+import { jwtVerify } from "jose";
 import { prisma } from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
@@ -166,11 +168,51 @@ export const authOptions: NextAuthOptions = {
 
 /**
  * Server-side helper for getting the currently authenticated user.
- * Wraps getServerSession(authOptions) so server actions and route handlers
- * (e.g. src/actions/orders.ts) can just call `await getCurrentUser()`.
- * Returns the session's user object ({ id, email, name, role, image }) or null.
+ * Supports BOTH auth systems in the project:
+ *   1. NextAuth session (via signIn("credentials") / Google OAuth)
+ *   2. Custom JWT cookie "farmmart_session_token" (set by /api/auth/login)
+ * Falls back automatically if one auth system returns null.
+ * Returns the user object ({ id, email, name, role, image }) or null.
  */
 export async function getCurrentUser() {
+  // 1) Try NextAuth session first (most common path)
   const session = await getServerSession(authOptions);
-  return session?.user ?? null;
+  if (session?.user) {
+    return session.user;
+  }
+
+  // 2) Fall back: custom JWT cookie "farmmart_session_token"
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("farmmart_session_token")?.value;
+    if (!token || !process.env.JWT_SECRET) return null;
+
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    const { payload } = await jwtVerify(token, secret);
+
+    const userId = payload?.userId as string | undefined;
+    if (!userId) return null;
+
+    const userFromDb = await prisma.users.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        avatar_url: true,
+      },
+    });
+    if (!userFromDb) return null;
+
+    return {
+      id: userFromDb.id,
+      email: userFromDb.email,
+      name: userFromDb.name,
+      role: userFromDb.role as "BUYER" | "SELLER" | "ADMIN",
+      image: userFromDb.avatar_url ?? undefined,
+    };
+  } catch {
+    return null;
+  }
 }

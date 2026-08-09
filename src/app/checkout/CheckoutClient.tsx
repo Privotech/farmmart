@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { CheckIcon, WarningIcon } from "@/components/ui/Icons";
 import { createOrder, initializePaystackPayment } from "@/actions/orders";
 import { Animal } from "@/types";
 
@@ -25,7 +26,15 @@ interface CheckoutClientProps {
 }
 
 interface PaystackHandler {
-  openIframe: () => void;
+  resumeTransaction: (
+    accessCode: string,
+    callbacks: {
+      onSuccess: (response: { reference: string }) => void;
+      onCancel: () => void;
+      onError?: (error: { message?: string }) => void;
+      onLoad?: (response: { id: number; accessCode: string }) => void;
+    },
+  ) => void;
 }
 
 function getFirstImage(images: unknown): string {
@@ -65,18 +74,20 @@ export function CheckoutClient({
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [paystackReady, setPaystackReady] = useState(false);
+  const [paystackReady, setPaystackReady] = useState(() => {
+    if (typeof document === "undefined") return false;
+    return document.getElementById("paystack-inline-script") !== null;
+  });
 
   useEffect(() => {
     const scriptId = "paystack-inline-script";
     if (document.getElementById(scriptId)) {
-      setPaystackReady(true);
       return;
     }
 
     const script = document.createElement("script");
     script.id = scriptId;
-    script.src = "https://js.paystack.co/v1/inline.js";
+    script.src = "https://js.paystack.co/v2/inline.js";
     script.async = true;
     script.onload = () => setPaystackReady(true);
     script.onerror = () =>
@@ -113,8 +124,7 @@ export function CheckoutClient({
         return;
       }
 
-      const paystackPublicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
-      if (!paystackReady || !paystackPublicKey) {
+      if (!paystackReady) {
         setError("Payment system is not ready. Please refresh and try again.");
         return;
       }
@@ -125,6 +135,8 @@ export function CheckoutClient({
       const initRes = await initializePaystackPayment({
         deliveryAddress: fullAddress,
         phoneNumber: formData.phoneNumber.trim(),
+        city: formData.city.trim() || undefined,
+        state: formData.state.trim() || undefined,
       });
 
       if (!initRes.success) {
@@ -132,25 +144,13 @@ export function CheckoutClient({
         return;
       }
 
-      // FIX TS2322 — guard all three required Paystack fields
-      // After this block TypeScript narrows them from T|undefined → T
-      if (!initRes.email || !initRes.amount || !initRes.reference) {
+      if (!initRes.accessCode || !initRes.reference) {
         setError("Payment data incomplete. Please try again.");
         return;
       }
 
       const paystackWindow = window as Window & {
-        PaystackPop?: {
-          setup: (options: {
-            key: string;
-            email: string;
-            amount: number;
-            ref: string;
-            currency?: string;
-            callback: (response: { reference: string }) => void;
-            onClose: () => void;
-          }) => PaystackHandler;
-        };
+        PaystackPop?: new () => PaystackHandler;
       };
 
       if (!paystackWindow.PaystackPop) {
@@ -158,21 +158,17 @@ export function CheckoutClient({
         return;
       }
 
-      const handler = paystackWindow.PaystackPop.setup({
-        key: paystackPublicKey,
-        email: initRes.email, // string
-        amount: initRes.amount, // number
-        ref: initRes.reference, // string
-        currency: "NGN",
-
-        callback: async (response: { reference: string }) => {
+      const popup = new paystackWindow.PaystackPop();
+      popup.resumeTransaction(initRes.accessCode, {
+        onSuccess: async (response: { reference: string }) => {
           setIsLoading(true);
           setError("");
 
-          // Server verifies with Paystack before creating order
           const res = await createOrder({
             deliveryAddress: fullAddress,
             phoneNumber: formData.phoneNumber.trim(),
+            city: formData.city.trim() || undefined,
+            state: formData.state.trim() || undefined,
             paystackRef: response.reference,
           });
 
@@ -186,14 +182,18 @@ export function CheckoutClient({
             setIsLoading(false);
           }
         },
-
-        onClose: () => {
+        onCancel: () => {
           setError("Payment was cancelled. You can try again.");
           setIsLoading(false);
         },
+        onError: (paystackError: { message?: string }) => {
+          setError(
+            paystackError.message ||
+              "Unable to start payment. Please try again.",
+          );
+          setIsLoading(false);
+        },
       });
-
-      handler.openIframe();
     } catch (err) {
       console.error("[CheckoutClient]", err);
       setError("An unexpected error occurred. Please try again.");
@@ -226,8 +226,9 @@ export function CheckoutClient({
             <h2 className="text-2xl font-bold mb-6">Delivery Information</h2>
 
             {error && (
-              <div className="bg-red-100 text-red-800 p-3 rounded-lg mb-6 text-sm">
-                ⚠ {error}
+              <div className="bg-red-100 text-red-800 p-3 rounded-lg mb-6 text-sm flex items-start gap-2">
+                <WarningIcon className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                {error}
               </div>
             )}
 
@@ -357,8 +358,9 @@ export function CheckoutClient({
               </span>
             </div>
 
-            <div className="bg-emerald-50 p-4 rounded-lg text-sm text-emerald-800">
-              ✓ Secure payment via Paystack
+            <div className="bg-emerald-50 p-4 rounded-lg text-sm text-emerald-800 flex items-center gap-2">
+              <CheckIcon className="w-5 h-5 flex-shrink-0" />
+              Secure payment via Paystack
             </div>
           </Card>
         </div>

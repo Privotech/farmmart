@@ -1,18 +1,17 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
 export async function addToCart(animalId: string, quantity: number = 1) {
-  const session = await getServerSession(authOptions);
+  const user = await getCurrentUser();
   
-  if (!session?.user?.id) {
+  if (!user?.id) {
     throw new Error("You must be logged in to add to cart");
   }
 
-  const userId = session.user.id;
+  const userId = user.id;
 
   try {
     const existingCartItem = await prisma.cart.findUnique({
@@ -49,9 +48,9 @@ export async function addToCart(animalId: string, quantity: number = 1) {
 }
 
 export async function removeFromCart(cartItemId: string) {
-  const session = await getServerSession(authOptions);
+  const user = await getCurrentUser();
   
-  if (!session?.user?.id) {
+  if (!user?.id) {
     throw new Error("Unauthorized");
   }
 
@@ -59,7 +58,7 @@ export async function removeFromCart(cartItemId: string) {
     await prisma.cart.delete({
       where: {
         id: cartItemId,
-        user_id: session.user.id, // ensure user owns the item
+        user_id: user.id, // ensure user owns the item
       },
     });
     
@@ -73,9 +72,9 @@ export async function removeFromCart(cartItemId: string) {
 }
 
 export async function updateCartQuantity(cartItemId: string, quantity: number) {
-  const session = await getServerSession(authOptions);
+  const user = await getCurrentUser();
   
-  if (!session?.user?.id) {
+  if (!user?.id) {
     throw new Error("Unauthorized");
   }
 
@@ -83,7 +82,7 @@ export async function updateCartQuantity(cartItemId: string, quantity: number) {
     await prisma.cart.update({
       where: {
         id: cartItemId,
-        user_id: session.user.id, // ensure user owns the item
+        user_id: user.id, // ensure user owns the item
       },
       data: { quantity },
     });
@@ -98,16 +97,16 @@ export async function updateCartQuantity(cartItemId: string, quantity: number) {
 }
 
 export async function clearCart() {
-  const session = await getServerSession(authOptions);
+  const user = await getCurrentUser();
   
-  if (!session?.user?.id) {
+  if (!user?.id) {
     throw new Error("Unauthorized");
   }
 
   try {
     await prisma.cart.deleteMany({
       where: {
-        user_id: session.user.id,
+        user_id: user.id,
       },
     });
     

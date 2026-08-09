@@ -1,14 +1,13 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
 export async function deleteAnimal(animalId: string) {
-  const session = await getServerSession(authOptions);
+  const user = await getCurrentUser();
   
-  if (!session?.user?.id) {
+  if (!user?.id) {
     throw new Error("Unauthorized");
   }
 
@@ -27,9 +26,9 @@ export async function deleteAnimal(animalId: string) {
 }
 
 export async function updateAnimalStatus(animalId: string, status: "AVAILABLE" | "SOLD" | "RESERVED") {
-  const session = await getServerSession(authOptions);
+  const user = await getCurrentUser();
   
-  if (!session?.user?.id) {
+  if (!user?.id) {
     throw new Error("Unauthorized");
   }
 
@@ -49,9 +48,9 @@ export async function updateAnimalStatus(animalId: string, status: "AVAILABLE" |
 }
 
 export async function updateAnimal(animalId: string, data: Record<string, unknown>) {
-  const session = await getServerSession(authOptions);
+  const user = await getCurrentUser();
   
-  if (!session?.user?.id) {
+  if (!user?.id) {
     throw new Error("Unauthorized");
   }
 

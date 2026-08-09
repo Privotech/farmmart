@@ -13,6 +13,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { validateWebhookSignature, verifyPayment } from "@/lib/paystack";
 
+function calculateCartTotals(
+  cartItems: Array<{
+    quantity: number;
+    animals: {
+      price: unknown;
+    };
+  }>,
+) {
+  const cartTotal = cartItems.reduce(
+    (sum, item) => sum + Number(item.animals.price) * item.quantity,
+    0,
+  );
+  const shippingCost = 5000;
+  const tax = cartTotal * 0.075;
+
+  return Math.round((cartTotal + shippingCost + tax) * 100);
+}
+
 export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.text();
@@ -66,12 +84,22 @@ export async function POST(req: NextRequest) {
 
     // ── 6. Extract metadata ───────────────────────────────
     const meta = verification.data.metadata ?? event.data.metadata ?? {};
-    const userId = meta.userId as string | undefined;
+    let userId = meta.userId as string | undefined;
     const deliveryAddress = (meta.deliveryAddress as string) ?? "Not provided";
     const phoneNumber = (meta.phoneNumber as string) ?? "";
+    const deliveryCity = (meta.deliveryCity as string) ?? null;
+    const deliveryState = (meta.deliveryState as string) ?? null;
 
     if (!userId) {
-      console.error("[webhook] No userId in metadata:", reference);
+      const user = await prisma.users.findUnique({
+        where: { email: verification.data.customer.email },
+        select: { id: true },
+      });
+      userId = user?.id;
+    }
+
+    if (!userId) {
+      console.error("[webhook] Could not resolve user for:", reference);
       return NextResponse.json({ received: true });
     }
 
@@ -83,6 +111,16 @@ export async function POST(req: NextRequest) {
 
     if (cartItems.length === 0) {
       console.warn("[webhook] Cart empty for user:", userId);
+      return NextResponse.json({ received: true });
+    }
+
+    const expectedAmount = calculateCartTotals(cartItems);
+    if (verification.data.amount !== expectedAmount) {
+      console.error("[webhook] Amount mismatch:", {
+        reference,
+        expectedAmount,
+        paidAmount: verification.data.amount,
+      });
       return NextResponse.json({ received: true });
     }
 
@@ -102,10 +140,14 @@ export async function POST(req: NextRequest) {
           data: {
             buyer_id: userId,
             animal_id: item.animal_id,
-            amount: item.animals.price,
+            amount: Number(item.animals.price) * item.quantity,
             status: "PAID",
             paystack_ref: `${reference}-${item.id}`,
-            delivery_address: `${deliveryAddress} | Tel: ${phoneNumber}`,
+            paystack_channel: verification.data.channel,
+            delivery_address: deliveryAddress,
+            delivery_phone: phoneNumber || null,
+            delivery_city: deliveryCity,
+            delivery_state: deliveryState,
             paid_at: new Date(verification.data.paid_at),
           },
         });

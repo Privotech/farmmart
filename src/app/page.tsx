@@ -3,7 +3,6 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#121212]">
-
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-linear-to-br from-green-900 via-green-800 to-black"></div>
         <div className="absolute inset-0 bg-black/30"></div>
@@ -22,7 +21,6 @@ export default function Home() {
         </div>
       </section>
 
-
       <section className="py-24 bg-gray-900">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 text-gray-100">
@@ -33,7 +31,6 @@ export default function Home() {
           </p>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-
             <div className="bg-gray-800 rounded-2xl shadow-xl p-8 hover:shadow-2xl transition border border-gray-700">
               <div className="flex items-center mb-6">
                 <div className="w-16 h-16 bg-green-900/30 rounded-xl flex items-center justify-center mr-4">
@@ -72,7 +69,6 @@ export default function Home() {
                 </button>
               </div>
             </div>
-
 
             <div className="bg-gray-800 rounded-2xl shadow-xl p-8 hover:shadow-2xl transition border border-gray-700">
               <div className="flex items-center mb-6">
@@ -135,7 +131,8 @@ export default function Home() {
               </div>
               <p className="text-gray-400 mb-6">
                 Implement eco-friendly farming methods with carbon footprint
-                tracking, soil health monitoring, and waste management solutions.
+                tracking, soil health monitoring, and waste management
+                solutions.
               </p>
               <div className="flex flex-wrap gap-3">
                 <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition">
@@ -190,7 +187,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
 
       <section className="py-24 bg-[#121212]">
         <div className="container mx-auto px-4">
@@ -403,7 +399,9 @@ export default function Home() {
                       />
                     </svg>
                   </div>
-                  <p className="text-green-800 font-semibold">Verified Origin</p>
+                  <p className="text-green-800 font-semibold">
+                    Verified Origin
+                  </p>
                 </div>
               </div>
 
@@ -424,9 +422,7 @@ export default function Home() {
                       />
                     </svg>
                   </div>
-                  <p className="text-green-800 font-semibold">
-                    Real-Time Data
-                  </p>
+                  <p className="text-green-800 font-semibold">Real-Time Data</p>
                 </div>
               </div>
 

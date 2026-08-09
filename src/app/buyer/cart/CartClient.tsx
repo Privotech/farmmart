@@ -8,7 +8,11 @@ import { removeFromCart, updateCartQuantity } from "@/actions/cart";
 import { useTransition } from "react";
 import type { CartItem } from "@/types";
 
-export function CartClient({ initialCartItems }: { initialCartItems: CartItem[] }) {
+export function CartClient({
+  initialCartItems,
+}: {
+  initialCartItems: CartItem[];
+}) {
   const [isPending, startTransition] = useTransition();
 
   const handleRemoveItem = (itemId: string) => {
@@ -25,7 +29,7 @@ export function CartClient({ initialCartItems }: { initialCartItems: CartItem[] 
 
   const totalPrice = initialCartItems.reduce(
     (sum, item) => sum + Number(item.animal?.price ?? 0) * item.quantity,
-    0
+    0,
   );
 
   return (
@@ -35,7 +39,6 @@ export function CartClient({ initialCartItems }: { initialCartItems: CartItem[] 
       {initialCartItems.length === 0 ? (
         <Card className="text-center py-12 border-gray-800 bg-gray-900">
           <p className="text-gray-400 text-lg mb-6">Your cart is empty</p>
-          {/* UPDATED: Changed from /buyer/listings to /buyer/listing */}
           <Link href="/buyer/listing">
             <Button variant="primary">Continue Shopping</Button>
           </Link>
@@ -45,7 +48,10 @@ export function CartClient({ initialCartItems }: { initialCartItems: CartItem[] 
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             {initialCartItems.map((item) => (
-              <div key={item.id} className={isPending ? "opacity-50 pointer-events-none" : ""}>
+              <div
+                key={item.id}
+                className={isPending ? "opacity-50 pointer-events-none" : ""}
+              >
                 <CartItemComponent
                   item={item}
                   onRemove={handleRemoveItem}
@@ -58,7 +64,9 @@ export function CartClient({ initialCartItems }: { initialCartItems: CartItem[] 
           {/* Order Summary */}
           <div>
             <Card className="bg-gray-900 border-gray-800">
-              <h3 className="text-xl font-bold mb-4 text-gray-100">Order Summary</h3>
+              <h3 className="text-xl font-bold mb-4 text-gray-100">
+                Order Summary
+              </h3>
 
               <div className="space-y-3 mb-6 pb-6 border-b border-gray-700">
                 <div className="flex justify-between">
@@ -94,14 +102,21 @@ export function CartClient({ initialCartItems }: { initialCartItems: CartItem[] 
               </div>
 
               <Link href="/checkout" className="block">
-                <Button variant="primary" className="w-full mb-3" disabled={isPending}>
+                <Button
+                  variant="primary"
+                  className="w-full mb-3"
+                  disabled={isPending}
+                >
                   Proceed to Checkout
                 </Button>
               </Link>
 
-              {/* UPDATED: Changed from /buyer/listings to /buyer/listing */}
               <Link href="/buyer/listing" className="block">
-                <Button variant="secondary" className="w-full" disabled={isPending}>
+                <Button
+                  variant="secondary"
+                  className="w-full"
+                  disabled={isPending}
+                >
                   Continue Shopping
                 </Button>
               </Link>

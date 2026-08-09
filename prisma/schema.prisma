@@ -116,29 +116,50 @@ model reviews {
 }
 
 model users {
-  id                                     String      @id @default(uuid()) @db.Uuid
-  firebase_uid                           String      @unique(map: "uq_users_firebase_uid") @db.VarChar(128)
-  name                                   String      @db.VarChar(150)
-  email                                  String      @unique(map: "uq_users_email") @db.VarChar(255)
+  id                                     String                @id @default(uuid()) @db.Uuid
+  firebase_uid                           String                @unique(map: "uq_users_firebase_uid") @db.VarChar(128)
+  name                                   String                @db.VarChar(150)
+  email                                  String                @unique(map: "uq_users_email") @db.VarChar(255)
   password                               String?
-  phone                                  String?     @db.VarChar(20)
-  role                                   users_role  @default(BUYER)
-  avatar_url                             String?     @db.Text
-  address                                String?     @db.Text
-  state                                  String?     @db.VarChar(100)
-  city                                   String?     @db.VarChar(100)
-  is_verified                            Boolean     @default(false)
-  created_at                             DateTime    @default(now()) @db.Timestamp(0)
-  updated_at                             DateTime    @default(now()) @db.Timestamp(0)
+  phone                                  String?               @db.VarChar(20)
+  role                                   users_role            @default(BUYER)
+  avatar_url                             String?               @db.Text
+  address                                String?               @db.Text
+  state                                  String?               @db.VarChar(100)
+  city                                   String?               @db.VarChar(100)
+  is_verified                            Boolean               @default(false)
+  verification_status                    verification_status?  @default(PENDING)
+  verification_document_url              String?               @db.Text
+  verification_document_type             String?               @db.VarChar(100)
+  verification_notes                     String?               @db.Text
+  verified_at                            DateTime?             @db.Timestamp(0)
+  verified_by_id                         String?               @db.Uuid
+  bio                                    String?               @db.Text
+  farm_name                              String?               @db.VarChar(200)
+  farm_address                           String?               @db.Text
+  cac_number                             String?               @db.VarChar(50)
+  created_at                             DateTime              @default(now()) @db.Timestamp(0)
+  updated_at                             DateTime              @default(now()) @db.Timestamp(0)
   animals                                animals[]
   cart                                   cart[]
-  inquiries_inquiries_receiver_idTousers inquiries[] @relation("inquiries_receiver_idTousers")
-  inquiries_inquiries_sender_idTousers   inquiries[] @relation("inquiries_sender_idTousers")
+  inquiries_inquiries_receiver_idTousers inquiries[]           @relation("inquiries_receiver_idTousers")
+  inquiries_inquiries_sender_idTousers   inquiries[]           @relation("inquiries_sender_idTousers")
   orders                                 orders[]
   reviews                                reviews[]
+  users_verified_by_idTousers            users?                @relation("users_verified_by_idTousers", fields: [verified_by_id], references: [id])
+  users_users_verified_by_idTousers      users[]               @relation("users_verified_by_idTousers")
 
   @@index([role], map: "idx_users_role")
   @@index([state], map: "idx_users_state")
+  @@index([verification_status], map: "idx_users_verification_status")
+  @@index([is_verified], map: "idx_users_is_verified")
+}
+
+enum verification_status {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
 }
 
 model loginAttempt {

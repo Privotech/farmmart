@@ -29,8 +29,10 @@ export default async function BuyerOrdersPage() {
 
         {orders.length === 0 ? (
           <Card className="text-center py-12">
-            <p className="text-gray-600 text-lg mb-6">You haven&apos;t placed any orders yet</p>
-            <Link href="/buyer/listings">
+            <p className="text-gray-600 text-lg mb-6">
+              You haven&apos;t placed any orders yet
+            </p>
+            <Link href="/buyer/listing">
               <Button variant="primary">Browse Listings</Button>
             </Link>
           </Card>
@@ -40,8 +42,20 @@ export default async function BuyerOrdersPage() {
               <table className="w-full">
                 <thead className="border-b">
                   <tr>
-                    {["Order ID", "Date", "Items", "Amount", "Status", "Payment"].map((h) => (
-                      <th key={h} className="text-left py-3 font-semibold text-gray-700">{h}</th>
+                    {[
+                      "Order ID",
+                      "Date",
+                      "Items",
+                      "Amount",
+                      "Status",
+                      "Payment",
+                    ].map((h) => (
+                      <th
+                        key={h}
+                        className="text-left py-3 font-semibold text-gray-700"
+                      >
+                        {h}
+                      </th>
                     ))}
                   </tr>
                 </thead>
@@ -49,15 +63,22 @@ export default async function BuyerOrdersPage() {
                   {orders.map((order) => (
                     <tr key={order.id} className="border-b hover:bg-gray-50">
                       <td className="py-3 font-semibold">{order.id}</td>
-                      <td className="py-3 text-gray-600">{order.created_at.toLocaleDateString()}</td>
+                      <td className="py-3 text-gray-600">
+                        {order.created_at.toLocaleDateString()}
+                      </td>
                       <td className="py-3 text-gray-600">1 item</td>
-                      <td className="py-3 font-semibold">₦{Number(order.amount).toLocaleString()}</td>
+                      <td className="py-3 font-semibold">
+                        ₦{Number(order.amount).toLocaleString()}
+                      </td>
                       <td className="py-3">
                         <Badge
                           variant={
-                            order.status === "DELIVERED" ? "success"
-                              : order.status === "PENDING" ? "warning"
-                                : order.status === "CANCELLED" ? "danger"
+                            order.status === "DELIVERED"
+                              ? "success"
+                              : order.status === "PENDING"
+                                ? "warning"
+                                : order.status === "CANCELLED"
+                                  ? "danger"
                                   : "primary"
                           }
                         >
@@ -65,7 +86,11 @@ export default async function BuyerOrdersPage() {
                         </Badge>
                       </td>
                       <td className="py-3">
-                        <Badge variant={order.status === "PAID" ? "success" : "warning"}>
+                        <Badge
+                          variant={
+                            order.status === "PAID" ? "success" : "warning"
+                          }
+                        >
                           {order.status === "PAID" ? "Completed" : "Pending"}
                         </Badge>
                       </td>

@@ -2,6 +2,8 @@
 
 export type UserRole = "BUYER" | "SELLER" | "ADMIN";
 
+export type VerificationStatus = "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED";
+
 export type OrdersStatus =
   | "PENDING"
   | "CONFIRMED"
@@ -36,10 +38,49 @@ export interface User {
   firebaseUid?: string;
   is_verified?: boolean;
   isVerified?: boolean;
+  verification_status?: VerificationStatus | string;
+  verificationStatus?: VerificationStatus | string;
+  verification_document_url?: string;
+  verificationDocumentUrl?: string;
+  verification_document_type?: string;
+  verificationDocumentType?: string;
+  verification_notes?: string;
+  verificationNotes?: string;
+  verified_at?: Date | string;
+  verifiedAt?: Date | string;
+  verified_by_id?: string;
+  verifiedById?: string;
+  phone?: string;
+  avatar_url?: string;
+  avatarUrl?: string;
+  address?: string;
+  state?: string;
+  city?: string;
+  bio?: string;
+  farm_name?: string;
+  farmName?: string;
+  farm_address?: string;
+  farmAddress?: string;
+  cac_number?: string;
+  cacNumber?: string;
   created_at?: Date | string;
   createdAt?: Date | string;
   updated_at?: Date | string;
   updatedAt?: Date | string;
+  users?: {
+    name: string;
+    email: string;
+    phone?: string;
+    avatar_url?: string;
+    is_verified?: boolean;
+    verification_status?: string;
+    state?: string;
+    city?: string;
+    farm_name?: string;
+    bio?: string;
+    cac_number?: string;
+    created_at?: Date | string;
+  };
 }
 
 export interface Animal {
