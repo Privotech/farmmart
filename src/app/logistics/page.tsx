@@ -1,66 +1,232 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 import { CheckIcon, SearchIcon } from "@/components/ui/Icons";
+import { useRouter, useSearchParams } from "next/navigation";
 
-type TrackingStage = {
+type OrderShipment = {
+  id: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  amount: string | number;
+  paid_at?: string | null;
+  delivery_address?: string | null;
+  delivery_city?: string | null;
+  delivery_state?: string | null;
+  animals?: {
+    name: string;
+    category?: string;
+    breed?: string | null;
+    location?: string | null;
+    state?: string | null;
+    users?: {
+      name: string;
+      farm_name?: string | null;
+      city?: string | null;
+      state?: string | null;
+      address?: string | null;
+    } | null;
+  } | null;
+};
+
+function buildStages(order: OrderShipment | null): {
   label: string;
   time: string;
   location: string;
   done: boolean;
   active: boolean;
-};
+}[] {
+  if (!order) return [];
+  const created = new Date(order.created_at);
+  const paid = order.paid_at ? new Date(order.paid_at) : null;
+  const updated = new Date(order.updated_at);
+  const fmt = (d: Date | undefined | null, fallback = "Pending") =>
+    d
+      ? d.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : fallback;
 
-const STAGES: TrackingStage[] = [
-  {
-    label: "Animal Collected from Farm",
-    time: "Aug 5, 08:30 AM",
-    location: "Abeokuta Farm, Ogun State",
-    done: true,
-    active: false,
-  },
-  {
-    label: "Health Verification Depot",
-    time: "Aug 5, 11:45 AM",
-    location: "Sango-Otta Vet Checkpoint",
-    done: true,
-    active: false,
-  },
-  {
-    label: "In Transit (Refrigerated Truck)",
-    time: "Aug 6, 06:20 AM",
-    location: "Lagos-Ibadan Expressway",
-    done: false,
-    active: true,
-  },
-  {
-    label: "City Distribution Hub",
-    time: "ETA Aug 6, 04:00 PM",
-    location: "Ikeja Central Hub, Lagos",
-    done: false,
-    active: false,
-  },
-  {
-    label: "Delivered to Buyer",
-    time: "ETA Aug 7, 10:00 AM",
-    location: "Buyer Address, Lekki Phase 1",
-    done: false,
-    active: false,
-  },
-];
+  const origin = [
+    order.animals?.users?.farm_name,
+    order.animals?.state || order.animals?.location,
+  ]
+    .filter(Boolean)
+    .join(", ") || "Seller Facility";
 
-export default function LogisticsPage() {
-  const [trackingId, setTrackingId] = useState("ORD-20260805-8841");
-  const [tracked, setTracked] = useState(true);
+  const dest = [order.delivery_city, order.delivery_state]
+    .filter(Boolean)
+    .join(", ") ||
+    order.delivery_address ||
+    "Your Registered Address";
 
-  const handleTrack = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (trackingId.trim()) setTracked(true);
+  const isAtLeast = (s: string) =>
+    [
+      "PENDING",
+      "PAID",
+      "CONFIRMED",
+      "SHIPPED",
+      "DELIVERED",
+    ].indexOf(order.status) >=
+    [
+      "PENDING",
+      "PAID",
+      "CONFIRMED",
+      "SHIPPED",
+      "DELIVERED",
+    ].indexOf(s);
+
+  const pending = order.status === "PENDING";
+  const paidOrBetter = isAtLeast("PAID");
+  const confirmedOrBetter = isAtLeast("CONFIRMED");
+  const shippedOrBetter = isAtLeast("SHIPPED");
+  const delivered = order.status === "DELIVERED";
+
+  return [
+    {
+      label: "Animal Collected from Farm",
+      time: fmt(created, "Awaiting order placement"),
+      location: origin,
+      done: true,
+      active: false,
+    },
+    {
+      label: "Health Verification & Seller Confirmation",
+      time: fmt(paid ?? (confirmedOrBetter ? updated : null), pending ? "Awaiting payment" : "Seller preparing"),
+      location:
+        order.animals?.users?.city && order.animals?.users?.state
+          ? `${order.animals.users.city}, ${order.animals.users.state}`
+          : `${order.animals?.state || "Origin"} Vet Checkpoint`,
+      done: confirmedOrBetter,
+      active: paidOrBetter && !confirmedOrBetter,
+    },
+    {
+      label: "In Transit (Nationwide Logistics)",
+      time: fmt(
+        shippedOrBetter ? updated : null,
+        paidOrBetter ? "Awaiting dispatch" : "Pending",
+      ),
+      location:
+        shippedOrBetter && !delivered
+          ? `In transit via ${order.delivery_state || "FarmMart"} logistics`
+          : paidOrBetter
+            ? "Awaiting loading & dispatch"
+            : "Not yet dispatched",
+      done: shippedOrBetter,
+      active: confirmedOrBetter && !shippedOrBetter,
+    },
+    {
+      label: "City Distribution Hub",
+      time: fmt(
+        delivered ? updated : null,
+        shippedOrBetter ? "ETA next distribution run" : "Pending",
+      ),
+      location:
+        order.delivery_state || order.delivery_city
+          ? `${order.delivery_city || "City"} Hub, ${order.delivery_state || ""}`
+          : "Nearest Regional Distribution Hub",
+      done: delivered,
+      active: shippedOrBetter && !delivered,
+    },
+    {
+      label: "Delivered to Buyer",
+      time: fmt(delivered ? updated : null, "Pending final delivery"),
+      location: dest,
+      done: delivered,
+      active: false,
+    },
+  ];
+}
+
+function statusBadge(status: string): string {
+  switch (status) {
+    case "PENDING":
+      return "bg-amber-900/40 border-amber-700/50 text-amber-300";
+    case "PAID":
+    case "CONFIRMED":
+      return "bg-emerald-900/40 border-emerald-700/50 text-emerald-300";
+    case "SHIPPED":
+      return "bg-blue-900/40 border-blue-700/50 text-blue-300";
+    case "DELIVERED":
+      return "bg-emerald-900/40 border-emerald-700/50 text-emerald-300";
+    case "CANCELLED":
+    case "REFUNDED":
+      return "bg-red-900/40 border-red-700/50 text-red-300";
+    default:
+      return "bg-gray-800/40 border-gray-700/50 text-gray-300";
+  }
+}
+
+function addDays(date: Date, days: number) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
+function LogisticsPageInner() {
+  const router = useRouter();
+  const sp = useSearchParams();
+  const orderParam = sp.get("order") || sp.get("trackingId");
+
+  const [trackingId, setTrackingId] = useState(orderParam || "");
+  const [tracked, setTracked] = useState<null | OrderShipment>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    if (orderParam) {
+      void handleLookUp(orderParam);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderParam]);
+
+  const handleLookUp = async (id: string) => {
+    const search = id.trim();
+    if (!search) return;
+    setIsSearching(true);
+    setNotFound(false);
+    setTracked(null);
+    try {
+      const res = await fetch(`/api/orders`);
+      const data = await res.json();
+      if (!data.success || !Array.isArray(data.data)) {
+        setNotFound(true);
+        return;
+      }
+      const match = data.data.find(
+        (o: OrderShipment) =>
+          o.id.toLowerCase() === search.toLowerCase() ||
+          o.id.toLowerCase().includes(search.toLowerCase()),
+      );
+      if (match) {
+        setTracked(match);
+      } else {
+        setNotFound(true);
+      }
+    } catch {
+      setNotFound(true);
+    } finally {
+      setIsSearching(false);
+    }
   };
+
+  const handleTrack = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleLookUp(trackingId);
+  };
+
+  const stages = buildStages(tracked);
+  const created = tracked ? new Date(tracked.created_at) : null;
+  const eta = tracked
+    ? addDays(created!, tracked.status === "DELIVERED" ? 0 : tracked.status === "SHIPPED" ? 2 : tracked.status === "PAID" || tracked.status === "CONFIRMED" ? 4 : 6)
+    : null;
 
   return (
     <div className="min-h-screen bg-black text-emerald-50">
@@ -104,21 +270,50 @@ export default function LogisticsPage() {
             <Card className="!p-2 border-emerald-700/50 bg-emerald-950/60">
               <div className="flex flex-col md:flex-row gap-3 items-stretch">
                 <div className="flex-1">
-                  <Input
+                  <input
                     type="text"
                     name="trackingId"
-                    label=""
-                    placeholder="Enter your Order ID (e.g. ORD-20260805-8841)"
+                    placeholder="Enter your Order ID (UUID or ORD-YYYYMMDD-NNN)"
                     value={trackingId}
                     onChange={(e) => setTrackingId(e.target.value)}
+                    className="w-full px-4 py-3 rounded-lg bg-emerald-950 border border-emerald-800 text-white placeholder-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
                 <Button
                   type="submit"
                   variant="primary"
                   className="md:py-0 md:h-full md:px-8 py-3.5 inline-flex items-center justify-center gap-2"
+                  disabled={isSearching}
                 >
-                  <SearchIcon className="w-4 h-4" /> Track Shipment
+                  {isSearching ? (
+                    <>
+                      <svg
+                        className="animate-spin w-4 h-4"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          className="opacity-25"
+                        />
+                        <path
+                          d="M4 12a8 8 0 018-8"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          className="opacity-75"
+                        />
+                      </svg>
+                      Searching...
+                    </>
+                  ) : (
+                    <>
+                      <SearchIcon className="w-4 h-4" /> Track Shipment
+                    </>
+                  )}
                 </Button>
               </div>
             </Card>
@@ -127,126 +322,211 @@ export default function LogisticsPage() {
       </section>
 
       {/* TRACKING RESULT */}
-      {tracked && (
+      {(tracked || notFound || isSearching) && (
         <section className="py-16 container mx-auto px-4 max-w-4xl">
-          <Card className="!p-8 border-emerald-800/50 bg-emerald-950/30">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 pb-6 border-b border-emerald-900">
-              <div>
-                <p className="text-emerald-300 text-sm mb-1 font-medium">
-                  Tracking Number
-                </p>
-                <h3 className="text-2xl font-bold text-white">
-                  {trackingId || "ORD-20260805-8841"}
-                </h3>
+          {isSearching ? (
+            <Card className="!p-8 border-emerald-800/50 bg-emerald-950/30 animate-pulse">
+              <div className="h-6 bg-emerald-900/40 rounded w-1/3 mb-8"></div>
+              <div className="space-y-8">
+                {[0, 1, 2, 3, 4].map((n) => (
+                  <div key={n} className="h-16 bg-emerald-900/20 rounded"></div>
+                ))}
               </div>
-              <div className="flex gap-4">
-                <span className="px-4 py-2 rounded-lg bg-amber-900/40 border border-amber-700/50 text-amber-300 font-semibold">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    className="w-4 h-4 inline-block mr-2"
-                  >
-                    <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
-                    <path d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1" />
-                  </svg>
-                  In Transit
-                </span>
-                <span className="px-4 py-2 rounded-lg bg-emerald-900/40 border border-emerald-700/50 text-emerald-300 font-semibold">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    className="w-4 h-4 inline-block mr-2"
-                  >
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                    <path d="M9.5 12.5l1.5 1.5 3.5-3.5" />
-                  </svg>
-                  Insured
-                </span>
+            </Card>
+          ) : notFound ? (
+            <Card className="!p-12 border-red-900/50 bg-red-950/10 text-center">
+              <svg
+                className="w-16 h-16 mx-auto text-red-500 mb-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <h3 className="text-2xl font-bold text-white mb-2">
+                Shipment not found
+              </h3>
+              <p className="text-emerald-100/70 mb-6 max-w-md mx-auto">
+                We couldn&apos;t find an order matching that ID. Double-check your
+                Order ID from your confirmation email or order history.
+              </p>
+              <div className="flex gap-3 justify-center">
+                <Link href="/buyer/supply-chain">
+                  <Button variant="secondary">My Orders</Button>
+                </Link>
+                <Link href="/listings">
+                  <Button variant="primary">Browse Marketplace</Button>
+                </Link>
               </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4 mb-10 text-center">
-              <div className="p-4 rounded-xl bg-emerald-950/60 border border-emerald-900">
-                <p className="text-xs text-emerald-400 mb-1 uppercase tracking-wider">
-                  Origin
-                </p>
-                <p className="font-bold text-white">Abeokuta, OG</p>
-              </div>
-              <div className="p-4 rounded-xl bg-emerald-950/60 border border-emerald-900">
-                <p className="text-xs text-emerald-400 mb-1 uppercase tracking-wider">
-                  Destination
-                </p>
-                <p className="font-bold text-white">Lekki, LA</p>
-              </div>
-              <div className="p-4 rounded-xl bg-emerald-950/60 border border-emerald-900">
-                <p className="text-xs text-emerald-400 mb-1 uppercase tracking-wider">
-                  ETA
-                </p>
-                <p className="font-bold text-emerald-300">Aug 7, 2026</p>
-              </div>
-            </div>
-
-            <h4 className="text-xl font-bold text-emerald-300 mb-6">
-              Shipment Timeline
-            </h4>
-            <ol className="relative border-s-2 border-emerald-800 ms-3">
-              {STAGES.map((stage, idx) => (
-                <li key={idx} className="mb-10 ms-6 last:mb-0">
-                  <span
-                    className={`absolute -start-3.5 flex items-center justify-center w-7 h-7 rounded-full ring-4 ring-black
-                    ${stage.active ? "bg-emerald-500 animate-pulse" : stage.done ? "bg-emerald-600" : "bg-emerald-900 border border-emerald-800"}`}
-                  >
-                    {stage.done ? (
+            </Card>
+          ) : (
+            tracked && (
+              <Card className="!p-8 border-emerald-800/50 bg-emerald-950/30">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 pb-6 border-b border-emerald-900">
+                  <div>
+                    <p className="text-emerald-300 text-sm mb-1 font-medium">
+                      Tracking Number
+                    </p>
+                    <h3 className="text-2xl font-bold text-white break-all">
+                      {tracked.id}
+                    </h3>
+                    <p className="text-emerald-100/60 text-xs mt-1">
+                      {tracked.animals?.name || "Livestock Order"}
+                      {tracked.animals?.breed ? ` • ${tracked.animals.breed}` : ""}
+                      {tracked.animals?.category ? ` • ${tracked.animals.category}` : ""}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    <span
+                      className={`px-4 py-2 rounded-lg border font-semibold ${statusBadge(
+                        tracked.status,
+                      )}`}
+                    >
                       <svg
-                        className="w-4 h-4 text-white"
+                        viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
-                        viewBox="0 0 24 24"
+                        strokeWidth={2}
+                        className="w-4 h-4 inline-block mr-2"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={3}
-                          d="M5 13l4 4L19 7"
-                        />
+                        <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                        <path d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1" />
                       </svg>
-                    ) : (
-                      <span className="text-xs text-emerald-200 font-bold">
-                        {idx + 1}
+                      {tracked.status.replace(/_/g, " ")}
+                    </span>
+                    <span className="px-4 py-2 rounded-lg bg-emerald-900/40 border border-emerald-700/50 text-emerald-300 font-semibold">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        className="w-4 h-4 inline-block mr-2"
+                      >
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        <path d="M9.5 12.5l1.5 1.5 3.5-3.5" />
+                      </svg>
+                      Insured
+                    </span>
+                    <span className="px-4 py-2 rounded-lg bg-emerald-900/40 border border-emerald-700/50 text-emerald-300 font-semibold">
+                      ₦{Number(tracked.amount).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4 mb-10 text-center">
+                  <div className="p-4 rounded-xl bg-emerald-950/60 border border-emerald-900">
+                    <p className="text-xs text-emerald-400 mb-1 uppercase tracking-wider">
+                      Origin
+                    </p>
+                    <p className="font-bold text-white">
+                      {tracked.animals?.users?.state ||
+                        tracked.animals?.state ||
+                        "Seller"}
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-emerald-950/60 border border-emerald-900">
+                    <p className="text-xs text-emerald-400 mb-1 uppercase tracking-wider">
+                      Destination
+                    </p>
+                    <p className="font-bold text-white">
+                      {tracked.delivery_state || tracked.delivery_city
+                        ? `${tracked.delivery_city || ""} ${tracked.delivery_state || ""}`
+                        : "Buyer"}
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-emerald-950/60 border border-emerald-900">
+                    <p className="text-xs text-emerald-400 mb-1 uppercase tracking-wider">
+                      ETA
+                    </p>
+                    <p className="font-bold text-emerald-300">
+                      {eta?.toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </p>
+                  </div>
+                </div>
+
+                <h4 className="text-xl font-bold text-emerald-300 mb-6">
+                  Shipment Timeline
+                </h4>
+                <ol className="relative border-s-2 border-emerald-800 ms-3">
+                  {stages.map((stage, idx) => (
+                    <li key={idx} className="mb-10 ms-6 last:mb-0">
+                      <span
+                        className={`absolute -start-3.5 flex items-center justify-center w-7 h-7 rounded-full ring-4 ring-black ${
+                          stage.active
+                            ? "bg-emerald-500 animate-pulse"
+                            : stage.done
+                              ? "bg-emerald-600"
+                              : "bg-emerald-900 border border-emerald-800"
+                        }`}
+                      >
+                        {stage.done ? (
+                          <svg
+                            className="w-4 h-4 text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={3}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                        ) : (
+                          <span className="text-xs text-emerald-200 font-bold">
+                            {idx + 1}
+                          </span>
+                        )}
                       </span>
-                    )}
-                  </span>
-                  <h5
-                    className={`font-bold text-lg ${stage.active ? "text-emerald-300" : stage.done ? "text-white" : "text-emerald-100/50"}`}
-                  >
-                    {stage.label}
-                  </h5>
-                  <time className="block text-sm text-emerald-400/70 mb-1">
-                    {stage.time}
-                  </time>
-                  <p
-                    className={`text-sm ${stage.active ? "text-emerald-100/80" : "text-emerald-100/50"}`}
-                  >
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      className="w-4 h-4 inline-block mr-1"
-                    >
-                      <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z" />
-                      <circle cx="12" cy="10" r="3" />
-                    </svg>
-                    {stage.location}
-                  </p>
-                </li>
-              ))}
-            </ol>
-          </Card>
+                      <h5
+                        className={`font-bold text-lg ${
+                          stage.active
+                            ? "text-emerald-300"
+                            : stage.done
+                              ? "text-white"
+                              : "text-emerald-100/50"
+                        }`}
+                      >
+                        {stage.label}
+                      </h5>
+                      <time className="block text-sm text-emerald-400/70 mb-1">
+                        {stage.time}
+                      </time>
+                      <p
+                        className={`text-sm ${
+                          stage.active
+                            ? "text-emerald-100/80"
+                            : "text-emerald-100/50"
+                        }`}
+                      >
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                          className="w-4 h-4 inline-block mr-1"
+                        >
+                          <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z" />
+                          <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        {stage.location}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              </Card>
+            )
+          )}
         </section>
       )}
 
@@ -315,7 +595,7 @@ export default function LogisticsPage() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={1.8}
-                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 012 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                     />
                   </svg>
                 ),
@@ -353,7 +633,7 @@ export default function LogisticsPage() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={1.8}
-                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08.402-2.599 1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
                 ),
@@ -541,5 +821,13 @@ export default function LogisticsPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function LogisticsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+      <LogisticsPageInner />
+    </Suspense>
   );
 }

@@ -102,12 +102,10 @@ export default function SellerDashboard() {
     0,
   );
 
-  // Calculate seller revenue (sum of item totals for this seller's products)
   const revenue = orders
     .filter((order) => order.status !== "CANCELLED")
     .reduce((sum, order) => sum + Number(order.amount ?? 0), 0);
 
-  // Generate activities based on orders and health clearances
   const activities = [
     ...orders.map((o) => ({
       type: "order" as const,
@@ -137,6 +135,23 @@ export default function SellerDashboard() {
   ]
     .sort((a, b) => b.date.getTime() - a.date.getTime())
     .slice(0, 3);
+
+  const monthLabels = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL"];
+  const listingCountsByMonth = Array(7).fill(0);
+  animals.forEach((a) => {
+    const d = new Date(a.createdAt ?? a.created_at ?? 0);
+    const monthIdx = d.getMonth();
+    if (monthIdx >= 0 && monthIdx < 7) {
+      listingCountsByMonth[monthIdx] += 1;
+    }
+  });
+  const maxCount = Math.max(...listingCountsByMonth, 1);
+  const chartData = monthLabels.map((label, i) => ({
+    label,
+    count: listingCountsByMonth[i],
+    height: Math.max(15, Math.round((listingCountsByMonth[i] / maxCount) * 95)),
+  }));
+  const chartColors = ["#065f46", "#065f46", "#065f46", "#047857", "#10b981", "#047857", "#059669"];
 
   return (
     <div className="p-8 bg-black min-h-screen">
@@ -202,15 +217,7 @@ export default function SellerDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Chart Area */}
                 <div className="h-48 flex items-end gap-2 px-4 pb-4 border-b md:border-b-0 md:border-r border-emerald-800 pr-6">
-                  {[
-                    { label: "JAN", height: 30, color: "#065f46" },
-                    { label: "FEB", height: 50, color: "#065f46" },
-                    { label: "MAR", height: 40, color: "#065f46" },
-                    { label: "APR", height: 70, color: "#047857" },
-                    { label: "MAY", height: 95, color: "#10b981" },
-                    { label: "JUN", height: 85, color: "#047857" },
-                    { label: "JUL", height: 90, color: "#059669" },
-                  ].map((bar, i) => (
+                  {chartData.map((bar, i) => (
                     <div
                       key={i}
                       className="flex flex-col items-center flex-1 gap-2"
@@ -219,9 +226,9 @@ export default function SellerDashboard() {
                         className="w-full rounded-t-md transition-all duration-500 hover:opacity-80 cursor-pointer"
                         style={{
                           height: `${bar.height}%`,
-                          backgroundColor: bar.color,
+                          backgroundColor: chartColors[i % chartColors.length],
                         }}
-                        title={`${bar.label}: ${bar.height}%`}
+                        title={`${bar.label}: ${bar.count} listings`}
                       />
                       <span className="text-[10px] text-emerald-500 font-bold">
                         {bar.label}

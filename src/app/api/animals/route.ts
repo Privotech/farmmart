@@ -1,7 +1,88 @@
 // src/app/api/animals/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session"; // or your auth session helper
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const category = searchParams.get("category");
+    const breed = searchParams.get("breed");
+    const minPrice = searchParams.get("minPrice");
+    const maxPrice = searchParams.get("maxPrice");
+    const location = searchParams.get("location");
+    const state = searchParams.get("state");
+    const sellerId = searchParams.get("sellerId");
+    const status = searchParams.get("status") || "AVAILABLE";
+    const search = searchParams.get("search");
+    const sortBy = searchParams.get("sortBy") || "created_at";
+    const sortOrder = searchParams.get("sortOrder") || "desc";
+    const limit = searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : undefined;
+
+    const where: any = {};
+
+    if (category) where.category = category;
+    if (breed) where.breed = { contains: breed, mode: "insensitive" };
+    if (location) {
+      where.OR = [
+        { location: { contains: location, mode: "insensitive" } },
+        { state: { contains: location, mode: "insensitive" } },
+      ];
+    }
+    if (state) where.state = { contains: state, mode: "insensitive" };
+    if (sellerId) where.seller_id = sellerId;
+    if (status) where.status = status;
+    if (minPrice || maxPrice) {
+      where.price = {};
+      if (minPrice) where.price.gte = parseFloat(minPrice);
+      if (maxPrice) where.price.lte = parseFloat(maxPrice);
+    }
+    if (search) {
+      const searchConditions = [
+        { name: { contains: search, mode: "insensitive" } },
+        { breed: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+      ];
+      if (where.OR) {
+        where.OR = [...where.OR, ...searchConditions];
+      } else {
+        where.OR = searchConditions;
+      }
+    }
+
+    const orderBy: Record<string, string> = {};
+    orderBy[sortBy] = sortOrder;
+
+    const animals = await prisma.animals.findMany({
+      where,
+      include: {
+        users: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            farm_name: true,
+            state: true,
+            city: true,
+            is_verified: true,
+            avatar_url: true,
+            phone: true,
+          },
+        },
+      },
+      orderBy,
+      take: limit,
+    });
+
+    return NextResponse.json({ success: true, data: animals });
+  } catch (error) {
+    console.error("Error fetching animals:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to fetch animals" },
+      { status: 500 },
+    );
+  }
+}
 
 export async function POST(req: Request) {
   try {

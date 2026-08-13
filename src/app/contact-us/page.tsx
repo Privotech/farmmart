@@ -67,7 +67,7 @@ export default function ContactUsPage() {
                       <label className="block text-sm font-bold text-gray-700 mb-2">Your Name</label>
                       <Input
                         required
-                        placeholder="John Doe"
+                        placeholder="Your full name"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       />
@@ -77,7 +77,7 @@ export default function ContactUsPage() {
                       <Input
                         type="email"
                         required
-                        placeholder="john@example.com"
+                        placeholder="your.email@example.com"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       />
@@ -135,7 +135,7 @@ export default function ContactUsPage() {
                     </div>
                     <div>
                       <h4 className="text-lg font-bold text-gray-800 mb-1">Email</h4>
-                      <p className="text-gray-600">support@terratracepro.com</p>
+                      <p className="text-gray-600">support@farmmart.com</p>
                     </div>
                   </div>
 
@@ -157,7 +157,7 @@ export default function ContactUsPage() {
                     </div>
                     <div>
                       <h4 className="text-lg font-bold text-gray-800 mb-1">Phone</h4>
-                      <p className="text-gray-600">+234 800 123 4567</p>
+                      <p className="text-gray-600">+234 800 FARMMART</p>
                     </div>
                   </div>
 
@@ -217,7 +217,7 @@ export default function ContactUsPage() {
       <footer className="bg-black text-white py-16">
         <div className="container mx-auto px-4">
           <div className="border-t border-gray-800 pt-8 text-center text-gray-500">
-            <p>&copy; 2024 TerraTrace Pro. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} FarmMart. All rights reserved.</p>
           </div>
         </div>
       </footer>

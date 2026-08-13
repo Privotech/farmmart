@@ -231,28 +231,16 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
             }`}
           >
             <div className="flex flex-col justify-center items-center h-full px-12 text-center bg-gray-900">
-              <h1 className="text-4xl font-bold text-gray-100 mb-4">Sign Up</h1>
-
-              <div className="flex justify-center gap-4 mb-6">
-                {[{ icon: "f" }, { icon: "X" }, { icon: "G" }, { icon: "in" }].map((s, i) => (
-                  <button
-                    key={i}
-                    disabled
-                    className="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center text-gray-600 cursor-not-allowed"
-                  >
-                    <span className="font-semibold">{s.icon}</span>
-                  </button>
-                ))}
-              </div>
+              <h1 className="text-4xl font-bold text-gray-100 mb-6">Sign Up</h1>
 
               <div className="flex items-center w-full mb-6 text-gray-600">
                 <div className="flex-1 h-px bg-gray-800"></div>
-                <span className="px-3 text-sm">Or</span>
+                <span className="px-3 text-sm">Create Your Account</span>
                 <div className="flex-1 h-px bg-gray-800"></div>
               </div>
 
               {error && !isLogin && (
-                <div className="w-full bg-red-900/30 border border-red-800 text-red-400 text-sm p-2 rounded mb-4">
+                <div className="w-full bg-emerald-900/30 border border-emerald-800 text-emerald-400 text-sm p-2 rounded mb-4">
                   {error}
                 </div>
               )}
@@ -298,7 +286,15 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                     htmlFor="terms"
                     className="ml-2 text-sm text-gray-400 cursor-pointer"
                   >
-                    I accept terms
+                    I accept the{" "}
+                    <Link
+                      href="/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-400 hover:text-emerald-300 underline"
+                    >
+                      Terms and Conditions
+                    </Link>
                   </label>
                 </div>
 
@@ -322,28 +318,16 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
             }`}
           >
             <div className="flex flex-col justify-center items-center h-full px-12 text-center bg-gray-900">
-              <h1 className="text-4xl font-bold text-gray-100 mb-4">Sign In</h1>
-
-              <div className="flex justify-center gap-4 mb-6">
-                {[{ icon: "f" }, { icon: "X" }, { icon: "G" }, { icon: "in" }].map((s, i) => (
-                  <button
-                    key={i}
-                    disabled
-                    className="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center text-gray-600 cursor-not-allowed"
-                  >
-                    <span className="font-semibold">{s.icon}</span>
-                  </button>
-                ))}
-              </div>
+              <h1 className="text-4xl font-bold text-gray-100 mb-6">Sign In</h1>
 
               <div className="flex items-center w-full mb-6 text-gray-600">
                 <div className="flex-1 h-px bg-gray-800"></div>
-                <span className="px-3 text-sm">Or</span>
+                <span className="px-3 text-sm">Access Your Account</span>
                 <div className="flex-1 h-px bg-gray-800"></div>
               </div>
 
               {error && isLogin && (
-                <div className="w-full bg-red-900/30 border border-red-800 text-red-400 text-sm p-2 rounded mb-4">
+                <div className="w-full bg-emerald-900/30 border border-emerald-800 text-emerald-400 text-sm p-2 rounded mb-4">
                   {error}
                 </div>
               )}

@@ -27,7 +27,7 @@ export default function MissionPage() {
             <div>
               <h2 className="text-4xl font-bold text-gray-900 mb-8">What Drives Us</h2>
               <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                At TerraTrace Pro, our mission is rooted in a deep belief that African agriculture
+                At FarmMart, our mission is rooted in a deep belief that African agriculture
                 holds the key to the continent&apos;s future prosperity. We&apos;re committed to removing
                 barriers that have long prevented smallholder farmers from accessing fair markets.
               </p>
@@ -116,7 +116,7 @@ export default function MissionPage() {
       <footer className="bg-black text-white py-16">
         <div className="container mx-auto px-4">
           <div className="border-t border-gray-800 pt-8 text-center text-gray-500">
-            <p>&copy; 2024 TerraTrace Pro. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} FarmMart. All rights reserved.</p>
           </div>
         </div>
       </footer>

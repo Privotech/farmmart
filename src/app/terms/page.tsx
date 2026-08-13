@@ -1,343 +1,226 @@
-import Link from "next/link";
-import { Card } from "@/components/ui/Card";
-
 export default function TermsAndConditionsPage() {
   return (
-    <div className="min-h-screen bg-black text-emerald-50 py-16 px-4">
-      <div className="container mx-auto max-w-4xl">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-emerald-300 mb-4">
-            Terms &amp; Conditions
+    <div className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <section className="pt-32 pb-20 bg-[#F9FBF4]">
+        <div className="container mx-auto px-4">
+          <h1 className="text-5xl font-bold text-gray-900 mb-6 text-center">
+            Terms & Conditions
           </h1>
-          <p className="text-emerald-200/70 text-lg">
-            Last updated: August 8, 2026
+          <p className="text-xl text-gray-600 text-center max-w-3xl mx-auto">
+            Last updated: August 13, 2026
           </p>
         </div>
+      </section>
 
-        <div className="mb-10">
-          <Card className="border-2 border-rose-600/40 bg-rose-950/20">
-            <div className="flex gap-4 items-start">
-              <div className="text-4xl flex-shrink-0 text-rose-400">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  className="w-10 h-10"
-                >
-                  <path d="M12 9v4" />
-                  <path d="M12 17h.01" />
-                  <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-                </svg>
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-rose-300 mb-3">
-                  CRITICAL: OFF-PLATFORM COMMUNICATION DISCLAIMER
-                </h2>
-                <p className="text-rose-100/90 font-semibold mb-3">
-                  PLEASE READ THIS SECTION CAREFULLY — IT AFFECTS YOUR LEGAL
-                  RIGHTS.
-                </p>
-                <p className="text-emerald-100/80 leading-relaxed mb-3">
-                  <strong className="text-rose-300">
-                    FarmMart (the &quot;Platform&quot;, &quot;we&quot;,
-                    &quot;us&quot;, or &quot;our&quot;) does NOT mediate,
-                    facilitate, monitor, guarantee, or take ANY responsibility
-                    whatsoever for transactions, discussions, agreements,
-                    meetings, or communications that occur between buyers and
-                    sellers OUTSIDE of the FarmMart platform or outside of
-                    FarmMart&apos;s official in-app messaging system.
-                  </strong>
-                </p>
-                <p className="text-emerald-100/80 leading-relaxed mb-3">
-                  This includes, but is not limited to: communications via
-                  WhatsApp, Telegram, SMS, phone calls, personal email, Facebook
-                  Messenger, Instagram DM, physical meetings, handshakes, or any
-                  other channel that is NOT the official FarmMart website
-                  (farmmart.ng or farmmart.com) or its built-in messaging /
-                  inquiry / checkout system.
-                </p>
-                <p className="text-emerald-100/80 leading-relaxed">
-                  <strong className="text-rose-300">
-                    If you choose to contact or meet a buyer or seller outside
-                    the Platform, you do so AT YOUR OWN RISK. We are NOT liable
-                    and will NOT be held responsible for any fake animals,
-                    counterfeit goods, misrepresented livestock, scams, fraud,
-                    financial losses, theft, personal injury, breach of
-                    contract, or any other damages or harm that result from such
-                    off-platform contact.
-                  </strong>
-                </p>
+      {/* Content Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="prose prose-lg max-w-none text-gray-700 space-y-8">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Acceptance of Terms</h2>
+              <p className="text-gray-600 leading-relaxed">
+                By accessing and using FarmMart (TerraTrace Pro), you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to abide by these terms, please do not use this service.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Description of Service</h2>
+              <p className="text-gray-600 leading-relaxed">
+                FarmMart (TerraTrace Pro) provides an online digital marketplace platform that connects buyers and sellers of agricultural animals and livestock. The platform includes features for listing animals, managing inventory, processing orders, tracking logistics, and facilitating secure payments.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">3. User Accounts & Registration</h2>
+              <p className="text-gray-600 mb-3 leading-relaxed">
+                To access certain features of the platform, you must register for an account. You agree to:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 text-gray-600">
+                <li>Provide accurate, current, and complete information during registration</li>
+                <li>Maintain and promptly update your account information</li>
+                <li>Keep your password secure and confidential</li>
+                <li>Notify us immediately of any unauthorized use of your account</li>
+                <li>You may not register as a buyer and seller with separate accounts using the same credentials without authorization</li>
+              </ul>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">4. User Roles & Responsibilities</h2>
+              <div className="bg-[#F9FBF4] p-6 rounded-2xl space-y-6">
+                <div>
+                  <h3 className="font-bold text-lg text-emerald-700 mb-2">Sellers</h3>
+                  <ul className="list-disc pl-6 space-y-1 text-gray-600">
+                    <li>Listings must be accurate and truthful regarding animal health, breed, age, and condition</li>
+                    <li>All animals listed must be legally owned and available for sale</li>
+                    <li>Sellers are responsible for delivering listings as described</li>
+                    <li>Maintain proper documentation including health certificates</li>
+                    <li>All veterinary records must be accurate and verifiable</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg text-emerald-700 mb-2">Buyers</h3>
+                  <ul className="list-disc pl-6 space-y-1 text-gray-600">
+                    <li>Inspect animals or request verified documentation before purchase</li>
+                    <li>Complete payment for successful orders</li>
+                    <li>Provide accurate delivery information</li>
+                    <li>Report discrepancies within 24 hours of delivery</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg text-emerald-700 mb-2">Administrators</h3>
+                  <ul className="list-disc pl-6 space-y-1 text-gray-600">
+                    <li>Moderate platform content and listings</li>
+                    <li>Resolve disputes between buyers and sellers</li>
+                    <li>Ensure compliance with terms and conditions</li>
+                    <li>Maintain platform security and integrity</li>
+                  </ul>
+                </div>
               </div>
             </div>
-          </Card>
+
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">5. Listings & Transactions</h2>
+              <p className="text-gray-600 mb-3 leading-relaxed">
+                All animal listings on the platform must comply with the following:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 text-gray-600">
+                <li>Pricing must be clear and in Naira (₦) unless otherwise specified</li>
+                <li>Images must accurately represent the animal being sold</li>
+                <li>Animals must meet minimum health standards before listing</li>
+                <li>No endangered or protected species may be listed</li>
+                <li>Sellers must honor valid bids or purchases confirmed by the platform</li>
+              </ul>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">6. Payments & Fees</h2>
+              <p className="text-gray-600 mb-3 leading-relaxed">
+                Our platform integrates with Paystack for secure payment processing. By using our services:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 text-gray-600">
+                <li>Buyers agree to pay all amounts due for confirmed purchases</li>
+                <li>Platform transaction fees will be clearly disclosed before processing</li>
+                <li>All payments are processed through verified third-party providers</li>
+                <li>Refunds are subject to our refund policy and dispute resolution process</li>
+                <li>Payment disputes should be raised within 7 days of the transaction</li>
+              </ul>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">7. Delivery & Logistics</h2>
+              <p className="text-gray-600 mb-3 leading-relaxed">
+                Logistics and animal transportation services provided through or arranged by our platform:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 text-gray-600">
+                <li>Delivery timelines are estimates and not guaranteed unless confirmed in writing</li>
+                <li>Buyers are responsible for providing access and safe reception of animals</li>
+                <li>Transportation insurance is available and disclosed at checkout</li>
+                <li>Any transportation claims must be documented immediately upon delivery</li>
+              </ul>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Prohibited Activities</h2>
+              <p className="text-gray-600 mb-3">Users may NOT engage in any of the following activities:</p>
+              <ul className="list-disc pl-6 space-y-2 text-gray-600">
+                <li>Violate any applicable laws, regulations, or animal welfare standards</li>
+                <li>Engage in fraudulent listings, misrepresentations, or deceptive practices</li>
+                <li>Interfere with platform security features or other user accounts</li>
+                <li>Circumvent platform fees or payment systems</li>
+                <li>Harass, abuse, or harm another user or animal</li>
+                <li>Use platform data for commercial purposes without authorization</li>
+                <li>Upload viruses, malware, or harmful code</li>
+              </ul>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Intellectual Property</h2>
+              <p className="text-gray-600 leading-relaxed">
+                All content, trademarks, logos, and intellectual property on the FarmMart platform, including but not limited to text, graphics, user interfaces, and software, is the property of TerraTrace Pro or its licensors and is protected by copyright, trademark, and other intellectual property laws.
+              </p>
+              <p className="text-gray-600 mt-3 leading-relaxed">
+                Users retain ownership of content they upload, but grant FarmMart a non-exclusive license to use, display, and distribute that content for the purposes of providing the service.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">10. Privacy & Data</h2>
+              <p className="text-gray-600 leading-relaxed">
+                Your use of FarmMart is also governed by our Privacy Policy, which outlines how we collect, use, and protect your personal information. By using our platform, you consent to our collection and use of data as described in the Privacy Policy.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">11. Termination</h2>
+              <p className="text-gray-600 mb-3 leading-relaxed">
+                We reserve the right to:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 text-gray-600">
+                <li>Terminate or suspend user accounts that violate these terms</li>
+                <li>Remove any content or listings at our discretion</li>
+                <li>Discontinue any part of the service at any time</li>
+                <li>Users may terminate their accounts at any time by contacting support</li>
+              </ul>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">12. Disclaimers & Limitation of Liability</h2>
+              <p className="text-gray-600 mb-3 leading-relaxed">
+                The platform is provided on an "as is" and "as available" basis. We make no warranties, express or implied, regarding:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-4">
+                <li>The accuracy or reliability of any listings or user-generated content</li>
+                <li>The health, quality, or condition of animals sold through third parties</li>
+                <li>Uninterrupted or error-free access to the platform</li>
+                <li>Outcomes of transactions between users</li>
+              </ul>
+              <p className="text-gray-600 leading-relaxed">
+                TerraTrace Pro shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising out of your use of the platform.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">13. Dispute Resolution</h2>
+              <p className="text-gray-600 leading-relaxed">
+                Any disputes between users of the platform will first be mediated by our admin team. Failing resolution, disputes shall be governed by the laws of Nigeria and submitted to the exclusive jurisdiction of the courts in Lagos State, Nigeria.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">14. Changes to Terms</h2>
+              <p className="text-gray-600 leading-relaxed">
+                We may modify or update these Terms and Conditions at any time. Changes will be effective upon posting to the platform. Continued use of the platform after changes are posted constitutes your acceptance of the updated terms.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">15. Contact Information</h2>
+              <p className="text-gray-600 leading-relaxed mb-2">
+                For questions regarding these terms, please reach out to us through:
+              </p>
+              <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-2xl">
+                <p className="mb-1"><span className="font-semibold text-emerald-800">Email:</span> support@terratracepro.com</p>
+                <p className="mb-1"><span className="font-semibold text-emerald-800">Phone:</span> +234 800 123 4567</p>
+                <p className="mb-1"><span className="font-semibold text-emerald-800">Address:</span> Lagos, Nigeria</p>
+              </div>
+            </div>
+
+            <div className="mt-12 pt-8 border-t border-gray-200 text-center">
+              <p className="text-gray-500 italic">
+                By using FarmMart (TerraTrace Pro), you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.
+              </p>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <Card className="mb-8">
-          <h2 className="text-2xl font-bold text-emerald-300 mb-4">
-            1. Acceptance of Terms
-          </h2>
-          <p className="leading-relaxed text-emerald-100/85 mb-3">
-            By accessing or using FarmMart (&quot;the Platform&quot;), you
-            signify your agreement to be bound by these Terms and Conditions. If
-            you do not agree to these terms, please do not use the Platform.
-            Continued use after changes to these terms constitutes your
-            acceptance of such changes.
-          </p>
-        </Card>
-
-        <Card className="mb-8">
-          <h2 className="text-2xl font-bold text-emerald-300 mb-4">
-            2. Platform Role
-          </h2>
-          <p className="leading-relaxed text-emerald-100/85 mb-3">
-            FarmMart operates as an online marketplace that enables independent
-            third-party sellers (&quot;Sellers&quot;) to list livestock and
-            related agricultural products for sale to registered buyers
-            (&quot;Buyers&quot;).
-          </p>
-          <p className="leading-relaxed text-emerald-100/85">
-            <strong className="text-emerald-200">
-              We are an intermediary platform, NOT the seller of record.
-            </strong>{" "}
-            We do not own the animals listed. The actual sales contract is
-            between Buyer and Seller directly. We are not a party to that
-            contract beyond facilitating payment processing through our
-            integrated Paystack payment gateway.
-          </p>
-        </Card>
-
-        <Card className="mb-8">
-          <h2 className="text-2xl font-bold text-emerald-300 mb-4">
-            3. Protected Transactions (ONLY On-Platform)
-          </h2>
-          <p className="leading-relaxed text-emerald-100/85 mb-3">
-            To protect both Buyers and Sellers from fraud, ALL transactions and
-            inquiries MUST be conducted through the Platform using:
-          </p>
-          <ul className="list-disc list-inside space-y-2 ml-4 text-emerald-100/85 mb-3">
-            <li>The official &quot;Add to Cart&quot; and Checkout flow</li>
-            <li>
-              The built-in &quot;Send Inquiry&quot; messaging on each listing
-            </li>
-            <li>
-              The official Paystack payment integration (NOT bank transfers to
-              personal accounts)
-            </li>
-            <li>The logistics partners displayed on the Platform</li>
-          </ul>
-          <p className="leading-relaxed text-emerald-100/85">
-            Only payments made through the on-platform checkout are eligible for
-            our
-            <strong className="text-emerald-200">
-              {" "}
-              Purchase Protection{" "}
-            </strong>{" "}
-            program. Any payment made outside the checkout flow is completely
-            excluded from any refund, dispute, or guarantee.
-          </p>
-        </Card>
-
-        <Card className="mb-8">
-          <h2 className="text-2xl font-bold text-emerald-300 mb-4">
-            4. User Accounts &amp; Verification
-          </h2>
-          <p className="leading-relaxed text-emerald-100/85 mb-3">
-            All users must create an account to buy or sell. You agree to
-            provide accurate, current, and complete information. FarmMart
-            reserves the right to request additional identity verification (ID
-            card, BVN, proof of address, utility bill) at any time, especially
-            for Sellers listing high-value livestock.
-          </p>
-          <p className="leading-relaxed text-emerald-100/85">
-            Accounts found to be encouraging off-platform contact — by listing
-            phone numbers, WhatsApp links, or social media handles in animal
-            descriptions, usernames, or profile bios — will receive an immediate
-            warning and may be permanently banned from the Platform without
-            refund of any fees.
-          </p>
-        </Card>
-
-        <Card className="mb-8">
-          <h2 className="text-2xl font-bold text-emerald-300 mb-4">
-            5. Seller Responsibilities &amp; Listing Accuracy
-          </h2>
-          <p className="leading-relaxed text-emerald-100/85 mb-3">
-            Sellers are SOLELY responsible for the accuracy of their listings,
-            including: animal breed, age, weight, health status, vaccinations,
-            gender, photographs, and price.
-          </p>
-          <p className="leading-relaxed text-emerald-100/85">
-            While FarmMart performs random listing reviews and provides an
-            optional verification badge (&quot;Verified Seller&quot;), such
-            badges do NOT constitute a guarantee of product authenticity or
-            seller trustworthiness. They only indicate that the Seller has
-            passed our identity check at a single point in time.
-          </p>
-        </Card>
-
-        <Card className="mb-8">
-          <h2 className="text-2xl font-bold text-emerald-300 mb-4">
-            6. Fees &amp; Payments
-          </h2>
-          <p className="leading-relaxed text-emerald-100/85 mb-2">
-            • A platform commission of 5% is applied to every completed
-            on-platform sale.
-          </p>
-          <p className="leading-relaxed text-emerald-100/85 mb-2">
-            • A standard logistics &amp; insurance fee is added to all checkouts
-            (currently ₦5,000 within Nigeria, subject to change by distance).
-          </p>
-          <p className="leading-relaxed text-emerald-100/85">
-            • A 7.5% VAT is applied per Nigerian tax law.
-          </p>
-        </Card>
-
-        <Card className="mb-8">
-          <h2 className="text-2xl font-bold text-emerald-300 mb-4">
-            7. Logistics &amp; Delivery
-          </h2>
-          <p className="leading-relaxed text-emerald-100/85 mb-3">
-            Buyers may choose (a) Platform-vetted logistics partners listed on
-            the logistics page, or (b) self-arranged pickup.
-          </p>
-          <p className="leading-relaxed text-emerald-100/85">
-            If a Buyer arranges their own transportation or meets the Seller in
-            person to collect animals, the Platform bears no responsibility for
-            animal condition, health, authenticity, or accidents during
-            transport, even if the arrangement was discussed via on-platform
-            messages.
-          </p>
-        </Card>
-
-        <Card className="mb-8">
-          <h2 className="text-2xl font-bold text-emerald-300 mb-4">
-            8. Dispute Resolution (On-Platform Only)
-          </h2>
-          <p className="leading-relaxed text-emerald-100/85 mb-3">
-            For disputes arising from on-platform orders, FarmMart will attempt
-            to mediate based on order records, chat logs, and evidence photos
-            submitted within 48 hours of delivery. Mediation outcomes are final
-            and binding on both parties.
-          </p>
-          <p className="leading-relaxed text-emerald-100/85">
-            <strong className="text-rose-300">
-              Disputes related to off-platform communications or transactions
-              will NOT be entertained or reviewed by FarmMart, under any
-              circumstances. Such disputes are the exclusive responsibility of
-              the individuals involved and must be resolved directly between
-              them, or through relevant legal authorities.
-            </strong>
-          </p>
-        </Card>
-
-        <Card className="mb-8">
-          <h2 className="text-2xl font-bold text-emerald-300 mb-4">
-            9. Limitation of Liability
-          </h2>
-          <p className="leading-relaxed text-emerald-100/85 mb-3">
-            To the FULLEST EXTENT PERMITTED BY APPLICABLE LAW, FarmMart, its
-            officers, directors, employees, agents, affiliates, successors, and
-            assigns shall NOT be liable for any indirect, incidental, special,
-            consequential, or punitive damages — including but not limited to
-            loss of profits, loss of animals, loss of data, business
-            interruption, or personal injury — arising out of or related to your
-            use (or inability to use) the Platform, or any dealings between you
-            and other users, whether on or off the Platform.
-          </p>
-          <p className="leading-relaxed text-emerald-100/85">
-            FarmMart&apos;s maximum aggregate liability under this Agreement
-            shall in NO event exceed the total amount of fees actually paid by
-            you to FarmMart in the 12-month period immediately preceding the
-            event giving rise to the claim.
-          </p>
-        </Card>
-
-        <Card className="mb-8">
-          <h2 className="text-2xl font-bold text-emerald-300 mb-4">
-            10. Indemnification
-          </h2>
-          <p className="leading-relaxed text-emerald-100/85">
-            You agree to indemnify, defend, and hold harmless FarmMart from any
-            claims, actions, damages, losses, costs, and expenses (including
-            reasonable attorneys&apos; fees) arising from: (a) your breach of
-            these Terms; (b) your violation of any law or third-party right; or
-            (c) any off-platform dealings, communications, or disputes between
-            you and another user.
-          </p>
-        </Card>
-
-        <Card className="mb-8">
-          <h2 className="text-2xl font-bold text-emerald-300 mb-4">
-            11. Termination
-          </h2>
-          <p className="leading-relaxed text-emerald-100/85">
-            We may terminate or suspend your account immediately, without prior
-            notice or liability, for any reason including, without limitation,
-            if you breach these Terms by sharing off-platform contact details,
-            soliciting off-platform payments, or engaging in fraudulent or
-            deceptive listings. Upon termination, your right to use the Platform
-            ceases immediately.
-          </p>
-        </Card>
-
-        <Card className="mb-8">
-          <h2 className="text-2xl font-bold text-emerald-300 mb-4">
-            12. Governing Law
-          </h2>
-          <p className="leading-relaxed text-emerald-100/85">
-            These Terms shall be governed by and construed in accordance with
-            the laws of the Federal Republic of Nigeria, without regard to its
-            conflict of law provisions. Any legal action or proceeding arising
-            out of or relating to these Terms or your use of the Platform shall
-            be brought exclusively in the courts located in Lagos State,
-            Nigeria.
-          </p>
-        </Card>
-
-        <Card className="mb-10">
-          <h2 className="text-2xl font-bold text-emerald-300 mb-4">
-            13. Contact Us
-          </h2>
-          <p className="leading-relaxed text-emerald-100/85 mb-2">
-            For questions about these Terms, please contact us through:
-          </p>
-          <ul className="list-disc list-inside ml-4 text-emerald-100/85 space-y-1">
-            <li>
-              Support Email:{" "}
-              <span className="text-emerald-300 font-mono">
-                support@farmmart.ng
-              </span>
-            </li>
-            <li>
-              In-App Support Tickets: /buyer/support or /seller/help-center
-            </li>
-            <li>Registered Address: Lagos, Nigeria</li>
-          </ul>
-        </Card>
-
-        <div className="text-center pt-4 pb-8 border-t border-emerald-900">
-          <p className="text-emerald-200/60 text-sm mb-6">
-            By continuing to use FarmMart, you acknowledge that you have READ,
-            UNDERSTOOD, and AGREED to all of these Terms and Conditions,
-            including the OFF-PLATFORM COMMUNICATION DISCLAIMER above.
-          </p>
-          <Link href="/">
-            <span className="inline-block px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition shadow-lg shadow-emerald-900/60 cursor-pointer">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                className="w-4 h-4 inline-block mr-2"
-              >
-                <path d="M15 18l-6-6 6-6" />
-              </svg>
-              Return to Home
-            </span>
-          </Link>
+      {/* Footer */}
+      <footer className="bg-black text-white py-12">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-gray-400">&copy; 2026 TerraTrace Pro (FarmMart). All rights reserved.</p>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }

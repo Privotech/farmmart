@@ -3,7 +3,6 @@ import { jwtVerify } from "jose";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 
 async function getSession() {
   const cookieStore = await cookies();
@@ -33,28 +32,91 @@ export default async function BuyerDashboard() {
 
   const orders = await prisma.orders.findMany({
     where: { buyer_id: session.userId },
+    include: { animals: { include: { users: true } } },
   });
 
+  const activeOrders = orders.filter(
+    (o) => o.status !== "CANCELLED" && o.status !== "DELIVERED",
+  );
+  const pendingDeliveries = orders.filter((o) =>
+    ["PAID", "CONFIRMED", "SHIPPED"].includes(o.status),
+  );
   const totalSpend = orders
     .filter((o) => o.status !== "CANCELLED")
     .reduce((sum, o) => sum + Number(o.amount), 0);
 
+  const cartCount = await prisma.cart.count({
+    where: { user_id: session.userId },
+  });
+
+  const inquiries = await prisma.inquiries.findMany({
+    where: { sender_id: session.userId },
+    include: { animals: { include: { users: true } } },
+    orderBy: { created_at: "desc" },
+    take: 3,
+  });
+
+  const activityTimeline = [
+    ...orders.slice(0, 3).map((o) => ({
+      id: `order-${o.id}`,
+      type: "order" as const,
+      title: `Order ${o.status}: ₦${Number(o.amount).toLocaleString()}`,
+      subtitle: o.animals?.name ?? "Livestock purchase",
+      time: new Date(o.created_at),
+      icon: "order",
+    })),
+    ...inquiries.map((i) => ({
+      id: `inq-${i.id}`,
+      type: "inquiry" as const,
+      title: `Inquiry: ${i.animals?.name ?? "Animal"}`,
+      subtitle: `Status: ${i.status.toLowerCase()}`,
+      time: new Date(i.created_at),
+      icon: "message",
+    })),
+  ]
+    .sort((a, b) => b.time.getTime() - a.time.getTime())
+    .slice(0, 4);
+
+  const priceIndexData = await prisma.animals.findMany({
+    where: { status: "AVAILABLE" },
+    select: { price: true, weight: true, created_at: true, category: true },
+    orderBy: { created_at: "desc" },
+    take: 50,
+  });
+
+  const totalWeight = priceIndexData.reduce(
+    (s, a) => s + (a.weight ? Number(a.weight) : 0),
+    0,
+  );
+  const totalPrice = priceIndexData.reduce(
+    (s, a) => s + Number(a.price),
+    0,
+  );
+  const liveIndex =
+    totalWeight > 0
+      ? totalPrice / totalWeight
+      : priceIndexData.length > 0
+        ? totalPrice / priceIndexData.length
+        : 0;
+
   return (
-    <div className="p-8">
+    <div className="p-8 bg-[#121212] min-h-screen">
       {/* Header */}
-      <div className="flex justify-between items-start mb-8">
+      <div className="flex justify-between items-start mb-8 flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-bold text-emerald-100 mb-1">
-            Welcome, {session.email}
+            Welcome, {session.email.split("@")[0]}
           </h1>
           <p className="text-sm text-emerald-400 font-medium">
             Market status:{" "}
-            <span className="text-emerald-400 font-bold">Open</span> • Last
-            price index update 4m ago.
+            <span className="text-emerald-400 font-bold">Open</span> •{" "}
+            {priceIndexData.length > 0
+              ? `${priceIndexData.length} active listings`
+              : "No live listings yet"}
           </p>
         </div>
-        <div className="flex gap-3">
-          <Link href="/buyer/listing">
+        <div className="flex gap-3 flex-wrap">
+          <Link href="/listings">
             <button className="bg-emerald-900 hover:bg-emerald-800 text-emerald-200 px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 transition text-sm">
               <svg
                 className="w-4 h-4"
@@ -72,22 +134,24 @@ export default async function BuyerDashboard() {
               Browse Marketplace
             </button>
           </Link>
-          <button className="bg-emerald-900 hover:bg-emerald-800 text-emerald-200 px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 transition text-sm">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-            Contract Vault
-          </button>
+          <Link href="/cart">
+            <button className="bg-emerald-900 hover:bg-emerald-800 text-emerald-200 px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 transition text-sm">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              Cart ({cartCount})
+            </button>
+          </Link>
         </div>
       </div>
 
@@ -98,112 +162,145 @@ export default async function BuyerDashboard() {
             <div className="bg-emerald-950 p-6 rounded-2xl shadow-sm border border-emerald-800 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-500"></div>
               <p className="text-xs font-bold text-emerald-500 uppercase tracking-wider mb-4">
-                Total Spend (Q3)
+                Total Spend
               </p>
               <div className="flex items-baseline gap-2">
                 <h3 className="text-3xl font-bold text-emerald-100">
                   ₦{totalSpend.toLocaleString()}
                 </h3>
-                <span className="text-emerald-400 text-xs font-bold">
-                  ↑ 12%
-                </span>
               </div>
+              <p className="text-emerald-400 text-xs font-bold mt-2">
+                {orders.filter((o) => o.status !== "CANCELLED").length}{" "}
+                completed orders
+              </p>
             </div>
 
             <div className="bg-emerald-950 p-6 rounded-2xl shadow-sm border border-emerald-800 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-600"></div>
               <p className="text-xs font-bold text-emerald-500 uppercase tracking-wider mb-4">
-                Active Bids
+                Active Orders
               </p>
               <div className="flex items-baseline gap-2">
-                <h3 className="text-3xl font-bold text-emerald-100">14</h3>
-                <span className="text-emerald-400 text-xs font-bold">
-                  Across 4 suppliers
-                </span>
+                <h3 className="text-3xl font-bold text-emerald-100">
+                  {activeOrders.length}
+                </h3>
               </div>
+              <p className="text-emerald-400 text-xs font-bold mt-2">
+                {pendingDeliveries.length} pending delivery
+              </p>
             </div>
 
             <div className="bg-emerald-950 p-6 rounded-2xl shadow-sm border border-emerald-800 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-700"></div>
               <p className="text-xs font-bold text-emerald-500 uppercase tracking-wider mb-4">
-                Pending Deliveries
+                Cart Items
               </p>
               <div className="flex items-baseline gap-2">
-                <h3 className="text-3xl font-bold text-emerald-100">2,450</h3>
-                <span className="text-emerald-400 text-xs font-bold">
-                  Heads in transit
-                </span>
+                <h3 className="text-3xl font-bold text-emerald-100">
+                  {cartCount}
+                </h3>
               </div>
+              <Link
+                href="/cart"
+                className="text-emerald-400 text-xs font-bold mt-2 hover:underline block"
+              >
+                View cart &rarr;
+              </Link>
             </div>
           </div>
 
-          {/* Active Bidding Section */}
+          {/* Active Orders Section */}
           <div className="bg-emerald-900 p-8 rounded-[32px]">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-emerald-100">
-                Active Bidding Section
+                Recent Orders
               </h2>
               <Link
-                href="/buyer/live-bids"
+                href="/buyer/supply-chain"
                 className="text-emerald-400 text-sm font-bold hover:underline"
               >
-                View All Bids
+                View Supply Chain &rarr;
               </Link>
             </div>
 
-            <div className="space-y-4">
-              <div className="bg-emerald-950 p-6 rounded-2xl flex items-center justify-between shadow-sm border border-emerald-800">
-                <div className="flex items-center gap-6">
-                  <div className="w-20 h-20 bg-emerald-900 rounded-xl relative overflow-hidden">
-                    <Image
-                      src="/placeholder-animal.jpg"
-                      alt="Animal"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-emerald-100 text-lg">
-                      Lot #552: Holstein Select (50 Head)
-                    </h4>
-                    <p className="text-sm text-emerald-400">
-                      Supplier:{" "}
-                      <span className="text-emerald-400">
-                        Emerald Valley Farms
-                      </span>{" "}
-                      • Avg. 220 kg
-                    </p>
-                    <div className="flex gap-2 mt-3">
-                      <span className="bg-emerald-900/30 text-emerald-400 text-[10px] font-bold px-2.5 py-1 rounded uppercase">
-                        Leading
-                      </span>
-                      <span className="text-emerald-500 text-[10px] font-bold flex items-center gap-1">
-                        <svg
-                          className="w-3 h-3"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        02h 45m remaining
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider mb-1">
-                    Current Bid
-                  </p>
-                  <p className="text-2xl font-bold text-emerald-400">₦18,400</p>
-                </div>
+            {activeOrders.length === 0 &&
+            orders.filter((o) => o.status !== "CANCELLED").length === 0 ? (
+              <div className="bg-emerald-950 p-8 rounded-2xl border border-emerald-800 text-center">
+                <p className="text-emerald-100 font-bold mb-2">
+                  No orders yet
+                </p>
+                <p className="text-emerald-400 text-sm mb-6">
+                  Browse the marketplace to place your first order.
+                </p>
+                <Link href="/listings">
+                  <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm transition">
+                    Start Shopping
+                  </button>
+                </Link>
               </div>
-            </div>
+            ) : (
+              <div className="space-y-4">
+                {[...orders]
+                  .sort(
+                    (a, b) =>
+                      new Date(b.created_at).getTime() -
+                      new Date(a.created_at).getTime(),
+                  )
+                  .slice(0, 3)
+                  .map((order) => (
+                    <div
+                      key={order.id}
+                      className="bg-emerald-950 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm border border-emerald-800"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-emerald-100 text-lg">
+                          {order.animals?.name ?? "Livestock Order"}
+                        </h4>
+                        <p className="text-sm text-emerald-400 truncate">
+                          Seller:{" "}
+                          <span className="text-emerald-300">
+                            {order.animals?.users?.farm_name ??
+                              order.animals?.users?.name ??
+                              "N/A"}
+                          </span>
+                          {order.animals?.weight
+                            ? ` • ${order.animals.weight}kg`
+                            : ""}
+                        </p>
+                        <div className="flex gap-2 mt-3 flex-wrap">
+                          <span
+                            className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase ${
+                              order.status === "DELIVERED"
+                                ? "bg-emerald-800/50 text-emerald-300"
+                                : order.status === "SHIPPED"
+                                  ? "bg-blue-900/40 text-blue-300"
+                                  : order.status === "PAID" ||
+                                      order.status === "CONFIRMED"
+                                    ? "bg-amber-900/40 text-amber-300"
+                                    : order.status === "CANCELLED"
+                                      ? "bg-red-900/40 text-red-300"
+                                      : "bg-gray-700/50 text-gray-300"
+                            }`}
+                          >
+                            {order.status.replace(/_/g, " ")}
+                          </span>
+                          <span className="text-emerald-500 text-[10px] font-bold">
+                            {new Date(order.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider mb-1">
+                          Order Value
+                        </p>
+                        <p className="text-2xl font-bold text-emerald-400">
+                          ₦{Number(order.amount).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
 
           {/* Market Insights */}
@@ -211,16 +308,14 @@ export default async function BuyerDashboard() {
             <div>
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold text-emerald-100">
-                  Market Insights
+                  Market Price Index
                 </h3>
-                <div className="flex bg-emerald-950 rounded-lg p-1 shadow-sm border border-emerald-700">
-                  <button className="px-3 py-1 text-[10px] font-bold rounded-md bg-emerald-900 text-emerald-400">
-                    Daily
-                  </button>
-                  <button className="px-3 py-1 text-[10px] font-bold rounded-md text-emerald-500">
-                    Weekly
-                  </button>
-                </div>
+                <Link
+                  href="/buyer/price-index"
+                  className="text-emerald-400 text-xs font-bold hover:underline"
+                >
+                  Full Details &rarr;
+                </Link>
               </div>
               <div className="flex items-center gap-6">
                 <div>
@@ -229,33 +324,44 @@ export default async function BuyerDashboard() {
                   </p>
                   <div className="flex items-baseline gap-1">
                     <span className="text-2xl font-bold text-emerald-100">
-                      $1.12
+                      ₦{liveIndex.toFixed(2)}
                     </span>
                     <span className="text-sm text-emerald-500 font-bold">
-                      / kg
+                      / kg est.
                     </span>
                   </div>
                 </div>
                 <div className="flex-1 h-12 relative">
                   <svg className="w-full h-full" viewBox="0 0 100 40">
-                    <path
-                      d="M0 35 L20 30 L40 32 L60 25 L80 20 L100 15"
-                      fill="none"
-                      stroke="#10b981"
-                      strokeWidth="3"
-                    />
-                    <path
-                      d="M0 35 L20 30 L40 32 L60 25 L80 20 L100 15 L100 40 L0 40 Z"
-                      fill="rgba(16,185,129,0.1)"
-                    />
+                    {priceIndexData.length >= 2 ? (
+                      <>
+                        <path
+                          d={`M 0 ${40 - (Number(priceIndexData[priceIndexData.length - 1].price) / Math.max(...priceIndexData.map((d) => Number(d.price))) * 35)} ${priceIndexData.slice(1).map((d, i) => {
+                            const prev = priceIndexData[i];
+                            return `L ${((i + 1) / (priceIndexData.length - 1)) * 100} ${40 - (Number(d.price) / Math.max(...priceIndexData.map((x) => Number(x.price))) * 35)}`;
+                          }).join(" ")}`}
+                          fill="none"
+                          stroke="#10b981"
+                          strokeWidth="3"
+                        />
+                      </>
+                    ) : (
+                      <path
+                        d="M0 20 L100 20"
+                        stroke="#10b981"
+                        strokeWidth="2"
+                        strokeDasharray="4,4"
+                      />
+                    )}
                   </svg>
                 </div>
               </div>
               <p className="mt-4 text-sm text-emerald-400 leading-relaxed">
-                The index has increased by{" "}
-                <span className="text-emerald-400 font-bold">3.2%</span> over
-                the last 24 hours due to tightening supply across all livestock
-                categories.
+                Based on{" "}
+                <span className="text-emerald-300 font-bold">
+                  {priceIndexData.length}
+                </span>{" "}
+                recent listings across the marketplace.
               </p>
             </div>
             <div className="bg-emerald-950 p-6 rounded-2xl border border-emerald-800 flex gap-4">
@@ -279,8 +385,11 @@ export default async function BuyerDashboard() {
                   Procurement Tip
                 </h4>
                 <p className="text-sm text-emerald-400 leading-relaxed">
-                  Forward contracts for Holstein-cross cattle in September are
-                  currently trading at a 5% discount compared to spot prices.
+                  {priceIndexData.length >= 3
+                    ? `Check individual listings for negotiable pricing — ${
+                        priceIndexData.filter((d: any) => d.is_negotiable || d.isNegotiable).length || 0
+                      }+ listings support direct negotiation with sellers.`
+                    : "Add animals to your cart to compare multiple sellers side by side before purchasing."}
                 </p>
               </div>
             </div>
@@ -293,150 +402,90 @@ export default async function BuyerDashboard() {
             Recent Activity
           </h3>
 
-          <div className="space-y-8 flex-1">
-            <div className="flex gap-4">
-              <div className="w-10 h-10 bg-emerald-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
-                <svg
-                  className="w-5 h-5 text-emerald-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h5 className="font-bold text-emerald-100 text-sm mb-1">
-                  Bid Placed on Lot #560
-                </h5>
-                <p className="text-[11px] text-emerald-400 leading-tight mb-1">
-                  Amount: $12,500 for 40 head. Pending confirmation from seller.
-                </p>
-                <p className="text-[10px] font-bold text-emerald-500 uppercase">
-                  2 MINUTES AGO
-                </p>
-              </div>
+          {activityTimeline.length === 0 ? (
+            <div className="text-emerald-400 text-sm py-8 text-center flex-1">
+              No recent activity. Start shopping to see your history here.
             </div>
-
-            <div className="flex gap-4">
-              <div className="w-10 h-10 bg-emerald-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
-                <svg
-                  className="w-5 h-5 text-emerald-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h5 className="font-bold text-emerald-100 text-sm mb-1">
-                  Logistics Update
-                </h5>
-                <p className="text-[11px] text-emerald-400 leading-tight mb-1">
-                  Batch-992 has cleared health inspection at Kansas Terminal 4.
-                </p>
-                <p className="text-[10px] font-bold text-emerald-500 uppercase">
-                  1 HOUR AGO
-                </p>
-              </div>
+          ) : (
+            <div className="space-y-8 flex-1">
+              {activityTimeline.map((act) => (
+                <div key={act.id} className="flex gap-4">
+                  <div className="w-10 h-10 bg-emerald-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                    {act.icon === "order" ? (
+                      <svg
+                        className="w-5 h-5 text-emerald-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        className="w-5 h-5 text-emerald-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-emerald-100 text-sm mb-1">
+                      {act.title}
+                    </h5>
+                    <p className="text-[11px] text-emerald-400 leading-tight mb-1">
+                      {act.subtitle}
+                    </p>
+                    <p className="text-[10px] font-bold text-emerald-500 uppercase">
+                      {act.time.toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
-
-            <div className="flex gap-4">
-              <div className="w-10 h-10 bg-emerald-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
-                <svg
-                  className="w-5 h-5 text-emerald-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h5 className="font-bold text-emerald-100 text-sm mb-1">
-                  Contract Finalized
-                </h5>
-                <p className="text-[11px] text-emerald-400 leading-tight mb-1">
-                  Emerald Valley Farms Q3 Master Agreement signed by all
-                  parties.
-                </p>
-                <p className="text-[10px] font-bold text-emerald-400 uppercase">
-                  3 HOURS AGO
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="w-10 h-10 bg-emerald-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
-                <svg
-                  className="w-5 h-5 text-emerald-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h5 className="font-bold text-emerald-100 text-sm mb-1">
-                  System Alert
-                </h5>
-                <p className="text-[11px] text-emerald-400 leading-tight mb-1">
-                  Market volatility threshold exceeded for Angus breeds.
-                </p>
-                <p className="text-[10px] font-bold text-emerald-400 uppercase">
-                  YESTERDAY
-                </p>
-              </div>
-            </div>
-          </div>
+          )}
 
           <div className="mt-8 flex flex-col items-center">
-            <button className="text-emerald-600 text-xs font-bold mb-8 hover:underline">
+            <Link
+              href="/buyer/supply-chain"
+              className="text-emerald-600 text-xs font-bold mb-8 hover:underline"
+            >
               Load Full History
-            </button>
-            <button className="w-12 h-12 bg-emerald-600 text-white rounded-xl shadow-lg flex items-center justify-center hover:bg-emerald-700 transition">
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={3}
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
-            </button>
+            </Link>
+            <Link href="/listings">
+              <button className="w-12 h-12 bg-emerald-600 text-white rounded-xl shadow-lg flex items-center justify-center hover:bg-emerald-700 transition">
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={3}
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  />
+                </svg>
+              </button>
+            </Link>
           </div>
         </div>
       </div>

@@ -54,7 +54,7 @@ async function main() {
   }
 
   console.log(
-    `👤 Adding 50 listings to Seller: ${seller.name} (${seller.email})`,
+    `[USER] Adding 50 listings to Seller: ${seller.name} (${seller.email})`,
   );
 
   const listingsToCreate = [];

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface AdminAuthContainerProps {
   initialMode: "login" | "register";
@@ -24,6 +25,7 @@ export default function AdminAuthContainer({
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [adminSecretKey, setAdminSecretKey] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
   const handleToggle = (mode: "login" | "register") => {
     setIsLogin(mode === "login");
@@ -59,6 +61,11 @@ export default function AdminAuthContainer({
 
     if (!regName || !regEmail || !regPassword || !adminSecretKey) {
       setError("All fields are required");
+      return;
+    }
+
+    if (!acceptTerms) {
+      setError("You must accept the terms and conditions");
       return;
     }
 
@@ -101,7 +108,7 @@ export default function AdminAuthContainer({
           </div>
 
           {error && (
-            <div className="bg-red-900/50 text-red-200 text-sm p-3 rounded mb-4">
+            <div className="bg-emerald-900/50 text-emerald-200 text-sm p-3 rounded mb-4">
               {error}
             </div>
           )}
@@ -191,6 +198,31 @@ export default function AdminAuthContainer({
                   required
                 />
               </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="admin-terms"
+                  checked={acceptTerms}
+                  onChange={(e) => setAcceptTerms(e.target.checked)}
+                  className="w-4 h-4 text-emerald-600 bg-gray-700 border-gray-600 rounded focus:ring-emerald-500"
+                />
+                <label
+                  htmlFor="admin-terms"
+                  className="ml-2 text-sm text-gray-300 cursor-pointer"
+                >
+                  I accept the{" "}
+                  <Link
+                    href="/terms"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-400 hover:text-emerald-300 underline"
+                  >
+                    Terms and Conditions
+                  </Link>
+                </label>
+              </div>
+
               <button
                 type="submit"
                 disabled={isLoading}

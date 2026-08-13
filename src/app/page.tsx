@@ -12,7 +12,7 @@ export default function Home() {
             The Digital Agronomist
           </h1>
           <p className="text-2xl md:text-3xl mb-4 font-light text-green-100">
-            TerraTrace Pro
+            FarmMart
           </p>
           <p className="text-lg md:text-xl mb-12 max-w-3xl mx-auto text-gray-200">
             Transform your agricultural operations with cutting-edge technology.
@@ -459,7 +459,7 @@ export default function Home() {
           </h2>
           <p className="text-xl mb-12 max-w-2xl mx-auto text-green-100">
             Join thousands of farmers who are transforming their agricultural
-            operations with TerraTrace Pro
+            operations with FarmMart
           </p>
         </div>
       </section>
@@ -470,7 +470,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             <div>
               <h3 className="text-2xl font-bold mb-4 text-green-400">
-                TerraTrace Pro
+                FarmMart
               </h3>
               <p className="text-gray-400">
                 The Digital Agronomist - Transforming agriculture with
@@ -522,7 +522,7 @@ export default function Home() {
           </div>
 
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500">
-            <p>&copy; 2024 TerraTrace Pro. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} FarmMart. All rights reserved.</p>
           </div>
         </div>
       </footer>

@@ -6,7 +6,7 @@ export default function AboutPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto text-center">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 text-gray-900">
-              About TerraTrace Pro
+              About FarmMart
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
               We&apos;re revolutionizing agricultural commerce by connecting
@@ -26,7 +26,7 @@ export default function AboutPage() {
                 Our Story
               </h2>
               <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                TerraTrace Pro was born out of a simple idea: every farmer
+                FarmMart was born out of a simple idea: every farmer
                 deserves fair access to markets, and every buyer deserves
                 transparency in their supply chain.
               </p>
@@ -36,7 +36,7 @@ export default function AboutPage() {
                 between traditional farming and modern commerce.
               </p>
               <p className="text-lg text-gray-600 leading-relaxed">
-                Today, we&apos;re proud to serve thousands of farmers and buyers
+                Today, we&apos;re proud to serve farmers and buyers
                 across Nigeria, helping them connect, trade, and grow together.
               </p>
             </div>
@@ -44,27 +44,27 @@ export default function AboutPage() {
               <div className="grid grid-cols-2 gap-6">
                 <div className="text-center">
                   <h3 className="text-5xl font-bold text-emerald-600 mb-2">
-                    2023
+                    2024
                   </h3>
                   <p className="text-gray-600 text-sm font-semibold">Founded</p>
                 </div>
                 <div className="text-center">
                   <h3 className="text-5xl font-bold text-emerald-600 mb-2">
-                    10K+
+                    Growing
                   </h3>
-                  <p className="text-gray-600 text-sm font-semibold">Users</p>
+                  <p className="text-gray-600 text-sm font-semibold">Community</p>
                 </div>
                 <div className="text-center">
                   <h3 className="text-5xl font-bold text-emerald-600 mb-2">
-                    500+
+                    Verified
                   </h3>
                   <p className="text-gray-600 text-sm font-semibold">Farmers</p>
                 </div>
                 <div className="text-center">
                   <h3 className="text-5xl font-bold text-emerald-600 mb-2">
-                    ₦50M+
+                    Secure
                   </h3>
-                  <p className="text-gray-600 text-sm font-semibold">Traded</p>
+                  <p className="text-gray-600 text-sm font-semibold">Trades</p>
                 </div>
               </div>
             </div>
@@ -102,7 +102,7 @@ export default function AboutPage() {
                 </svg>
               </div>
               <h3 className="text-2xl font-bold text-gray-800 mb-4">
-                Connect Farmers & Buyers
+                Connect Farmers &amp; Buyers
               </h3>
               <p className="text-gray-600">
                 We bring verified farmers and trusted buyers together on a
@@ -130,8 +130,8 @@ export default function AboutPage() {
                 Ensure Transparency
               </h3>
               <p className="text-gray-600">
-                Blockchain-verified records, transparent pricing, and complete
-                traceability from farm to table.
+                Verified sellers, transparent pricing, and complete
+                traceability from farm to table with protected transactions.
               </p>
             </div>
 
@@ -163,88 +163,11 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team Section */}
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Our Leadership
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              A team passionate about transforming agriculture through
-              technology.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {[
-              {
-                name: "Adebayo Okafor",
-                title: "CEO & Founder",
-                icon: (
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    className="w-12 h-12 mx-auto text-emerald-600"
-                  >
-                    <path d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 0c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z" />
-                  </svg>
-                ),
-              },
-              {
-                name: "Fatima Abdullahi",
-                title: "CTO",
-                icon: (
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    className="w-12 h-12 mx-auto text-emerald-600"
-                  >
-                    <path d="M8 8h8M8 12h5M8 16h3" />
-                    <path d="M5 21V7a2 2 0 012-2h10a2 2 0 012 2v14" />
-                  </svg>
-                ),
-              },
-              {
-                name: "Chidi Okonkwo",
-                title: "Head of Operations",
-                icon: (
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    className="w-12 h-12 mx-auto text-emerald-600"
-                  >
-                    <path d="M4 20c1.5-3 3.2-4.5 6-5.2M14 14c2.8.7 4.5 2.2 6 5" />
-                    <path d="M12 3a4 4 0 00-4 4v2h8V7a4 4 0 00-4-4z" />
-                  </svg>
-                ),
-              },
-            ].map((member, i) => (
-              <div
-                key={i}
-                className="bg-[#F9FBF4] p-8 rounded-2xl shadow-lg border border-gray-100 text-center"
-              >
-                <div className="mb-4">{member.icon}</div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  {member.name}
-                </h3>
-                <p className="text-emerald-600 font-semibold">{member.title}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Footer */}
       <footer className="bg-black text-white py-16">
         <div className="container mx-auto px-4">
           <div className="border-t border-gray-800 pt-8 text-center text-gray-500">
-            <p>&copy; 2024 TerraTrace Pro. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} FarmMart. All rights reserved.</p>
           </div>
         </div>
       </footer>
