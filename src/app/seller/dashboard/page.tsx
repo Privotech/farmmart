@@ -115,21 +115,25 @@ export default function SellerDashboard() {
     .reduce((sum, order) => sum + Number((order as unknown as { platform_fee?: number }).platform_fee ?? (Number(order.amount ?? 0) * 0.10)), 0);
 
   const activities = [
-    ...orders.map((o) => ({
-      type: "order" as const,
-      id: o.id,
-      title: `Order ${o.status === "DELIVERED" || o.status === "PAID" ? "Confirmed" : o.status.charAt(0).toUpperCase() + o.status.slice(1).toLowerCase()}: ${o.id}`,
-      subtitle: `By ${o.users?.name || "Customer"}`,
-      value: `₦${Number(o.amount || 0).toLocaleString()}`,
-      status: o.status,
-      date: new Date(o.created_at ?? o.createdAt ?? 0),
-      color:
-        o.status === "PAID"
-          ? "emerald"
-          : o.status === "CANCELLED"
-            ? "rose"
-            : "amber",
-    })),
+    ...orders.map((o) => {
+      const gross = Number(o.amount ?? 0);
+      const payout = Number((o as unknown as { seller_payout?: number }).seller_payout ?? (gross * 0.90));
+      return {
+        type: "order" as const,
+        id: o.id,
+        title: `Order ${o.status === "DELIVERED" || o.status === "PAID" ? "Confirmed" : o.status.charAt(0).toUpperCase() + o.status.slice(1).toLowerCase()}: ${o.id}`,
+        subtitle: `By ${o.users?.name || "Customer"} • Payout: ₦${payout.toLocaleString()}`,
+        value: `₦${gross.toLocaleString()}`,
+        status: o.status,
+        date: new Date(o.created_at ?? o.createdAt ?? 0),
+        color:
+          o.status === "PAID"
+            ? "emerald"
+            : o.status === "CANCELLED"
+              ? "rose"
+              : "amber",
+      };
+    }),
     ...animals.map((a) => ({
       type: "listing" as const,
       id: a.id,
@@ -173,26 +177,76 @@ export default function SellerDashboard() {
             Real-time status of your herd and active market listings.
           </p>
         </div>
-        <div className="flex items-center gap-2 bg-emerald-950 px-5 py-3 rounded-xl shadow-sm border border-emerald-800">
-          <svg
-            className="w-4 h-4 text-emerald-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08.402-2.599 1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <span className="text-sm font-bold text-emerald-400">
-            Total Sales Value
-          </span>
-          <span className="text-emerald-400 font-bold text-lg">
-            ₦{revenue.toLocaleString()}
-          </span>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
+          <div className="flex items-center gap-2 bg-emerald-950 px-5 py-3 rounded-xl shadow-sm border border-emerald-800 flex-1 sm:flex-none">
+            <svg
+              className="w-4 h-4 text-emerald-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08.402-2.599 1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <div className="flex flex-col">
+              <span className="text-xs font-bold text-emerald-400">
+                Gross Sales
+              </span>
+              <span className="text-emerald-300 font-bold text-base">
+                ₦{grossRevenue.toLocaleString()}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 bg-emerald-900 px-5 py-3 rounded-xl shadow-sm border border-emerald-700 flex-1 sm:flex-none">
+            <svg
+              className="w-4 h-4 text-emerald-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+              />
+            </svg>
+            <div className="flex flex-col">
+              <span className="text-xs font-bold text-emerald-400">
+                Net Payout (After 10% Fee)
+              </span>
+              <span className="text-emerald-100 font-bold text-base">
+                ₦{netRevenue.toLocaleString()}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 bg-amber-950/50 px-5 py-3 rounded-xl shadow-sm border border-amber-900/50 flex-1 sm:flex-none">
+            <svg
+              className="w-4 h-4 text-amber-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"
+              />
+            </svg>
+            <div className="flex flex-col">
+              <span className="text-xs font-bold text-amber-400">
+                Platform Fees Paid
+              </span>
+              <span className="text-amber-300 font-bold text-base">
+                ₦{platformFeesTotal.toLocaleString()}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 

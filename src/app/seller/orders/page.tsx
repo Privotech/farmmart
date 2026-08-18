@@ -95,33 +95,46 @@ export default function SellerOrdersPage() {
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Buyer</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Animal</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Amount</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Gross Amount</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Platform Fee (10%)</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase tracking-wider">Your Payout</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
                 </tr>
               </thead>
               <tbody className="bg-gray-900 divide-y divide-gray-700">
-                {orders.map((order) => (
-                  <tr key={order.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                      {order.id.substring(0, 8)}...
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                      {new Date(order.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                      {order.users?.name || "Unknown"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                      {order.animals?.name || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                      ₦{Number(order.amount ?? 0).toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <OrderStatusUpdater orderId={order.id} currentStatus={order.status} />
-                    </td>
-                  </tr>
-                ))}
+                {orders.map((order) => {
+                  const gross = Number(order.amount ?? 0);
+                  const platformFee = Number((order as unknown as { platform_fee?: number }).platform_fee ?? (gross * 0.10));
+                  const payout = Number((order as unknown as { seller_payout?: number }).seller_payout ?? (gross * 0.90));
+                  return (
+                    <tr key={order.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                        {order.id.substring(0, 8)}...
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                        {new Date(order.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                        {order.users?.name || "Unknown"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                        {order.animals?.name || "N/A"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                        ₦{gross.toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-amber-400">
+                        -₦{platformFee.toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-emerald-400">
+                        ₦{payout.toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <OrderStatusUpdater orderId={order.id} currentStatus={order.status} />
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
