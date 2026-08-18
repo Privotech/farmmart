@@ -199,11 +199,17 @@ export async function createOrder(data: CreateOrderData) {
           throw new Error("One or more items in your cart are no longer available.");
         }
 
+        const orderAmount = Number(item.animals.price) * item.quantity;
+        const platformFee = orderAmount * 0.10;
+        const sellerPayout = orderAmount - platformFee;
+
         const order = await tx.orders.create({
           data: {
             buyer_id: user.id,
             animal_id: item.animal_id,
-            amount: Number(item.animals.price) * item.quantity,
+            amount: orderAmount,
+            platform_fee: platformFee,
+            seller_payout: sellerPayout,
             paystack_ref: `${verification.data.reference}-${item.id}`,
             paystack_channel: verification.data.channel,
             delivery_address: data.deliveryAddress,

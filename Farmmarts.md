@@ -32,7 +32,10 @@ The project is now in a stable integration state with the main marketplace, auth
 
 ### Media
 
-- Cloudinary is configured through environment variables for image upload and delete workflows.
+- Animal images upload to Cloudinary through the server-side upload action and are stored as secure delivery URLs.
+- Marketplace cards use `next-cloudinary` `CldImage` for Cloudinary assets. This applies automatic quality and format optimization, responsive sizing, and automatic subject-focused cropping.
+- Local placeholders and approved third-party image URLs continue to render with Next.js `Image`.
+- The shared `CloudinaryImage` component only sends versioned Cloudinary delivery URLs through `CldImage`, keeping existing image data compatible.
 
 ## Environment Variables
 
@@ -48,6 +51,7 @@ The app depends on these environment settings:
 - `CLOUDINARY_CLOUD_NAME`
 - `CLOUDINARY_API_KEY`
 - `CLOUDINARY_API_SECRET`
+- `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`
 - `PAYSTACK_SECRET_KEY`
 - `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY`
 - `SMTP_HOST`
@@ -63,6 +67,17 @@ I checked the workspace diagnostics for the project and the current editor error
 - The checkout and cart image rendering now safely handles stringified JSON image arrays and plain URL strings
 - The shared animal type now accepts image values as strings, arrays, or null so it matches the runtime data shape from the database
 - No workspace errors were reported for the updated checkout and shared type files
+- `npx tsc --noEmit` and lint for the Cloudinary image components pass after the Cloudinary delivery integration.
+
+### Cloudinary Production Setup
+
+Use the real `.env` file locally. Do not add Cloudinary credentials to source code or create an `.env.example` file.
+
+1. Set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` for server-side uploads and deletes.
+2. Set `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` to the same cloud name so `CldImage` can generate optimized delivery URLs in the browser.
+3. Copy those same variable names and values into Vercel Project Settings → Environment Variables for the Production environment, then redeploy.
+4. Restart `npm run dev` after changing `.env` values.
+5. Keep `CLOUDINARY_API_SECRET` private. If it is pasted into a chat, committed, or otherwise exposed, rotate it in Cloudinary before deploying.
 
 ## Notes
 
@@ -88,7 +103,7 @@ I checked the workspace diagnostics for the project and the current editor error
 
 Current Issues and Errors
 
-Code quality verification is complete: `npm run lint` passes with no warnings or errors.
+Run `npm run lint` and `npx tsc --noEmit` before each production deployment.
 
 Prisma Client generation can still fail locally on Windows with an `EPERM` rename error for `query_engine-windows.dll.node`. This is an operating-system file lock, usually caused by a running Node/Next.js process, VS Code extension, antivirus, or indexer. Close the app and editor, restart Windows if needed, then run:
 

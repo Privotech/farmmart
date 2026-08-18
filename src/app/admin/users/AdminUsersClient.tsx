@@ -32,7 +32,7 @@ export function AdminUsersClient({ users, currentUserId }: { users: User[], curr
     return users.filter((user) => {
       const matchesSearch =
         user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
         (user.phone?.includes(searchQuery) ?? false);
 
       const matchesRole = roleFilter === "ALL" || user.role === roleFilter;

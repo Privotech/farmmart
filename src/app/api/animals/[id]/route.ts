@@ -3,10 +3,10 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     
     // Increment view count
     await prisma.animals.update({
@@ -51,10 +51,10 @@ export async function GET(
 // PUT /api/animals/[id] - Update animal
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     const body = await request.json();
 
     const animal = await prisma.animals.update({
@@ -78,10 +78,10 @@ export async function PUT(
 // DELETE /api/animals/[id] - Delete animal
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     
     await prisma.animals.delete({
       where: { id }

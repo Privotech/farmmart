@@ -102,9 +102,17 @@ export default function SellerDashboard() {
     0,
   );
 
-  const revenue = orders
+  const grossRevenue = orders
     .filter((order) => order.status !== "CANCELLED")
     .reduce((sum, order) => sum + Number(order.amount ?? 0), 0);
+
+  const netRevenue = orders
+    .filter((order) => order.status !== "CANCELLED")
+    .reduce((sum, order) => sum + Number((order as unknown as { seller_payout?: number }).seller_payout ?? (Number(order.amount ?? 0) * 0.90)), 0);
+
+  const platformFeesTotal = orders
+    .filter((order) => order.status !== "CANCELLED")
+    .reduce((sum, order) => sum + Number((order as unknown as { platform_fee?: number }).platform_fee ?? (Number(order.amount ?? 0) * 0.10)), 0);
 
   const activities = [
     ...orders.map((o) => ({

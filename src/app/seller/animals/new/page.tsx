@@ -12,6 +12,170 @@ import Link from "next/link";
 import { AlertTriangleIcon } from "@/components/ui/Icons";
 import { AnimalsCategory } from "@/types";
 
+function getListingQualityScore(
+  formData: {
+    name: string;
+    category: string;
+    breed: string;
+    age: string;
+    weight: string;
+    price: string;
+    description: string;
+    location: string;
+    state: string;
+    isNegotiable: boolean;
+  },
+  imageCount: number,
+) {
+  const checks = [
+    { key: "Photos", label: "Photos", weight: 2, passed: imageCount >= 3 },
+    { key: "SomePhotos", label: "At least 1 photo", weight: 1, passed: imageCount >= 1 },
+    { key: "Name", label: "Name / Title", weight: 1, passed: formData.name.trim().length >= 3 },
+    { key: "Category", label: "Category", weight: 1, passed: !!formData.category },
+    { key: "Breed", label: "Breed", weight: 1, passed: formData.breed.trim().length >= 2 },
+    { key: "Age", label: "Age", weight: 1, passed: !!formData.age && Number(formData.age) > 0 },
+    { key: "Weight", label: "Weight", weight: 1, passed: !!formData.weight && Number(formData.weight) > 0 },
+    { key: "Price", label: "Price", weight: 2, passed: !!formData.price && Number(formData.price) > 0 },
+    { key: "Description", label: "Description", weight: 2, passed: formData.description.trim().length >= 40 },
+    { key: "HealthStatus", label: "Health status mention", weight: 1, passed: /health|vaccin|treat|sick|fit|sound|ok|good|okay|deworm|confirm/i.test(formData.description) },
+    { key: "Location", label: "Location", weight: 1, passed: formData.location.trim().length >= 3 },
+    { key: "State", label: "State", weight: 1, passed: formData.state.trim().length >= 2 },
+  ];
+
+  const totalWeight = checks.reduce((sum, c) => sum + c.weight, 0);
+  const earnedWeight = checks.reduce((sum, c) => sum + (c.passed ? c.weight : 0), 0);
+  const percentage = Math.round((earnedWeight / totalWeight) * 100);
+
+  const displayChecks = [
+    { key: "Photos", label: "Photos (3+)", passed: imageCount >= 3 },
+    { key: "Price", label: "Price", passed: !!formData.price && Number(formData.price) > 0 },
+    { key: "HealthStatus", label: "Health status", passed: /health|vaccin|treat|sick|fit|sound|ok|good|okay|deworm|confirm/i.test(formData.description) },
+    { key: "Weight", label: "Weight", passed: !!formData.weight && Number(formData.weight) > 0 },
+    { key: "Description", label: "Description (40+ chars)", passed: formData.description.trim().length >= 40 },
+    { key: "Breed", label: "Breed", passed: formData.breed.trim().length >= 2 },
+    { key: "Age", label: "Age", passed: !!formData.age && Number(formData.age) > 0 },
+    { key: "Location", label: "Location / State", passed: (formData.location.trim().length >= 3) || (formData.state.trim().length >= 2) },
+  ];
+
+  let tier: { label: string; color: string; barColor: string; tips: string } = {
+    label: "Needs work",
+    color: "text-rose-600",
+    barColor: "bg-rose-500",
+    tips: "Add more details to help buyers decide.",
+  };
+
+  if (percentage >= 85) {
+    tier = {
+      label: "Excellent! ⭐",
+      color: "text-emerald-700",
+      barColor: "bg-emerald-500",
+      tips: "Your listing is well-optimized — publish with confidence!",
+    };
+  } else if (percentage >= 65) {
+    tier = {
+      label: "Good ✓",
+      color: "text-teal-700",
+      barColor: "bg-teal-500",
+      tips: "Almost there — top up the missing fields below for maximum reach.",
+    };
+  } else if (percentage >= 40) {
+    tier = {
+      label: "Fair",
+      color: "text-amber-600",
+      barColor: "bg-amber-500",
+      tips: "Listings with more details sell 3× faster on FarmMart.",
+    };
+  }
+
+  return { percentage, checks: displayChecks, tier };
+}
+
+function ListingQualityMeter({
+  formData,
+  imageCount,
+}: {
+  formData: {
+    name: string;
+    category: string;
+    breed: string;
+    age: string;
+    weight: string;
+    price: string;
+    description: string;
+    location: string;
+    state: string;
+    isNegotiable: boolean;
+  };
+  imageCount: number;
+}) {
+  const { percentage, checks, tier } = getListingQualityScore(formData, imageCount);
+
+  return (
+    <Card className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 border-emerald-200 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div>
+          <h3 className="text-lg font-bold text-emerald-900 inline-flex items-center gap-2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-emerald-600">
+              <path d="M9 11l3 3L22 4" />
+              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+            </svg>
+            Listing Quality Score
+          </h3>
+          <p className={`text-sm mt-1 ${tier.color}`}>{tier.tips}</p>
+        </div>
+        <div className="text-right">
+          <span className={`text-4xl font-extrabold tracking-tight ${tier.color}`}>
+            {percentage}%
+          </span>
+          <span className={`block text-sm font-semibold ${tier.color}`}>
+            {tier.label}
+          </span>
+        </div>
+      </div>
+
+      <div className="relative h-4 bg-gray-200 rounded-full overflow-hidden mb-4 shadow-inner">
+        <div
+          className={`h-full ${tier.barColor} transition-all duration-500 ease-out rounded-full shadow-sm`}
+          style={{ width: `${percentage}%` }}
+        />
+        <div className="absolute inset-0 flex pointer-events-none">
+          {[...Array(10)].map((_, i) => (
+            <div key={i} className="flex-1 border-r border-white/50 last:border-r-0" />
+          ))}
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+        {checks.map((c) => (
+          <span
+            key={c.key}
+            className={`inline-flex items-center gap-1.5 font-medium ${
+              c.passed ? "text-emerald-700" : "text-gray-500"
+            }`}
+          >
+            <span
+              className={`flex-shrink-0 w-5 h-5 rounded-full border flex items-center justify-center text-xs ${
+                c.passed
+                  ? "border-emerald-500 bg-emerald-500 text-white"
+                  : "border-gray-300 bg-white text-gray-400"
+              }`}
+            >
+              {c.passed ? (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+              ) : (
+                <span className="text-[10px] font-bold leading-none">✗</span>
+              )}
+            </span>
+            {c.label}
+          </span>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
 export default function NewAnimalPage() {
   const router = useRouter();
   const { data: session } = useSession();
@@ -157,6 +321,8 @@ export default function NewAnimalPage() {
             </div>
           </div>
         </Card>
+
+        <ListingQualityMeter formData={formData} imageCount={imageUrls.length} />
 
         <Card>
           {error && (

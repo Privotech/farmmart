@@ -91,12 +91,17 @@ export async function POST(request: NextRequest) {
     } = await request.json();
 
     const paystackRef = crypto.randomUUID();
+    const orderAmount = parseFloat(amount);
+    const platformFee = orderAmount * 0.10;
+    const sellerPayout = orderAmount - platformFee;
 
     const order = await prisma.orders.create({
       data: {
         buyer_id: userId,
         animal_id: animalId,
-        amount: parseFloat(amount),
+        amount: orderAmount,
+        platform_fee: platformFee,
+        seller_payout: sellerPayout,
         status: 'PENDING',
         paystack_ref: paystackRef,
         delivery_address: deliveryAddress,

@@ -374,6 +374,13 @@ export default function AnimalDetailPage() {
                     </p>
                   </div>
                 )}
+                <div className="mt-4 pt-4 border-t border-gray-700">
+                  <Link href={`/sellers/${seller.id}`}>
+                    <Button variant="secondary" size="sm" className="w-full">
+                      View Seller Profile →
+                    </Button>
+                  </Link>
+                </div>
               </Card>
             )}
 

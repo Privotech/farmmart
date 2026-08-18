@@ -136,11 +136,17 @@ export async function POST(req: NextRequest) {
           continue;
         }
 
+        const orderAmount = Number(item.animals.price) * item.quantity;
+        const platformFee = orderAmount * 0.10;
+        const sellerPayout = orderAmount - platformFee;
+
         await tx.orders.create({
           data: {
             buyer_id: userId,
             animal_id: item.animal_id,
-            amount: Number(item.animals.price) * item.quantity,
+            amount: orderAmount,
+            platform_fee: platformFee,
+            seller_payout: sellerPayout,
             status: "PAID",
             paystack_ref: `${reference}-${item.id}`,
             paystack_channel: verification.data.channel,

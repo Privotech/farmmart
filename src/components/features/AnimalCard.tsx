@@ -1,12 +1,127 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { CloudinaryImage } from "@/components/CloudinaryImage";
 import { Animal, User } from "@/types";
 import { Card } from "../ui/Card";
 import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
 import { CheckIcon } from "../ui/Icons";
+
+const HeartIcon = ({
+  filled,
+  className,
+}: {
+  filled: boolean;
+  className?: string;
+}) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill={filled ? "currentColor" : "none"}
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+  </svg>
+);
+
+let globalFavCache: Set<string> | null = null;
+let globalFavPromise: Promise<Set<string>> | null = null;
+const favListeners = new Set<(ids: Set<string>) => void>();
+
+function notifyFavListeners() {
+  if (!globalFavCache) return;
+  favListeners.forEach((l) => l(new Set(globalFavCache!)));
+}
+
+async function getFavourites(force = false): Promise<Set<string>> {
+  if (globalFavCache && !force) return globalFavCache;
+  if (globalFavPromise && !force) return globalFavPromise;
+
+  globalFavPromise = (async () => {
+    try {
+      const res = await fetch("/api/favourites", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.animalIds)) {
+        globalFavCache = new Set(data.animalIds);
+      } else {
+        globalFavCache = new Set();
+      }
+    } catch {
+      globalFavCache = new Set();
+    }
+    notifyFavListeners();
+    return globalFavCache;
+  })();
+
+  return globalFavPromise;
+}
+
+function useFavouriteState(animalId: string) {
+  const [isFav, setIsFav] = useState(false);
+  const [toggling, setToggling] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    getFavourites().then((ids) => {
+      if (!cancelled) setIsFav(ids.has(animalId));
+    });
+    const listener = (ids: Set<string>) => {
+      if (!cancelled) setIsFav(ids.has(animalId));
+    };
+    favListeners.add(listener);
+    return () => {
+      cancelled = true;
+      favListeners.delete(listener);
+    };
+  }, [animalId]);
+
+  const toggle = useCallback(async () => {
+    if (toggling) return;
+    setToggling(true);
+    const optimistic = !isFav;
+    setIsFav(optimistic);
+    if (globalFavCache) {
+      if (optimistic) globalFavCache.add(animalId);
+      else globalFavCache.delete(animalId);
+      notifyFavListeners();
+    }
+    try {
+      const res = await fetch("/api/favourites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ animalId }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      setIsFav(!!data.isFavourited);
+      if (globalFavCache) {
+        if (data.isFavourited) globalFavCache.add(animalId);
+        else globalFavCache.delete(animalId);
+        notifyFavListeners();
+      }
+    } catch (err) {
+      setIsFav(!optimistic);
+      if (globalFavCache) {
+        if (!optimistic) globalFavCache.add(animalId);
+        else globalFavCache.delete(animalId);
+        notifyFavListeners();
+      }
+      console.error("Favourite toggle failed:", err);
+    } finally {
+      setToggling(false);
+    }
+  }, [animalId, isFav, toggling]);
+
+  return { isFav, toggling, toggle };
+}
 
 const EyeIcon = ({ className }: { className?: string }) => (
   <svg
@@ -66,6 +181,8 @@ function getImageUrl(imagesRaw: unknown): string {
 }
 
 export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
+  const { isFav, toggling, toggle: toggleFav } = useFavouriteState(animal.id);
+
   const healthStatusColors: Record<
     string,
     "success" | "primary" | "warning" | "danger"
@@ -84,11 +201,12 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
   return (
     <Card className="overflow-hidden hover:shadow-xl transition-shadow animate-fade-up card-hover-raise">
       <div className="relative w-full h-56 mb-4 rounded-lg overflow-hidden">
-        <Image
+        <CloudinaryImage
           src={imageSrc}
           alt={animal.name || "Livestock listing"}
           fill
           className="object-cover"
+          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
         />
         {isSellerVerified && (
           <div className="absolute top-2 left-2 z-10">
@@ -100,16 +218,34 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
             </Badge>
           </div>
         )}
-        {animal.view_count && animal.view_count > 0 && (
-          <div className="absolute top-2 right-2 z-10">
+        <div className="absolute top-2 right-2 z-10 flex gap-2">
+          {animal.view_count && animal.view_count > 0 && (
             <Badge
               variant="secondary"
               className="shadow-lg inline-flex items-center gap-1"
             >
               <EyeIcon className="w-3.5 h-3.5" /> {animal.view_count}
             </Badge>
-          </div>
-        )}
+          )}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleFav();
+            }}
+            disabled={toggling}
+            aria-label={isFav ? "Remove from saved" : "Save to favourites"}
+            title={isFav ? "Remove from saved" : "Save to favourites"}
+            className={`w-9 h-9 rounded-full shadow-md backdrop-blur-sm flex items-center justify-center transition-all duration-200 border ${
+              isFav
+                ? "bg-rose-500 text-white border-rose-500 hover:bg-rose-600 hover:border-rose-600 scale-105"
+                : "bg-white/90 text-gray-500 border-gray-200 hover:bg-white hover:text-rose-500 hover:border-rose-200"
+            } ${toggling ? "opacity-60 cursor-wait" : ""}`}
+          >
+            <HeartIcon filled={isFav} className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       <div className="space-y-3">
@@ -154,10 +290,13 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
         </p>
 
         {seller && (
-          <div className="flex items-center gap-2 text-xs text-emerald-400/80 pt-1 border-t border-emerald-900/50">
+          <Link
+            href={`/sellers/${seller.id}`}
+            className="flex items-center gap-2 text-xs text-emerald-400/80 pt-1 border-t border-emerald-900/50 hover:text-emerald-300 transition-colors"
+          >
             <div className="w-6 h-6 rounded-full bg-emerald-900 flex items-center justify-center overflow-hidden flex-shrink-0">
               {seller.avatar_url ? (
-                <Image
+                <CloudinaryImage
                   src={seller.avatar_url}
                   alt={seller.name}
                   width={24}
@@ -174,7 +313,7 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
             {isSellerVerified && (
               <CheckIcon className="w-4 h-4 text-emerald-400 flex-shrink-0" />
             )}
-          </div>
+          </Link>
         )}
 
         <p className="text-sm text-emerald-300 line-clamp-2">

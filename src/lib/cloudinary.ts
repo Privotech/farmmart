@@ -16,6 +16,15 @@ cloudinary.config({
   api_secret: apiSecret,
 });
 
+function sanitizeFilename(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9._-]/g, "")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
 export async function uploadImage(
   file: File | Buffer,
   folder: string = "farmmart",
@@ -38,10 +47,12 @@ export async function uploadImage(
       buffer = Buffer.from(arrayBuffer);
     }
 
-    const filename =
+    const rawName =
       typeof File !== "undefined" && file instanceof File && file.name
-        ? file.name
-        : undefined;
+        ? file.name.replace(/\.[^.]+$/, "")
+        : null;
+
+    const sanitized = rawName ? sanitizeFilename(rawName) : null;
 
     return await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
@@ -49,15 +60,17 @@ export async function uploadImage(
           folder,
           resource_type: "auto",
           timeout: 60000,
-          filename_override: filename,
-          use_filename: Boolean(filename),
+          ...(sanitized
+            ? { public_id: `${folder}/${sanitized}-${Date.now()}` }
+            : {}),
+          // REMOVED: filename_override and use_filename
+          // Spaces in filename_override broke Cloudinary's HMAC-SHA256 signature
         },
         (error, result) => {
           if (error || !result) {
             reject(error ?? new Error("Cloudinary upload failed"));
             return;
           }
-
           resolve(result);
         },
       );
@@ -72,8 +85,7 @@ export async function uploadImage(
 
 export async function deleteImage(publicId: string) {
   try {
-    const result = await cloudinary.uploader.destroy(publicId);
-    return result;
+    return await cloudinary.uploader.destroy(publicId);
   } catch (error) {
     console.error("Cloudinary delete error:", error);
     throw error;

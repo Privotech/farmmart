@@ -1,6 +1,7 @@
 // src/app/api/animals/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { animals_category, animals_status, Prisma } from "@prisma/client";
 import { getSession } from "@/lib/session"; // or your auth session helper
 
 export async function GET(req: NextRequest) {
@@ -21,7 +22,9 @@ export async function GET(req: NextRequest) {
 
     const where: any = {};
 
-    if (category) where.category = category;
+    if (category && Object.values(animals_category).includes(category as animals_category)) {
+      where.category = category as animals_category;
+    }
     if (breed) where.breed = { contains: breed, mode: "insensitive" };
     if (location) {
       where.OR = [
@@ -31,17 +34,19 @@ export async function GET(req: NextRequest) {
     }
     if (state) where.state = { contains: state, mode: "insensitive" };
     if (sellerId) where.seller_id = sellerId;
-    if (status) where.status = status;
+    if (status && Object.values(animals_status).includes(status as animals_status)) {
+      where.status = status as animals_status;
+    }
     if (minPrice || maxPrice) {
       where.price = {};
       if (minPrice) where.price.gte = parseFloat(minPrice);
       if (maxPrice) where.price.lte = parseFloat(maxPrice);
     }
     if (search) {
-      const searchConditions = [
-        { name: { contains: search, mode: "insensitive" } },
-        { breed: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
+      const searchConditions: Prisma.animalsWhereInput[] = [
+        { name: { contains: search, mode: Prisma.QueryMode.insensitive } },
+        { breed: { contains: search, mode: Prisma.QueryMode.insensitive } },
+        { description: { contains: search, mode: Prisma.QueryMode.insensitive } },
       ];
       if (where.OR) {
         where.OR = [...where.OR, ...searchConditions];
