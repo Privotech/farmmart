@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { sendNotificationEmail } from "@/lib/notifications";
 
 export async function updateUserRole(userId: string, role: "BUYER" | "SELLER" | "ADMIN") {
   const user = await getCurrentUser();
@@ -60,7 +61,7 @@ export async function verifySeller(
   }
 
   try {
-    await prisma.users.update({
+    const seller = await prisma.users.update({
       where: { id: userId },
       data: {
         verification_status: status,
@@ -69,8 +70,18 @@ export async function verifySeller(
         verified_at: status === "APPROVED" ? new Date() : null,
         verified_by_id: adminUser.id,
       },
+      select: { email: true, name: true },
     });
-    
+
+    await sendNotificationEmail({
+      to: seller.email,
+      subject: `Seller verification ${status.toLowerCase()}`,
+      title: "Your seller verification was updated",
+      message: `Hello ${seller.name}, your seller verification status is now ${status.toLowerCase()}${notes ? `. Admin note: ${notes}` : "."}`,
+      actionLabel: "View seller settings",
+      actionUrl: "/seller/settings",
+    });
+
     revalidatePath("/admin/users");
     revalidatePath("/admin/dashboard");
     return { success: true };
@@ -99,7 +110,7 @@ export async function submitSellerVerification(data: {
   }
 
   try {
-    await prisma.users.update({
+    const seller = await prisma.users.update({
       where: { id: currentUser.id },
       data: {
         verification_document_type: data.documentType,
@@ -115,7 +126,28 @@ export async function submitSellerVerification(data: {
         city: data.city,
         address: data.address,
       },
+      select: { email: true, name: true },
     });
+
+    await sendNotificationEmail({
+      to: seller.email,
+      subject: "Seller verification submitted",
+      title: "Your verification is under review",
+      message: `Hello ${seller.name}, we received your seller verification documents. An admin will review your application shortly.`,
+      actionLabel: "View seller settings",
+      actionUrl: "/seller/settings",
+    });
+
+    if (process.env.ADMIN_NOTIFICATION_EMAIL) {
+      await sendNotificationEmail({
+        to: process.env.ADMIN_NOTIFICATION_EMAIL,
+        subject: "Seller verification ready for review",
+        title: "A seller submitted verification documents",
+        message: `${seller.name} submitted documents for seller verification.`,
+        actionLabel: "Review seller",
+        actionUrl: "/admin/users",
+      });
+    }
     
     revalidatePath("/seller/settings");
     revalidatePath("/seller/dashboard");

@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { randomUUID } from "crypto";
 import { sendEmail } from "@/lib/mailer";
+import { sendNotificationEmail } from "@/lib/notifications";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -77,6 +78,17 @@ export async function POST(req: NextRequest) {
       });
     } catch (mailError) {
       console.error("Registration email send failed:", mailError);
+    }
+
+    if (assignedRole === "SELLER" && process.env.ADMIN_NOTIFICATION_EMAIL) {
+      await sendNotificationEmail({
+        to: process.env.ADMIN_NOTIFICATION_EMAIL,
+        subject: "New seller account created",
+        title: "A new seller is awaiting verification",
+        message: `${user.name} created a seller account and is currently unverified.`,
+        actionLabel: "Review sellers",
+        actionUrl: "/admin/users",
+      });
     }
 
     return NextResponse.json(

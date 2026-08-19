@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { initializePayment, verifyPayment } from "@/lib/paystack";
 import { Numeric } from "@/types";
+import { sendNotificationEmail } from "@/lib/notifications";
 
 interface CreateOrderData {
   deliveryAddress: string;
@@ -242,6 +243,40 @@ export async function createOrder(data: CreateOrderData) {
     revalidatePath("/seller/orders");
     revalidatePath("/seller/animals");
 
+    const ordersToNotify = await prisma.orders.findMany({
+      where: { id: { in: createdOrders.map((order) => order.id) } },
+      include: {
+        users: { select: { email: true, name: true } },
+        animals: {
+          select: {
+            name: true,
+            users: { select: { email: true, name: true } },
+          },
+        },
+      },
+    });
+
+    await Promise.all(
+      ordersToNotify.flatMap((order) => [
+        sendNotificationEmail({
+          to: order.users.email,
+          subject: `Order confirmed: ${order.animals.name}`,
+          title: "Your order is confirmed",
+          message: `Your payment for ${order.animals.name} was successful. The seller will update you as your order progresses.`,
+          actionLabel: "View your orders",
+          actionUrl: "/buyer/orders",
+        }),
+        sendNotificationEmail({
+          to: order.animals.users.email,
+          subject: `New paid order: ${order.animals.name}`,
+          title: "You have a new paid order",
+          message: `${order.users.name} has placed a paid order for your ${order.animals.name} listing.`,
+          actionLabel: "Manage order",
+          actionUrl: "/seller/orders",
+        }),
+      ]),
+    );
+
     return { success: true, orders: createdOrders };
   } catch (error) {
     console.error("Create order error:", error);
@@ -294,9 +329,27 @@ export async function updateOrderStatus(orderId: string, status: "PENDING" | "PA
       return { success: false, error: "Unauthorized" };
     }
 
+    const order = await prisma.orders.findFirst({
+      where: { id: orderId, animals: { seller_id: user.id } },
+      include: { users: { select: { email: true, name: true } }, animals: { select: { name: true } } },
+    });
+
+    if (!order) {
+      return { success: false, error: "Order not found or unauthorized." };
+    }
+
     const updatedOrder = await prisma.orders.update({
       where: { id: orderId },
       data: { status },
+    });
+
+    await sendNotificationEmail({
+      to: order.users.email,
+      subject: `Order update: ${order.animals.name}`,
+      title: "Your order status changed",
+      message: `Your ${order.animals.name} order is now marked as ${status.toLowerCase()}.`,
+      actionLabel: "View your order",
+      actionUrl: "/buyer/orders",
     });
 
     revalidatePath("/seller/orders");

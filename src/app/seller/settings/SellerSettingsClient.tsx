@@ -144,7 +144,7 @@ export default function SellerSettingsClient({ seller }: { seller: User }) {
   const status = getVerificationStatus();
 
   return (
-    <div className="space-y-6">
+    <div className="seller-settings space-y-6">
       <Card className={`border-2 ${status.color}`}>
         <div className="flex flex-col md:flex-row md:items-start gap-4">
           <div className="flex-1">

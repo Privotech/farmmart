@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { jwtVerify } from 'jose';
+import { sendNotificationEmail } from '@/lib/notifications';
 
 // Helper to get user from token
 async function getUserFromToken(request: NextRequest) {
@@ -90,8 +91,22 @@ export async function POST(request: NextRequest) {
         receiver_id: receiverId,
         animal_id: animalId,
         message,
-        status: 'UNREAD'
-      }
+        status: 'UNREAD',
+      },
+      include: {
+        animals: { select: { name: true } },
+        users_inquiries_sender_idTousers: { select: { name: true } },
+        users_inquiries_receiver_idTousers: { select: { email: true } },
+      },
+    });
+
+    await sendNotificationEmail({
+      to: inquiry.users_inquiries_receiver_idTousers.email,
+      subject: `New inquiry about ${inquiry.animals.name}`,
+      title: "You have a new buyer inquiry",
+      message: `${inquiry.users_inquiries_sender_idTousers.name} sent an inquiry about your ${inquiry.animals.name} listing.`,
+      actionLabel: "View inquiries",
+      actionUrl: "/seller/inquiries",
     });
 
     return NextResponse.json({ success: true, data: inquiry });
