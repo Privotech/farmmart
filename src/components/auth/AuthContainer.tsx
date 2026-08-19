@@ -121,26 +121,26 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
   };
 
   return (
-    <div className="h-screen w-screen bg-black flex items-center justify-center">
+    <div className="h-screen w-screen bg-background flex items-center justify-center overflow-auto">
       {!selectedRole && (
-        <div className="w-full max-w-md px-4">
-          <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-800 text-center">
-            <h1 className="text-3xl font-bold text-gray-100 mb-2">
+        <div className="w-full max-w-md px-4 py-8">
+          <div className="bg-surface rounded-2xl shadow-xl p-8 border border-border text-center">
+            <h1 className="text-3xl font-bold text-foreground mb-2">
               Choose Your Role
             </h1>
-            <p className="text-gray-400 mb-8">
+            <p className="text-text-secondary mb-8">
               Select how you want to use FarmMart
             </p>
 
             <div className="space-y-4">
               <button
                 onClick={() => handleRoleSelect("BUYER")}
-                className="w-full p-6 border-2 border-gray-800 rounded-xl hover:border-emerald-500 hover:bg-gray-800 transition-all group"
+                className="w-full p-6 border-2 border-border rounded-xl hover:border-primary hover:bg-primary-50 transition-all group"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-emerald-900/30 rounded-full flex items-center justify-center group-hover:bg-emerald-500 transition-colors">
+                  <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center group-hover:bg-primary transition-colors">
                     <svg
-                      className="w-6 h-6 text-emerald-400 group-hover:text-white transition-colors"
+                      className="w-6 h-6 text-primary group-hover:text-primary-foreground transition-colors"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -154,8 +154,8 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                     </svg>
                   </div>
                   <div className="text-left">
-                    <h3 className="font-bold text-gray-100">Buyer</h3>
-                    <p className="text-sm text-gray-400">
+                    <h3 className="font-bold text-foreground">Buyer</h3>
+                    <p className="text-sm text-text-secondary">
                       Browse and purchase animals
                     </p>
                   </div>
@@ -164,12 +164,12 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
 
               <button
                 onClick={() => handleRoleSelect("SELLER")}
-                className="w-full p-6 border-2 border-gray-800 rounded-xl hover:border-emerald-500 hover:bg-gray-800 transition-all group"
+                className="w-full p-6 border-2 border-border rounded-xl hover:border-primary hover:bg-primary-50 transition-all group"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-emerald-900/30 rounded-full flex items-center justify-center group-hover:bg-emerald-500 transition-colors">
+                  <div className="w-12 h-12 bg-secondary-100 rounded-full flex items-center justify-center group-hover:bg-secondary transition-colors">
                     <svg
-                      className="w-6 h-6 text-emerald-400 group-hover:text-white transition-colors"
+                      className="w-6 h-6 text-secondary group-hover:text-secondary-foreground transition-colors"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -178,13 +178,13 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08.402-2.599 1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
                   </div>
                   <div className="text-left">
-                    <h3 className="font-bold text-gray-100">Seller</h3>
-                    <p className="text-sm text-gray-400">
+                    <h3 className="font-bold text-foreground">Seller</h3>
+                    <p className="text-sm text-text-secondary">
                       List and sell your animals
                     </p>
                   </div>
@@ -196,10 +196,10 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
       )}
 
       {selectedRole && (
-        <div className="relative w-full h-full bg-gray-900 shadow-2xl overflow-hidden border border-gray-800">
+        <div className="relative w-full max-w-4xl h-full max-h-[700px] bg-surface shadow-2xl overflow-hidden border border-border rounded-3xl my-8 mx-4">
           <button
             onClick={handleBackToRoleSelection}
-            className="absolute top-4 left-4 z-50 p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors text-gray-400"
+            className="absolute top-4 left-4 z-50 p-2 bg-primary-50 rounded-full hover:bg-primary-100 transition-colors text-text-secondary"
           >
             <svg
               className="w-5 h-5"
@@ -217,7 +217,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
           </button>
 
           <div className="absolute top-4 right-4 z-50">
-            <span className="px-3 py-1 rounded-full text-sm font-semibold bg-emerald-900/30 text-emerald-400">
+            <span className="px-3 py-1 rounded-full text-sm font-semibold bg-primary-50 text-primary border border-primary-200">
               {selectedRole === "BUYER" ? "Buyer" : "Seller"}
             </span>
           </div>
@@ -230,17 +230,17 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                 : "opacity-100 z-50 translate-x-full"
             }`}
           >
-            <div className="flex flex-col justify-center items-center h-full px-12 text-center bg-gray-900">
-              <h1 className="text-4xl font-bold text-gray-100 mb-6">Sign Up</h1>
+            <div className="flex flex-col justify-center items-center h-full px-12 text-center bg-surface">
+              <h1 className="text-4xl font-bold text-foreground mb-6">Sign Up</h1>
 
-              <div className="flex items-center w-full mb-6 text-gray-600">
-                <div className="flex-1 h-px bg-gray-800"></div>
+              <div className="flex items-center w-full mb-6 text-text-secondary">
+                <div className="flex-1 h-px bg-border"></div>
                 <span className="px-3 text-sm">Create Your Account</span>
-                <div className="flex-1 h-px bg-gray-800"></div>
+                <div className="flex-1 h-px bg-border"></div>
               </div>
 
               {error && !isLogin && (
-                <div className="w-full bg-emerald-900/30 border border-emerald-800 text-emerald-400 text-sm p-2 rounded mb-4">
+                <div className="w-full bg-danger-50 border border-danger-200 text-danger text-sm p-3 rounded-xl mb-4">
                   {error}
                 </div>
               )}
@@ -254,7 +254,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                   placeholder="name"
                   value={regName}
                   onChange={(e) => setRegName(e.target.value)}
-                  className="w-full bg-gray-800 border-gray-700 px-4 py-3 rounded text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-surface border-border px-4 py-3 rounded-xl text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all border shadow-sm"
                   required
                 />
                 <input
@@ -262,7 +262,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                   placeholder="email"
                   value={regEmail}
                   onChange={(e) => setRegEmail(e.target.value)}
-                  className="w-full bg-gray-800 border-gray-700 px-4 py-3 rounded text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-surface border-border px-4 py-3 rounded-xl text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all border shadow-sm"
                   required
                 />
                 <input
@@ -270,7 +270,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                   placeholder="password"
                   value={regPassword}
                   onChange={(e) => setRegPassword(e.target.value)}
-                  className="w-full bg-gray-800 border-gray-700 px-4 py-3 rounded text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-surface border-border px-4 py-3 rounded-xl text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all border shadow-sm"
                   required
                 />
 
@@ -280,18 +280,18 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                     id="terms"
                     checked={acceptTerms}
                     onChange={(e) => setAcceptTerms(e.target.checked)}
-                    className="w-4 h-4 text-emerald-600 bg-gray-800 border-gray-700 rounded focus:ring-emerald-500"
+                    className="w-4 h-4 text-primary bg-surface border-border rounded focus:ring-primary/20"
                   />
                   <label
                     htmlFor="terms"
-                    className="ml-2 text-sm text-gray-400 cursor-pointer"
+                    className="ml-2 text-sm text-text-secondary cursor-pointer"
                   >
                     I accept the{" "}
                     <Link
                       href="/terms"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-emerald-400 hover:text-emerald-300 underline"
+                      className="text-primary hover:text-primary-hover underline"
                     >
                       Terms and Conditions
                     </Link>
@@ -301,7 +301,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded transition-colors shadow-lg shadow-emerald-900/20"
+                  className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-bold py-3 rounded-xl transition-colors shadow-lg shadow-primary/20"
                 >
                   {isLoading ? "LOADING..." : "REGISTER"}
                 </button>
@@ -317,17 +317,17 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                 : "opacity-0 z-10 translate-x-full"
             }`}
           >
-            <div className="flex flex-col justify-center items-center h-full px-12 text-center bg-gray-900">
-              <h1 className="text-4xl font-bold text-gray-100 mb-6">Sign In</h1>
+            <div className="flex flex-col justify-center items-center h-full px-12 text-center bg-surface">
+              <h1 className="text-4xl font-bold text-foreground mb-6">Sign In</h1>
 
-              <div className="flex items-center w-full mb-6 text-gray-600">
-                <div className="flex-1 h-px bg-gray-800"></div>
+              <div className="flex items-center w-full mb-6 text-text-secondary">
+                <div className="flex-1 h-px bg-border"></div>
                 <span className="px-3 text-sm">Access Your Account</span>
-                <div className="flex-1 h-px bg-gray-800"></div>
+                <div className="flex-1 h-px bg-border"></div>
               </div>
 
               {error && isLogin && (
-                <div className="w-full bg-emerald-900/30 border border-emerald-800 text-emerald-400 text-sm p-2 rounded mb-4">
+                <div className="w-full bg-danger-50 border border-danger-200 text-danger text-sm p-3 rounded-xl mb-4">
                   {error}
                 </div>
               )}
@@ -341,7 +341,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                   placeholder="email"
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
-                  className="w-full bg-gray-800 border-gray-700 px-4 py-3 rounded text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-surface border-border px-4 py-3 rounded-xl text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all border shadow-sm"
                   required
                 />
                 <input
@@ -349,14 +349,14 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                   placeholder="password"
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
-                  className="w-full bg-gray-800 border-gray-700 px-4 py-3 rounded text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-surface border-border px-4 py-3 rounded-xl text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all border shadow-sm"
                   required
                 />
 
                 <div className="flex justify-between items-center mt-2 mb-4 px-1">
                   <Link
                     href="/forgot-password"
-                    className="text-sm text-gray-400 hover:text-emerald-500"
+                    className="text-sm text-text-secondary hover:text-primary"
                   >
                     Forgot password?
                   </Link>
@@ -365,7 +365,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded transition-colors shadow-lg shadow-emerald-900/20"
+                  className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-bold py-3 rounded-xl transition-colors shadow-lg shadow-primary/20"
                 >
                   {isLoading ? "LOADING..." : "LOG IN"}
                 </button>
@@ -380,11 +380,11 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
             }`}
           >
             <div
-              className={`relative h-full w-[200%] transition-all duration-700 ease-in-out bg-emerald-600 text-white ${
+              className={`relative h-full w-[200%] transition-all duration-700 ease-in-out bg-primary text-primary-foreground ${
                 isLogin ? "translate-x-[-50%]" : "translate-x-0"
               }`}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 to-green-900"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary-700"></div>
 
               <div className="relative flex h-full">
                 <div
@@ -398,7 +398,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                   </p>
                   <button
                     onClick={() => handleToggle("register")}
-                    className="border-2 border-white px-10 py-2 rounded-full font-bold hover:bg-white hover:text-emerald-600 transition-all"
+                    className="border-2 border-white px-10 py-2 rounded-full font-bold hover:bg-white hover:text-primary transition-all"
                   >
                     SIGN UP
                   </button>
@@ -415,7 +415,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                   </p>
                   <button
                     onClick={() => handleToggle("login")}
-                    className="border-2 border-white px-10 py-2 rounded-full font-bold hover:bg-white hover:text-emerald-600 transition-all"
+                    className="border-2 border-white px-10 py-2 rounded-full font-bold hover:bg-white hover:text-primary transition-all"
                   >
                     SIGN IN
                   </button>

@@ -54,6 +54,16 @@ CREATE TABLE "cart" (
 );
 
 -- CreateTable
+CREATE TABLE "favourites" (
+    "id" UUID NOT NULL,
+    "user_id" UUID NOT NULL,
+    "animal_id" UUID NOT NULL,
+    "created_at" TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "favourites_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "inquiries" (
     "id" UUID NOT NULL,
     "sender_id" UUID NOT NULL,
@@ -72,6 +82,8 @@ CREATE TABLE "orders" (
     "buyer_id" UUID NOT NULL,
     "animal_id" UUID NOT NULL,
     "amount" DECIMAL(12,2) NOT NULL,
+    "platform_fee" DECIMAL(12,2) NOT NULL DEFAULT 0,
+    "seller_payout" DECIMAL(12,2) NOT NULL DEFAULT 0,
     "status" "orders_status" NOT NULL DEFAULT 'PENDING',
     "paystack_ref" VARCHAR(200) NOT NULL,
     "paystack_channel" VARCHAR(50),
@@ -179,6 +191,18 @@ CREATE INDEX "idx_cart_user_id" ON "cart"("user_id");
 CREATE UNIQUE INDEX "uq_cart_user_animal" ON "cart"("user_id", "animal_id");
 
 -- CreateIndex
+CREATE INDEX "idx_favourites_animal_id" ON "favourites"("animal_id");
+
+-- CreateIndex
+CREATE INDEX "idx_favourites_user_id" ON "favourites"("user_id");
+
+-- CreateIndex
+CREATE INDEX "idx_favourites_created_at" ON "favourites"("created_at");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "uq_favourites_user_animal" ON "favourites"("user_id", "animal_id");
+
+-- CreateIndex
 CREATE INDEX "idx_inquiries_animal_id" ON "inquiries"("animal_id");
 
 -- CreateIndex
@@ -246,6 +270,12 @@ ALTER TABLE "cart" ADD CONSTRAINT "fk_cart_animal" FOREIGN KEY ("animal_id") REF
 
 -- AddForeignKey
 ALTER TABLE "cart" ADD CONSTRAINT "fk_cart_user" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "favourites" ADD CONSTRAINT "fk_favourites_animal" FOREIGN KEY ("animal_id") REFERENCES "animals"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "favourites" ADD CONSTRAINT "fk_favourites_user" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "inquiries" ADD CONSTRAINT "fk_inquiries_animal" FOREIGN KEY ("animal_id") REFERENCES "animals"("id") ON DELETE CASCADE ON UPDATE CASCADE;

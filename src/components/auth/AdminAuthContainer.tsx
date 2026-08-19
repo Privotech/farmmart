@@ -95,20 +95,20 @@ export default function AdminAuthContainer({
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="bg-gray-800 rounded-lg shadow-xl p-8">
+        <div className="bg-surface rounded-2xl shadow-xl p-8 border border-border">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">
+            <h1 className="text-3xl font-bold text-foreground mb-2">
               {isLogin ? "Admin Login" : "Admin Registration"}
             </h1>
-            <p className="text-gray-400 text-sm">
+            <p className="text-text-secondary text-sm">
               {isLogin ? "Access admin dashboard" : "Create admin account"}
             </p>
           </div>
 
           {error && (
-            <div className="bg-emerald-900/50 text-emerald-200 text-sm p-3 rounded mb-4">
+            <div className="bg-danger-50 border border-danger-200 text-danger text-sm p-3 rounded-xl mb-4">
               {error}
             </div>
           )}
@@ -116,33 +116,33 @@ export default function AdminAuthContainer({
           {isLogin ? (
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Email
                 </label>
                 <input
                   type="email"
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Password
                 </label>
                 <input
                   type="password"
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"
                   required
                 />
               </div>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded transition-colors"
+                className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-bold py-3 rounded-xl transition-colors shadow-lg shadow-primary/20"
               >
                 {isLoading ? "LOADING..." : "LOGIN"}
               </button>
@@ -150,50 +150,50 @@ export default function AdminAuthContainer({
           ) : (
             <form onSubmit={handleRegisterSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Name
                 </label>
                 <input
                   type="text"
                   value={regName}
                   onChange={(e) => setRegName(e.target.value)}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Email
                 </label>
                 <input
                   type="email"
                   value={regEmail}
                   onChange={(e) => setRegEmail(e.target.value)}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Password
                 </label>
                 <input
                   type="password"
                   value={regPassword}
                   onChange={(e) => setRegPassword(e.target.value)}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Admin Secret Key
                 </label>
                 <input
                   type="password"
                   value={adminSecretKey}
                   onChange={(e) => setAdminSecretKey(e.target.value)}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"
                   placeholder="Enter admin secret key"
                   required
                 />
@@ -205,18 +205,18 @@ export default function AdminAuthContainer({
                   id="admin-terms"
                   checked={acceptTerms}
                   onChange={(e) => setAcceptTerms(e.target.checked)}
-                  className="w-4 h-4 text-emerald-600 bg-gray-700 border-gray-600 rounded focus:ring-emerald-500"
+                  className="w-4 h-4 text-primary bg-surface border-border rounded focus:ring-primary/20"
                 />
                 <label
                   htmlFor="admin-terms"
-                  className="ml-2 text-sm text-gray-300 cursor-pointer"
+                  className="ml-2 text-sm text-text-secondary cursor-pointer"
                 >
                   I accept the{" "}
                   <Link
                     href="/terms"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-emerald-400 hover:text-emerald-300 underline"
+                    className="text-primary hover:text-primary-hover underline"
                   >
                     Terms and Conditions
                   </Link>
@@ -226,7 +226,7 @@ export default function AdminAuthContainer({
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded transition-colors"
+                className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-bold py-3 rounded-xl transition-colors shadow-lg shadow-primary/20"
               >
                 {isLoading ? "LOADING..." : "REGISTER"}
               </button>
@@ -236,7 +236,7 @@ export default function AdminAuthContainer({
           <div className="mt-6 text-center">
             <button
               onClick={() => handleToggle(isLogin ? "register" : "login")}
-              className="text-emerald-400 hover:text-emerald-300 text-sm"
+              className="text-primary hover:text-primary-hover text-sm font-medium"
             >
               {isLogin
                 ? "Need an admin account? Register"

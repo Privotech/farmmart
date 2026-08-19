@@ -1,7 +1,7 @@
 import React from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "danger" | "success" | "warning";
+  variant?: "primary" | "secondary" | "ghost" | "outline" | "danger" | "success" | "warning";
   size?: "sm" | "md" | "lg";
   isLoading?: boolean;
 }
@@ -19,20 +19,22 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) => {
     const baseStyles =
-      "font-semibold rounded-lg transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center shadow-sm";
+      "font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center";
 
     const variantStyles = {
-      primary: "bg-emerald-600 hover:bg-emerald-700 text-white shadow-md",
-      secondary: "bg-emerald-900 border border-emerald-700 hover:bg-emerald-800 text-emerald-100",
-      danger: "bg-rose-600 hover:bg-rose-700 text-white shadow-md",
-      success: "bg-green-600 hover:bg-green-700 text-white shadow-md",
-      warning: "bg-amber-600 hover:bg-amber-700 text-white shadow-md",
+      primary: "bg-primary hover:bg-primary-hover text-primary-foreground shadow-sm hover:shadow",
+      secondary: "bg-surface border border-border hover:bg-primary-50 text-foreground shadow-sm",
+      ghost: "bg-transparent hover:bg-primary-50 text-text-secondary hover:text-foreground",
+      outline: "bg-transparent border border-primary text-primary hover:bg-primary-50",
+      danger: "bg-danger hover:bg-danger-600 text-white shadow-sm",
+      success: "bg-success hover:bg-success-600 text-white shadow-sm",
+      warning: "bg-secondary hover:bg-secondary-hover text-secondary-foreground shadow-sm",
     } as const;
 
     const sizeStyles = {
-      sm: "px-3 py-1 text-sm",
-      md: "px-4 py-2 text-base",
-      lg: "px-6 py-3 text-lg",
+      sm: "px-4 py-2 text-sm",
+      md: "px-5 py-2.5 text-sm",
+      lg: "px-6 py-3 text-base",
     } as const;
 
     return (

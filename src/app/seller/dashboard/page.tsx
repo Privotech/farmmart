@@ -84,7 +84,7 @@ export default function SellerDashboard() {
 
   if (isLoading || !session) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-400 bg-[#121212]">
+      <div className="min-h-screen flex items-center justify-center text-text-secondary bg-background">
         Loading dashboard...
       </div>
     );
@@ -166,21 +166,21 @@ export default function SellerDashboard() {
   const chartColors = ["#065f46", "#065f46", "#065f46", "#047857", "#10b981", "#047857", "#059669"];
 
   return (
-    <div className="p-8 bg-black min-h-screen">
+    <div className="p-8 bg-background min-h-screen">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-emerald-100 mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             Inventory Overview
           </h1>
-          <p className="text-sm text-emerald-400">
+          <p className="text-sm text-text-secondary">
             Real-time status of your herd and active market listings.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
-          <div className="flex items-center gap-2 bg-emerald-950 px-5 py-3 rounded-xl shadow-sm border border-emerald-800 flex-1 sm:flex-none">
+          <div className="flex items-center gap-2 bg-success-50 px-5 py-3 rounded-xl shadow-sm border border-success-200 flex-1 sm:flex-none">
             <svg
-              className="w-4 h-4 text-emerald-400"
+              className="w-4 h-4 text-success"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -193,17 +193,17 @@ export default function SellerDashboard() {
               />
             </svg>
             <div className="flex flex-col">
-              <span className="text-xs font-bold text-emerald-400">
+              <span className="text-xs font-bold text-success-700">
                 Gross Sales
               </span>
-              <span className="text-emerald-300 font-bold text-base">
+              <span className="text-success-700 font-bold text-base">
                 ₦{grossRevenue.toLocaleString()}
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-2 bg-emerald-900 px-5 py-3 rounded-xl shadow-sm border border-emerald-700 flex-1 sm:flex-none">
+          <div className="flex items-center gap-2 bg-primary-50 px-5 py-3 rounded-xl shadow-sm border border-primary-200 flex-1 sm:flex-none">
             <svg
-              className="w-4 h-4 text-emerald-300"
+              className="w-4 h-4 text-primary"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -216,17 +216,17 @@ export default function SellerDashboard() {
               />
             </svg>
             <div className="flex flex-col">
-              <span className="text-xs font-bold text-emerald-400">
+              <span className="text-xs font-bold text-primary-700">
                 Net Payout (After 10% Fee)
               </span>
-              <span className="text-emerald-100 font-bold text-base">
+              <span className="text-primary-700 font-bold text-base">
                 ₦{netRevenue.toLocaleString()}
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-2 bg-amber-950/50 px-5 py-3 rounded-xl shadow-sm border border-amber-900/50 flex-1 sm:flex-none">
+          <div className="flex items-center gap-2 bg-secondary-50 px-5 py-3 rounded-xl shadow-sm border border-secondary-200 flex-1 sm:flex-none">
             <svg
-              className="w-4 h-4 text-amber-400"
+              className="w-4 h-4 text-secondary"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -239,10 +239,10 @@ export default function SellerDashboard() {
               />
             </svg>
             <div className="flex flex-col">
-              <span className="text-xs font-bold text-amber-400">
+              <span className="text-xs font-bold text-secondary-700">
                 Platform Fees Paid
               </span>
-              <span className="text-amber-300 font-bold text-base">
+              <span className="text-secondary-700 font-bold text-base">
                 ₦{platformFeesTotal.toLocaleString()}
               </span>
             </div>
@@ -253,12 +253,12 @@ export default function SellerDashboard() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-10">
         {/* Herd Growth Analytics */}
         <div className="xl:col-span-2">
-          <div className="bg-emerald-950 rounded-2xl shadow-sm border border-emerald-800 p-8 h-full flex flex-col justify-between">
+          <Card className="p-8 h-full flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 mb-6">
-                <div className="w-6 h-6 bg-emerald-900/30 rounded flex items-center justify-center">
+                <div className="w-6 h-6 bg-primary-100 rounded flex items-center justify-center">
                   <svg
-                    className="w-3 h-3 text-emerald-400"
+                    className="w-3 h-3 text-primary"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -271,14 +271,14 @@ export default function SellerDashboard() {
                     />
                   </svg>
                 </div>
-                <span className="font-bold text-emerald-300 text-sm">
+                <span className="font-bold text-foreground text-sm">
                   Herd Growth Analytics
                 </span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Chart Area */}
-                <div className="h-48 flex items-end gap-2 px-4 pb-4 border-b md:border-b-0 md:border-r border-emerald-800 pr-6">
+                <div className="h-48 flex items-end gap-2 px-4 pb-4 border-b md:border-b-0 md:border-r border-border pr-6">
                   {chartData.map((bar, i) => (
                     <div
                       key={i}
@@ -292,7 +292,7 @@ export default function SellerDashboard() {
                         }}
                         title={`${bar.label}: ${bar.count} listings`}
                       />
-                      <span className="text-[10px] text-emerald-500 font-bold">
+                      <span className="text-[10px] text-text-secondary font-bold">
                         {bar.label}
                       </span>
                     </div>
@@ -301,34 +301,34 @@ export default function SellerDashboard() {
 
                 {/* Stats Cards */}
                 <div className="flex flex-col gap-4 justify-center">
-                  <div className="bg-emerald-900/30 rounded-2xl p-5 border border-emerald-800">
-                    <span className="text-4xl font-bold text-emerald-100 block mb-2">
+                  <div className="bg-primary-50 rounded-2xl p-5 border border-primary-200">
+                    <span className="text-4xl font-bold text-foreground block mb-2">
                       {activeHeadCount}
                     </span>
-                    <span className="text-xs text-emerald-400 font-bold uppercase">
+                    <span className="text-xs text-primary-700 font-bold uppercase">
                       Active Head Count
                     </span>
                   </div>
-                  <div className="bg-emerald-900/30 rounded-2xl p-5 border border-emerald-800">
-                    <span className="text-4xl font-bold text-emerald-100 block mb-2">
+                  <div className="bg-primary-50 rounded-2xl p-5 border border-primary-200">
+                    <span className="text-4xl font-bold text-foreground block mb-2">
                       {activeListings.length}
                     </span>
-                    <span className="text-xs text-emerald-400 font-bold uppercase">
+                    <span className="text-xs text-primary-700 font-bold uppercase">
                       Active Market Listings
                     </span>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
 
         {/* Create New Listing Callout */}
         <div className="flex flex-col">
-          <div className="bg-emerald-950 rounded-2xl shadow-sm border border-emerald-800 border-dashed border-2 p-8 flex flex-col items-center justify-center text-center h-full">
-            <div className="w-12 h-12 bg-emerald-900/30 rounded-xl flex items-center justify-center mb-5">
+          <div className="bg-surface rounded-2xl shadow-sm border border-border border-dashed border-2 p-8 flex flex-col items-center justify-center text-center h-full">
+            <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center mb-5">
               <svg
-                className="w-6 h-6 text-emerald-400"
+                className="w-6 h-6 text-primary"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -341,14 +341,14 @@ export default function SellerDashboard() {
                 />
               </svg>
             </div>
-            <h3 className="font-bold text-emerald-100 mb-2">
+            <h3 className="font-bold text-foreground mb-2">
               Create New Listing
             </h3>
-            <p className="text-sm text-emerald-400 mb-6 max-w-[200px]">
+            <p className="text-sm text-text-secondary mb-6 max-w-[200px]">
               Reach verified buyers instantly across the marketplace network.
             </p>
             <Link href="/seller/animals/new">
-              <button className="bg-emerald-600 text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-emerald-700 transition">
+              <button className="bg-primary text-primary-foreground px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-primary-hover transition">
                 Get Started
               </button>
             </Link>
@@ -359,19 +359,19 @@ export default function SellerDashboard() {
       {/* Active Listings */}
       <div className="mb-12">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-emerald-100">
+          <h2 className="text-xl font-bold text-foreground">
             Active Listings
           </h2>
           <Link
             href="/seller/animals"
-            className="text-emerald-400 font-bold text-sm hover:underline"
+            className="text-primary font-bold text-sm hover:underline"
           >
             View All Inventory
           </Link>
         </div>
 
         {activeListings.length === 0 ? (
-          <Card className="p-8 text-center text-emerald-400 border border-emerald-800 bg-emerald-950">
+          <Card className="p-8 text-center text-text-secondary">
             No active listings found.
           </Card>
         ) : (
@@ -379,16 +379,16 @@ export default function SellerDashboard() {
             {activeListings.slice(0, 4).map((animal) => (
               <div
                 key={animal.id}
-                className="bg-emerald-950 rounded-2xl shadow-sm border border-emerald-800 p-6 relative overflow-hidden"
+                className="bg-surface rounded-2xl shadow-sm border border-border p-6 relative overflow-hidden"
               >
                 <div className="absolute top-4 right-4 flex gap-2">
-                  <span className="bg-emerald-900/30 text-emerald-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase">
+                  <span className="bg-success-50 text-success-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-success-200">
                     {animal.health_status}
                   </span>
                 </div>
 
                 <div className="flex items-center gap-6">
-                  <div className="w-32 h-32 bg-emerald-900 rounded-xl relative overflow-hidden flex-shrink-0">
+                  <div className="w-32 h-32 bg-primary-50 rounded-xl relative overflow-hidden flex-shrink-0">
                     <Image
                       src={getImageUrl(animal.images)}
                       alt={animal.name || "Livestock listing"}
@@ -397,27 +397,27 @@ export default function SellerDashboard() {
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-bold text-emerald-100 mb-1 truncate">
+                    <h3 className="text-lg font-bold text-foreground mb-1 truncate">
                       {animal.name}
                     </h3>
-                    <p className="text-xs text-emerald-400 mb-2 truncate">
+                    <p className="text-xs text-text-secondary mb-2 truncate">
                       {animal.breed} • {animal.age} Months •{" "}
                       {animal.weight ? `${animal.weight}kg` : "N/A weight"}
                     </p>
                     <div className="flex items-center gap-2 mb-4">
-                      <span className="bg-emerald-900/30 text-emerald-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase capitalize">
+                      <span className="bg-primary-50 text-primary-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase capitalize border border-primary-200">
                         {animal.type}
                       </span>
-                      <span className="text-emerald-500 text-xs truncate">
+                      <span className="text-text-secondary text-xs truncate">
                         {animal.location}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <div>
-                        <span className="text-[10px] text-emerald-500 uppercase font-bold block mb-0.5">
+                        <span className="text-[10px] text-text-secondary uppercase font-bold block mb-0.5">
                           Price
                         </span>
-                        <span className="text-emerald-400 font-bold text-xl">
+                        <span className="text-primary font-bold text-xl">
                           ₦{animal.price.toLocaleString()}
                         </span>
                       </div>
@@ -425,7 +425,7 @@ export default function SellerDashboard() {
                         onClick={() =>
                           router.push(`/seller/animals/${animal.id}/edit`)
                         }
-                        className="p-2 bg-emerald-900 rounded-lg text-emerald-400 hover:bg-emerald-800 transition border border-emerald-700"
+                        className="p-2 bg-primary-50 rounded-lg text-primary hover:bg-primary-100 transition border border-primary-200"
                       >
                         <svg
                           className="w-5 h-5"
@@ -451,15 +451,15 @@ export default function SellerDashboard() {
       </div>
 
       {/* Recent Activity */}
-      <div className="bg-emerald-950 rounded-2xl shadow-sm border border-emerald-800 p-8">
+      <Card className="p-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-emerald-100">
+          <h2 className="text-xl font-bold text-foreground">
             Recent Activity
           </h2>
         </div>
 
         {activities.length === 0 ? (
-          <p className="text-sm text-emerald-500 text-center py-4">
+          <p className="text-sm text-text-secondary text-center py-4">
             No recent activity.
           </p>
         ) : (
@@ -467,11 +467,11 @@ export default function SellerDashboard() {
             {activities.map((act) => (
               <div
                 key={act.id}
-                className={`flex items-center justify-between p-4 rounded-xl bg-emerald-900/30 border border-emerald-800`}
+                className={`flex items-center justify-between p-4 rounded-xl bg-primary-50/50 border border-border`}
               >
                 <div className="flex items-center gap-4">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center bg-emerald-800/30 text-emerald-400`}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center bg-primary-100 text-primary`}
                   >
                     {act.type === "order" ? (
                       <svg
@@ -504,26 +504,26 @@ export default function SellerDashboard() {
                     )}
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-emerald-100">
+                    <h4 className="text-sm font-bold text-foreground">
                       {act.title}
                     </h4>
-                    <p className="text-[11px] text-emerald-400">
+                    <p className="text-[11px] text-text-secondary">
                       {act.subtitle}
                     </p>
                   </div>
                 </div>
-                <span className={`font-bold text-sm text-emerald-400`}>
+                <span className={`font-bold text-sm text-primary`}>
                   {act.value}
                 </span>
               </div>
             ))}
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Footer Support Button */}
       <div className="mt-6 flex justify-end">
-        <button className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-emerald-700 transition">
+        <button className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-primary-hover transition">
           <svg
             className="w-5 h-5"
             fill="none"

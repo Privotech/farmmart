@@ -3,29 +3,29 @@ import Link from 'next/link';
 
 const AdminSidebar = () => {
   return (
-    <aside className="w-64 bg-gray-800 text-white">
-      <div className="p-4">
-        <h2 className="text-2xl font-bold">Admin</h2>
+    <aside className="w-64 bg-foreground text-white h-screen sticky top-0">
+      <div className="p-6 border-b border-white/10">
+        <h2 className="text-2xl font-bold">FarmMart Admin</h2>
       </div>
-      <nav>
-        <ul>
-          <li className="p-4 hover:bg-gray-700">
-            <Link href="/admin/dashboard">Dashboard</Link>
+      <nav className="py-4">
+        <ul className="space-y-1 px-3">
+          <li className="rounded-xl hover:bg-white/10 transition">
+            <Link href="/admin/dashboard" className="block px-4 py-3 font-semibold">Dashboard</Link>
           </li>
-          <li className="p-4 hover:bg-gray-700">
-            <Link href="/admin/users">Users</Link>
+          <li className="rounded-xl hover:bg-white/10 transition">
+            <Link href="/admin/users" className="block px-4 py-3 font-semibold">Users</Link>
           </li>
-          <li className="p-4 hover:bg-gray-700">
-            <Link href="/admin/orders">Orders</Link>
+          <li className="rounded-xl hover:bg-white/10 transition">
+            <Link href="/admin/orders" className="block px-4 py-3 font-semibold">Orders</Link>
           </li>
-          <li className="p-4 hover:bg-gray-700">
-            <Link href="/admin/analytics">Analytics</Link>
+          <li className="rounded-xl hover:bg-white/10 transition">
+            <Link href="/admin/analytics" className="block px-4 py-3 font-semibold">Analytics</Link>
           </li>
-          <li className="p-4 hover:bg-gray-700">
-            <Link href="/admin/moderation">Moderation</Link>
+          <li className="rounded-xl hover:bg-white/10 transition">
+            <Link href="/admin/moderation" className="block px-4 py-3 font-semibold">Moderation</Link>
           </li>
-          <li className="p-4 hover:bg-gray-700">
-            <Link href="/admin/settings">Settings</Link>
+          <li className="rounded-xl hover:bg-white/10 transition">
+            <Link href="/admin/settings" className="block px-4 py-3 font-semibold">Settings</Link>
           </li>
         </ul>
       </nav>

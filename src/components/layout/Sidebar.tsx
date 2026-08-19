@@ -282,18 +282,18 @@ export const Sidebar = () => {
 
   return (
     <aside
-      className={`hidden md:flex flex-col w-64 ${isSeller ? "bg-emerald-950" : "bg-emerald-950"} h-screen sticky top-0 border-r border-emerald-800`}
+      className={`hidden md:flex flex-col w-64 bg-surface h-screen sticky top-0 border-r border-border shadow-sm`}
     >
-      <div className="p-6 mb-4">
+      <div className="p-6 mb-4 border-b border-gray-100">
         <div className="flex items-center gap-2 mb-1">
           {isSeller && (
-            <div className="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={2}
-                className="w-4 h-4 text-white"
+                className="w-4 h-4 text-primary-foreground"
               >
                 <path d="M5 12V8a2 2 0 012-2h3l1-2h4l1 2h3a2 2 0 012 2v4" />
                 <path d="M5 12h14v3a3 3 0 01-3 3H8a3 3 0 01-3-3v-3z" />
@@ -301,31 +301,27 @@ export const Sidebar = () => {
             </div>
           )}
           <h3
-            className={`text-xl font-bold tracking-tight ${isSeller ? "text-emerald-100" : "text-emerald-100"}`}
+              className={`text-xl font-bold tracking-tight text-foreground`}
           >
             {isSeller ? "Livestock Seller Portal" : "Digital Harvest"}
           </h3>
         </div>
         {!isSeller && (
-          <p className="text-[10px] text-emerald-400 font-bold tracking-widest uppercase">
+          <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase mt-1">
             Global Logistics
           </p>
         )}
       </div>
 
-      <nav className="flex-1 px-4 space-y-1">
+      <nav className="flex-1 px-4 space-y-1 py-4 overflow-y-auto">
         {dashboardLinks.map((link) => (
           <Link
             key={link.href}
             href={link.href}
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition text-sm font-bold ${
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition text-sm font-bold ${
               pathname === link.href
-                ? isSeller
-                  ? "bg-emerald-900 text-emerald-100 shadow-sm"
-                  : "bg-emerald-900 text-emerald-400 shadow-sm border-l-4 border-emerald-500 rounded-l-none -ml-4 pl-8"
-                : isSeller
-                  ? "text-emerald-400 hover:text-emerald-100 hover:bg-emerald-900"
-                  : "text-emerald-400 hover:text-emerald-500"
+                ? "bg-primary-50 text-primary shadow-sm border border-primary-100"
+                : "text-text-secondary hover:text-foreground hover:bg-primary-50"
             }`}
           >
             <span className="flex-shrink-0">{link.icon}</span>
@@ -334,14 +330,10 @@ export const Sidebar = () => {
         ))}
       </nav>
 
-      <div className="px-4 py-6 space-y-4">
+      <div className="px-4 py-6 space-y-4 border-t border-gray-100 bg-gray-50/50">
         <Link href={isSeller ? "/seller/animals/new" : "/buyer/listing"}>
           <button
-            className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition shadow-lg ${
-              isSeller
-                ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                : "bg-emerald-600 hover:bg-emerald-700 text-white"
-            }`}
+            className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition shadow-sm bg-primary hover:bg-primary-hover text-primary-foreground`}
           >
             <svg
               className="w-5 h-5"
@@ -360,14 +352,10 @@ export const Sidebar = () => {
           </button>
         </Link>
 
-        <div className="pt-4 border-t border-emerald-800 space-y-1">
+        <div className="pt-4 space-y-1">
           <Link
-            href="/help"
-            className={`flex items-center gap-3 px-4 py-2 text-sm font-bold ${
-              isSeller
-                ? "text-emerald-400 hover:text-emerald-100 hover:bg-emerald-900"
-                : "text-emerald-400 hover:text-emerald-500"
-            }`}
+            href={isSeller ? "/seller/help-center" : "/buyer/support"}
+            className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-bold text-gray-600 hover:text-gray-900 hover:bg-white transition`}
           >
             <svg
               className="w-5 h-5"
@@ -386,11 +374,7 @@ export const Sidebar = () => {
           </Link>
           <button
             onClick={handleSignOut}
-            className={`w-full flex items-center gap-3 px-4 py-2 text-sm font-bold ${
-              isSeller
-                ? "text-emerald-400 hover:text-emerald-100 hover:bg-emerald-900"
-                : "text-emerald-400 hover:text-emerald-500"
-            }`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-bold text-text-secondary hover:text-danger hover:bg-danger-50 transition`}
           >
             <svg
               className="w-5 h-5"

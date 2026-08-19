@@ -110,15 +110,15 @@ export default function MultiImageUpload({
           {images.length} / {maxImages} Images Added
         </Badge>
         {images.length > 0 && (
-          <span className="text-xs text-gray-500">
-            First image is the cover / primary thumbnail
-          </span>
-        )}
+            <span className="text-xs text-text-secondary">
+              First image is the cover / primary thumbnail
+            </span>
+          )}
       </div>
 
       {images.length > 0 && (
         <div className="space-y-3">
-          <div className="relative w-full h-64 md:h-80 bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200">
+          <div className="relative w-full h-64 md:h-80 bg-primary-50 rounded-xl overflow-hidden border-2 border-border">
             {images[selectedIndex] && (
               <Image
                 src={images[selectedIndex]}
@@ -340,13 +340,13 @@ export default function MultiImageUpload({
               </div>
             )}
 
-            {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+            {error && <p className="text-sm text-danger mt-2">{error}</p>}
           </div>
         </>
       )}
 
       {images.length >= maxImages && (
-        <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg text-sm text-amber-800 inline-flex items-center gap-2">
+        <div className="bg-warning-50 border border-warning-200 p-3 rounded-lg text-sm text-warning-700 inline-flex items-center gap-2">
           <svg
             viewBox="0 0 24 24"
             fill="none"

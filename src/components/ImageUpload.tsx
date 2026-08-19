@@ -55,14 +55,14 @@ export default function ImageUpload({
   return (
     <div className="space-y-4">
       {/* Mode Selector Tabs */}
-      <div className="flex gap-2 border-b border-gray-200 pb-2">
+      <div className="flex gap-2 border-b border-border pb-2">
         <button
           type="button"
           onClick={() => setUploadMode("file")}
           className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
             uploadMode === "file"
-              ? "bg-emerald-600 text-white"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              ? "bg-primary text-primary-foreground"
+              : "bg-primary-50 text-text-secondary hover:bg-primary-100"
           }`}
         >
           Upload File from PC
@@ -72,8 +72,8 @@ export default function ImageUpload({
           onClick={() => setUploadMode("url")}
           className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
             uploadMode === "url"
-              ? "bg-emerald-600 text-white"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              ? "bg-primary text-primary-foreground"
+              : "bg-primary-50 text-text-secondary hover:bg-primary-100"
           }`}
         >
           Paste Image URL Link
@@ -82,7 +82,7 @@ export default function ImageUpload({
 
       {/* Image Preview */}
       {currentImage && (
-        <div className="relative w-full h-48 bg-gray-900 rounded-lg overflow-hidden">
+        <div className="relative w-full h-48 bg-primary-50 rounded-lg overflow-hidden">
           <Image
             src={currentImage}
             alt="Animal preview"
@@ -96,7 +96,7 @@ export default function ImageUpload({
       <div>
         {uploadMode === "file" ? (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Select Animal Image from Computer
             </label>
             <input
@@ -104,15 +104,15 @@ export default function ImageUpload({
               accept="image/*"
               onChange={handleFileChange}
               disabled={uploading}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-gray-700 bg-white"
+              className="w-full px-4 py-2 border-border border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary text-text-secondary bg-surface transition-all"
             />
             {uploading && (
-              <p className="text-sm text-emerald-600 mt-2">Uploading image to cloud...</p>
+              <p className="text-sm text-primary mt-2">Uploading image to cloud...</p>
             )}
           </div>
         ) : (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Image Web URL Link
             </label>
             <input
@@ -120,12 +120,12 @@ export default function ImageUpload({
               placeholder="https://images.unsplash.com/photo-..."
               value={urlInput}
               onChange={handleUrlChange}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-gray-900 bg-white"
+              className="w-full px-4 py-2 border-border border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary text-foreground bg-surface transition-all"
             />
           </div>
         )}
 
-        {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+        {error && <p className="text-sm text-danger mt-2">{error}</p>}
       </div>
     </div>
   );

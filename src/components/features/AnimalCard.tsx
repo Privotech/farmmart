@@ -239,8 +239,8 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
             title={isFav ? "Remove from saved" : "Save to favourites"}
             className={`w-9 h-9 rounded-full shadow-md backdrop-blur-sm flex items-center justify-center transition-all duration-200 border ${
               isFav
-                ? "bg-rose-500 text-white border-rose-500 hover:bg-rose-600 hover:border-rose-600 scale-105"
-                : "bg-white/90 text-gray-500 border-gray-200 hover:bg-white hover:text-rose-500 hover:border-rose-200"
+                ? "bg-danger text-white border-danger hover:bg-danger-600 hover:border-danger-600 scale-105"
+                : "bg-surface/90 text-text-secondary border-border hover:bg-surface hover:text-danger hover:border-danger-200"
             } ${toggling ? "opacity-60 cursor-wait" : ""}`}
           >
             <HeartIcon filled={isFav} className="w-5 h-5" />
@@ -251,10 +251,10 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
       <div className="space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <h3 className="text-lg font-bold text-emerald-100">
+            <h3 className="text-lg font-bold text-foreground">
               {animal.name}
             </h3>
-            <p className="text-sm text-emerald-400">
+            <p className="text-sm text-text-secondary">
               {animal.breed} • {animal.age} months
             </p>
           </div>
@@ -274,7 +274,7 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
           {animal.is_negotiable && <Badge variant="warning">Negotiable</Badge>}
         </div>
 
-        <p className="text-sm text-emerald-400 inline-flex items-center gap-1">
+        <p className="text-sm text-text-secondary inline-flex items-center gap-1">
           <svg
             viewBox="0 0 24 24"
             fill="none"
@@ -292,9 +292,9 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
         {seller && (
           <Link
             href={`/sellers/${seller.id}`}
-            className="flex items-center gap-2 text-xs text-emerald-400/80 pt-1 border-t border-emerald-900/50 hover:text-emerald-300 transition-colors"
+            className="flex items-center gap-2 text-xs text-text-secondary pt-1 border-t border-border hover:text-foreground transition-colors"
           >
-            <div className="w-6 h-6 rounded-full bg-emerald-900 flex items-center justify-center overflow-hidden flex-shrink-0">
+            <div className="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center overflow-hidden flex-shrink-0">
               {seller.avatar_url ? (
                 <CloudinaryImage
                   src={seller.avatar_url}
@@ -304,29 +304,29 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
                   className="object-cover"
                 />
               ) : (
-                <span className="text-[10px] font-bold text-emerald-300">
+                <span className="text-[10px] font-bold text-primary-700">
                   {seller.name.charAt(0)}
                 </span>
               )}
             </div>
             <span className="truncate">{seller.farm_name || seller.name}</span>
             {isSellerVerified && (
-              <CheckIcon className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+              <CheckIcon className="w-4 h-4 text-success flex-shrink-0" />
             )}
           </Link>
         )}
 
-        <p className="text-sm text-emerald-300 line-clamp-2">
+        <p className="text-sm text-text-secondary line-clamp-2">
           {animal.description}
         </p>
 
-        <div className="flex justify-between items-center pt-4 border-t border-emerald-800">
+        <div className="flex justify-between items-center pt-4 border-t border-border">
           <div>
-            <p className="text-2xl font-bold text-emerald-400">
+            <p className="text-2xl font-bold text-primary">
               ₦{Number(animal.price || 0).toLocaleString()}
             </p>
             {animal.weight && (
-              <p className="text-xs text-emerald-400">
+              <p className="text-xs text-text-secondary">
                 {Number(animal.weight)} kg
               </p>
             )}
@@ -352,7 +352,7 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
               {animal.status !== "AVAILABLE" && (
                 <Badge
                   variant="outline"
-                  className="text-gray-500 border-gray-700"
+                  className="text-text-secondary border-border"
                 >
                   Sold
                 </Badge>

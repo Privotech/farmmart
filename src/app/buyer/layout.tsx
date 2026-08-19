@@ -24,7 +24,7 @@ export default function BuyerLayout({
 
   if (status === "loading" || !session) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-emerald-400">
+      <div className="min-h-screen bg-background flex items-center justify-center text-text-secondary">
         Loading...
       </div>
     );
@@ -36,7 +36,7 @@ export default function BuyerLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-black">
+    <div className="flex min-h-screen bg-background">
       <Sidebar />
       <main className="flex-1 overflow-y-auto">
         {children}

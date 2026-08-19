@@ -37,8 +37,8 @@ export const CartItem = ({
   const totalPrice = unitPrice * quantity;
 
   return (
-    <div className="flex items-center gap-4 p-4 bg-emerald-950 border border-emerald-800 rounded-xl">
-      <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-emerald-900">
+    <div className="flex items-center gap-4 p-4 bg-surface border border-border rounded-xl">
+      <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-primary-50">
         <Image
           src={getImageUrl(animal?.images)}
           alt={animal?.name || "Cart item"}
@@ -48,34 +48,34 @@ export const CartItem = ({
       </div>
 
       <div className="flex-1 min-w-0">
-        <h3 className="font-bold text-gray-100 truncate">
+        <h3 className="font-bold text-foreground truncate">
           {animal?.name || "Item Unavailable"}
         </h3>
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-text-secondary">
           {animal?.breed || "N/A"} • {animal?.type || "Livestock"}
         </p>
-        <p className="text-emerald-500 font-semibold">
+        <p className="text-primary font-semibold">
           ₦{unitPrice.toLocaleString()}
         </p>
       </div>
 
       <div className="flex items-center gap-3">
         {onUpdateQuantity && (
-          <div className="flex items-center border border-emerald-700 rounded-lg bg-emerald-900">
+          <div className="flex items-center border border-border rounded-lg bg-surface">
             <button
               onClick={() =>
                 onUpdateQuantity(item.id, Math.max(1, quantity - 1))
               }
-              className="px-2 py-1 text-emerald-300 hover:text-white"
+              className="px-2 py-1 text-text-secondary hover:text-foreground"
             >
               -
             </button>
-            <span className="px-2 text-sm text-white font-medium">
+            <span className="px-2 text-sm text-foreground font-medium">
               {quantity}
             </span>
             <button
               onClick={() => onUpdateQuantity(item.id, quantity + 1)}
-              className="px-2 py-1 text-emerald-300 hover:text-white"
+              className="px-2 py-1 text-text-secondary hover:text-foreground"
             >
               +
             </button>
@@ -83,7 +83,7 @@ export const CartItem = ({
         )}
 
         <div className="text-right min-w-[80px]">
-          <p className="font-bold text-emerald-400">
+          <p className="font-bold text-primary">
             ₦{totalPrice.toLocaleString()}
           </p>
         </div>
@@ -93,7 +93,7 @@ export const CartItem = ({
             variant="danger"
             size="sm"
             onClick={() => onRemove(item.id)}
-            className="p-1 text-red-400 hover:bg-red-900/30"
+            className="p-1"
           >
             <svg
               viewBox="0 0 24 24"

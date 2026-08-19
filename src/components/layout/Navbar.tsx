@@ -16,12 +16,12 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="bg-emerald-950/80 backdrop-blur sticky top-0 z-50 border-b border-emerald-800">
-      <div className="container mx-auto px-4 py-4">
+    <nav className="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200 shadow-sm">
+      <div className="container mx-auto px-4 py-3.5">
         <div className="flex justify-between items-center">
           <Link
             href="/"
-            className="flex items-center gap-3 text-lg font-semibold text-emerald-100"
+            className="flex items-center gap-3 text-lg font-semibold text-gray-900"
           >
             <Image
               src="/logo.svg"
@@ -33,43 +33,42 @@ export const Navbar = () => {
             <span className="hidden sm:inline">FarmMart</span>
           </Link>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex gap-6 items-center">
             <Link
+              href="/listings"
+              className="text-gray-700 hover:text-primary transition font-medium"
+            >
+              Browse
+            </Link>
+            <Link
               href="/logistics"
-              className="text-emerald-300 hover:text-emerald-400 transition font-medium"
+              className="text-gray-700 hover:text-primary transition font-medium"
             >
               Logistics
             </Link>
             <Link
-              href="/contact-us"
-              className="text-emerald-300 hover:text-emerald-400 transition font-medium"
-            >
-              Contact Us
-            </Link>
-            <Link
               href="/about"
-              className="text-emerald-300 hover:text-emerald-400 transition font-medium"
+              className="text-gray-700 hover:text-primary transition font-medium"
             >
-              About The App
+              About
             </Link>
             <Link
               href="/mission"
-              className="text-emerald-300 hover:text-emerald-400 transition font-medium"
+              className="text-gray-700 hover:text-primary transition font-medium"
             >
               Mission
             </Link>
             <Link
-              href="/vision"
-              className="text-emerald-300 hover:text-emerald-400 transition font-medium"
+              href="/contact-us"
+              className="text-gray-700 hover:text-primary transition font-medium"
             >
-              Vision
+              Contact
             </Link>
             {session ? (
               <>
                 <Link
                   href="/dashboard"
-                  className="text-emerald-300 hover:text-emerald-400 transition font-medium"
+                  className="text-gray-700 hover:text-primary transition font-medium"
                 >
                   Dashboard
                 </Link>
@@ -80,7 +79,7 @@ export const Navbar = () => {
             ) : (
               <>
                 <Link href="/login">
-                  <Button variant="secondary" size="sm">
+                  <Button variant="ghost" size="sm">
                     Login
                   </Button>
                 </Link>
@@ -93,10 +92,9 @@ export const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden text-emerald-400 hover:text-emerald-100 p-2 rounded-md hover:bg-emerald-900"
+            className="md:hidden text-text-secondary hover:text-foreground p-2 rounded-lg hover:bg-primary-50"
             aria-label="Open menu"
           >
             <svg
@@ -108,7 +106,7 @@ export const Navbar = () => {
             >
               <path
                 d="M4 6h16M4 12h16M4 18h16"
-                stroke="#6ee7b7"
+                stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -117,70 +115,77 @@ export const Navbar = () => {
           </button>
         </div>
 
-        {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden mt-4 flex flex-col gap-3 bg-emerald-900/60 p-4 rounded-lg shadow">
+          <div className="md:hidden mt-4 flex flex-col gap-1 bg-surface p-4 rounded-xl shadow border border-border">
+            <Link
+              href="/listings"
+              className="block px-3 py-2.5 rounded-lg text-text-secondary hover:text-primary hover:bg-primary-50 font-medium"
+            >
+              Browse Animals
+            </Link>
             <Link
               href="/logistics"
-              className="block text-emerald-300 hover:text-emerald-400 font-medium"
+              className="block px-3 py-2.5 rounded-lg text-text-secondary hover:text-primary hover:bg-primary-50 font-medium"
             >
               Logistics
             </Link>
             <Link
-              href="/contact-us"
-              className="block text-emerald-300 hover:text-emerald-400 font-medium"
-            >
-              Contact Us
-            </Link>
-            <Link
               href="/about"
-              className="block text-emerald-300 hover:text-emerald-400 font-medium"
+              className="block px-3 py-2.5 rounded-lg text-text-secondary hover:text-primary hover:bg-primary-50 font-medium"
             >
-              About The App
+              About
             </Link>
             <Link
               href="/mission"
-              className="block text-emerald-300 hover:text-emerald-400 font-medium"
+              className="block px-3 py-2.5 rounded-lg text-text-secondary hover:text-primary hover:bg-primary-50 font-medium"
             >
               Mission
             </Link>
             <Link
               href="/vision"
-              className="block text-emerald-300 hover:text-emerald-400 font-medium"
+              className="block px-3 py-2.5 rounded-lg text-text-secondary hover:text-primary hover:bg-primary-50 font-medium"
             >
               Vision
             </Link>
-            {session ? (
-              <>
-                <Link
-                  href="/dashboard"
-                  className="block text-emerald-300 hover:text-emerald-400 font-medium"
-                >
-                  Dashboard
-                </Link>
-                <Button
-                  variant="secondary"
-                  onClick={handleSignOut}
-                  size="sm"
-                  className="w-full"
-                >
-                  Sign Out
-                </Button>
-              </>
-            ) : (
-              <>
-                <Link href="/login" className="block">
-                  <Button variant="secondary" size="sm" className="w-full">
-                    Login
+            <Link
+              href="/contact-us"
+              className="block px-3 py-2.5 rounded-lg text-text-secondary hover:text-primary hover:bg-primary-50 font-medium"
+            >
+              Contact
+            </Link>
+            <div className="pt-3 mt-2 border-t border-border space-y-2">
+              {session ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    className="block px-3 py-2.5 rounded-lg text-text-secondary hover:text-primary hover:bg-primary-50 font-medium"
+                  >
+                    Dashboard
+                  </Link>
+                  <Button
+                    variant="secondary"
+                    onClick={handleSignOut}
+                    size="sm"
+                    className="w-full"
+                  >
+                    Sign Out
                   </Button>
-                </Link>
-                <Link href="/register" className="block">
-                  <Button variant="primary" size="sm" className="w-full">
-                    Register
-                  </Button>
-                </Link>
-              </>
-            )}
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="block">
+                    <Button variant="ghost" size="sm" className="w-full">
+                      Login
+                    </Button>
+                  </Link>
+                  <Link href="/register" className="block">
+                    <Button variant="primary" size="sm" className="w-full">
+                      Register
+                    </Button>
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         )}
       </div>

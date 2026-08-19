@@ -56,7 +56,7 @@ export function AnimalForm({ animal, action }: AnimalFormProps) {
   return (
     <Card>
       {error && (
-        <div className="bg-red-900/30 text-red-400 p-4 rounded-lg mb-6 border border-red-800">
+        <div className="bg-danger-50 text-danger p-4 rounded-lg mb-6 border border-danger-200">
           {error}
         </div>
       )}
@@ -72,8 +72,8 @@ export function AnimalForm({ animal, action }: AnimalFormProps) {
             <Input name="price" label="Price" type="number" value={formData.price} onChange={handleInputChange} disabled={isLoading} />
         </div>
         <div className="space-y-2">
-            <label htmlFor="description" className="block text-sm font-medium text-gray-300">Description</label>
-            <textarea name="description" rows={4} className="block w-full rounded-md bg-gray-800 border-gray-700 focus:ring-emerald-500 focus:border-emerald-500 text-white" value={formData.description} onChange={(e) => setFormData(prev => ({...prev, description: e.target.value}))}></textarea>
+            <label htmlFor="description" className="block text-sm font-medium text-foreground">Description</label>
+            <textarea name="description" rows={4} className="block w-full px-4 py-2.5 rounded-xl bg-surface border border-border focus:ring-2 focus:ring-primary/20 focus:border-primary text-foreground placeholder-text-secondary text-sm transition-all shadow-sm" value={formData.description} onChange={(e) => setFormData(prev => ({...prev, description: e.target.value}))}></textarea>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Input name="location" label="Location" value={formData.location} onChange={handleInputChange} disabled={isLoading} />
