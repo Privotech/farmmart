@@ -4,16 +4,9 @@ import { useState, useTransition } from "react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import {
-  CheckIcon,
-  ClockIcon,
-  XIcon,
-  BanIcon,
-  AlertTriangleIcon,
-} from "@/components/ui/Icons";
+import { CheckIcon, ClockIcon, XIcon, BanIcon } from "@/components/ui/Icons";
 import ImageUpload from "@/components/ImageUpload";
 import Image from "next/image";
-import Link from "next/link";
 import { submitSellerVerification } from "@/actions/users";
 import { User } from "@/types";
 
@@ -182,45 +175,6 @@ export default function SellerSettingsClient({ seller }: { seller: User }) {
                 </span>
               </div>
             )}
-          </div>
-        </div>
-      </Card>
-
-      <Card className="border-2 border-rose-200 bg-rose-50/40">
-        <div className="flex gap-3 items-start">
-          <div className="text-3xl flex-shrink-0 text-rose-500">
-            <AlertTriangleIcon className="w-8 h-8" />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-bold text-rose-900 mb-1">
-              Terms: All Communications Must Stay On Platform
-            </h3>
-            <p className="text-rose-800 text-sm mb-2">
-              <strong>Important:</strong> As a seller, you are <em>required</em>{" "}
-              to conduct ALL communications and transactions through the
-              FarmMart platform only. Sharing your WhatsApp number, phone
-              number, email, social media links, or arranging off-platform
-              meetings in your listings, profile, bio, or messages violates our
-              Terms of Service.
-            </p>
-            <p className="text-rose-700 text-sm mb-2">
-              If you encourage buyers to contact you outside FarmMart, your
-              account may be permanently banned and your verified status
-              revoked.{" "}
-              <Link href="/terms" className="underline font-semibold">
-                Read full Terms & Conditions
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  className="w-4 h-4 inline-block ml-1"
-                >
-                  <path d="M5 12h14" />
-                  <path d="M13 6l6 6-6 6" />
-                </svg>
-              </Link>
-            </p>
           </div>
         </div>
       </Card>

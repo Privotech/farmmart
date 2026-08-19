@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { CheckIcon, WarningIcon, BanIcon } from "@/components/ui/Icons";
+import { CheckIcon, WarningIcon } from "@/components/ui/Icons";
 import { Animal, User } from "@/types";
 
 import { useSession } from "@/lib/auth-client";
@@ -50,7 +50,6 @@ export default function AnimalDetailPage() {
   const [inquiryOpen, setInquiryOpen] = useState(false);
   const [inquiryMessage, setInquiryMessage] = useState("");
   const [inquirySending, setInquirySending] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
 
   useEffect(() => {
     const fetchAnimal = async () => {
@@ -112,12 +111,6 @@ export default function AnimalDetailPage() {
       alert("Please log in to send an inquiry");
       return;
     }
-    if (!termsAccepted) {
-      alert(
-        "You must accept the Terms to send an inquiry — all negotiations must stay ON-PLATFORM.",
-      );
-      return;
-    }
     if (!inquiryMessage.trim()) {
       alert("Please write a message to the seller");
       return;
@@ -141,7 +134,6 @@ export default function AnimalDetailPage() {
         );
         setInquiryOpen(false);
         setInquiryMessage("");
-        setTermsAccepted(false);
       } else {
         alert(data.error || "Error sending inquiry");
       }
@@ -394,49 +386,6 @@ export default function AnimalDetailPage() {
               </p>
             </Card>
 
-            {/* OFF-PLATFORM DISCLAIMER */}
-            <Card className="border-2 border-rose-700/60 bg-rose-950/20">
-              <div className="flex gap-3 items-start">
-                <div className="text-3xl flex-shrink-0 text-rose-500">
-                  <BanIcon className="w-8 h-8" />
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-bold text-rose-300 mb-2">
-                    DO NOT CONTACT SELLER OUTSIDE FARMMART
-                  </h4>
-                  <p className="text-rose-100/90 text-sm leading-relaxed mb-2">
-                    For your <strong>safety and purchase protection</strong>,
-                    ALL communications, negotiations, and payments <em>MUST</em>{" "}
-                    be conducted through the FarmMart platform ONLY — using the
-                    inquiry button and checkout system below.
-                  </p>
-                  <p className="text-rose-200/80 text-sm leading-relaxed">
-                    If a seller asks you to WhatsApp, call, email, or meet them
-                    in person directly —{" "}
-                    <strong className="text-rose-300">REPORT THEM</strong>.
-                    FarmMart is <u>NOT liable</u> for fake animals, scams, or
-                    fraud if you communicate or pay off the platform.{" "}
-                    <Link
-                      href="/terms"
-                      className="underline text-rose-300 font-medium"
-                    >
-                      Read full Terms
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        className="w-4 h-4 inline-block ml-1"
-                      >
-                        <path d="M5 12h14" />
-                        <path d="M13 6l6 6-6 6" />
-                      </svg>
-                    </Link>
-                  </p>
-                </div>
-              </div>
-            </Card>
-
             <div className="flex gap-4 flex-wrap">
               {animal.status === "AVAILABLE" ? (
                 <>
@@ -537,33 +486,11 @@ export default function AnimalDetailPage() {
                   className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
 
-                <div className="mt-4 p-3 bg-rose-950/40 border border-rose-800 rounded-lg">
-                  <label className="flex items-start gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={termsAccepted}
-                      onChange={(e) => setTermsAccepted(e.target.checked)}
-                      className="mt-1 w-4 h-4 text-emerald-600 rounded"
-                    />
-                    <span className="text-sm text-rose-200">
-                      <strong className="text-rose-300">
-                        I agree NOT to share or request off-platform contact
-                        info
-                      </strong>{" "}
-                      (WhatsApp, phone, email, social media, personal meetings).
-                      I understand FarmMart will not refund me or be held
-                      responsible if I transact outside the platform and receive
-                      a fake animal or get scammed.
-                    </span>
-                  </label>
-                </div>
-
                 <div className="flex gap-3 mt-4 justify-end">
                   <Button
                     variant="secondary"
                     onClick={() => {
                       setInquiryOpen(false);
-                      setTermsAccepted(false);
                     }}
                   >
                     Cancel

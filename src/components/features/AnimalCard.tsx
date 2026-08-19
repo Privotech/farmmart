@@ -333,7 +333,7 @@ export const AnimalCard = ({ animal, onAddToCart }: AnimalCardProps) => {
           </div>
 
           <div className="flex gap-2">
-            <Link href={`/listings/${animal.id}`}>
+            <Link href={`/buyer/listing/${animal.id}`}>
               <Button variant="secondary" size="sm" className="px-4">
                 View
               </Button>

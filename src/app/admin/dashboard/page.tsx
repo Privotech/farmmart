@@ -738,7 +738,7 @@ export default async function AdminDashboard() {
                       </span>{" "}
                       <span className="text-gray-500 text-sm">regarding </span>
                       <Link
-                        href={`/listings/${inq.animal_id}`}
+                        href={`/buyer/listing/${inq.animal_id}`}
                         className="text-emerald-600 underline font-medium"
                       >
                         {inq.animals?.name || "this listing"}

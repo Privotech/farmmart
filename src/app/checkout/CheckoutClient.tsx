@@ -209,7 +209,7 @@ export function CheckoutClient({
         <p className="text-gray-500 mb-8">
           You haven&apos;t added any animals to your cart yet.
         </p>
-        <Link href="/listings">
+        <Link href="/buyer/listing">
           <Button variant="primary">Browse Animals</Button>
         </Link>
       </div>

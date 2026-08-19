@@ -359,7 +359,7 @@ function LogisticsPageInner() {
                 <Link href="/buyer/supply-chain">
                   <Button variant="secondary">My Orders</Button>
                 </Link>
-                <Link href="/listings">
+                <Link href="/buyer/listing">
                   <Button variant="primary">Browse Marketplace</Button>
                 </Link>
               </div>
@@ -793,7 +793,7 @@ function LogisticsPageInner() {
               step of the way.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/listings">
+              <Link href="/buyer/listing">
                 <Button
                   variant="primary"
                   className="!px-10 !py-4 !text-lg shadow-emerald-900/60 shadow-2xl"

@@ -121,7 +121,7 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
   };
 
   return (
-    <div className="h-screen w-screen bg-background flex items-center justify-center overflow-auto">
+    <div className="auth-page h-screen w-screen bg-background flex items-center justify-center overflow-auto">
       {!selectedRole && (
         <div className="w-full max-w-md px-4 py-8">
           <div className="bg-surface rounded-2xl shadow-xl p-8 border border-border text-center">
@@ -387,13 +387,9 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
               <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary-700"></div>
 
               <div className="relative flex h-full">
-                <div
-                  className={`flex flex-col justify-center items-center h-full w-1/2 px-10 text-center transition-all duration-700 ${
-                    isLogin ? "translate-x-0" : "translate-x-[-20%]"
-                  }`}
-                >
-                  <h1 className="text-4xl font-bold mb-4">Hello, Friend!</h1>
-                  <p className="mb-8">
+                <div className="flex flex-col justify-center items-center h-full w-1/2 px-10 text-center">
+                  <h1 className="w-full text-center text-4xl font-bold mb-4">Hello, Friend!</h1>
+                  <p className="w-full max-w-sm text-center mb-8">
                     Register with your personal details to use all site features
                   </p>
                   <button
@@ -404,13 +400,9 @@ export default function AuthContainer({ initialMode }: AuthContainerProps) {
                   </button>
                 </div>
 
-                <div
-                  className={`flex flex-col justify-center items-center h-full w-1/2 px-10 text-center transition-all duration-700 ${
-                    isLogin ? "translate-x-[20%]" : "translate-x-0"
-                  }`}
-                >
-                  <h1 className="text-4xl font-bold mb-4">Welcome Back!</h1>
-                  <p className="mb-8">
+                <div className="flex flex-col justify-center items-center h-full w-1/2 px-10 text-center">
+                  <h1 className="w-full text-center text-4xl font-bold mb-4">Welcome Back!</h1>
+                  <p className="w-full max-w-sm text-center mb-8">
                     To keep connected with us please login with your personal info
                   </p>
                   <button

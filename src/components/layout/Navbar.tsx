@@ -35,7 +35,7 @@ export const Navbar = () => {
 
           <div className="hidden md:flex gap-6 items-center">
             <Link
-              href="/listings"
+              href="/buyer/listing"
               className="text-gray-700 hover:text-primary transition font-medium"
             >
               Browse
@@ -118,7 +118,7 @@ export const Navbar = () => {
         {isMenuOpen && (
           <div className="md:hidden mt-4 flex flex-col gap-1 bg-surface p-4 rounded-xl shadow border border-border">
             <Link
-              href="/listings"
+              href="/buyer/listing"
               className="block px-3 py-2.5 rounded-lg text-text-secondary hover:text-primary hover:bg-primary-50 font-medium"
             >
               Browse Animals

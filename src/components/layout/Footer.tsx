@@ -36,7 +36,7 @@ export const Footer = () => {
             <h4 className="text-sm font-bold uppercase tracking-wider text-foreground mb-4">Marketplace</h4>
             <ul className="space-y-2.5">
               <li>
-                <Link href="/listings" className="hover:text-primary transition">
+                <Link href="/buyer/listing" className="hover:text-primary transition">
                   Browse Animals
                 </Link>
               </li>

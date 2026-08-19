@@ -14,7 +14,10 @@ export async function updateUserRole(userId: string, role: "BUYER" | "SELLER" | 
   try {
     await prisma.users.update({
       where: { id: userId },
-      data: { role },
+      data:
+        role === "SELLER"
+          ? { role, is_verified: false, verification_status: "PENDING" }
+          : { role },
     });
     
     revalidatePath("/admin/users");

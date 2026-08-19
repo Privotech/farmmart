@@ -1,35 +1,38 @@
 @import "tailwindcss";
 
 :root {
-  --background: #052e16;
-  --foreground: #ffffff;
-  --surface: #14532d;
-  --border: #166534;
-  --text-secondary: #bbf7d0;
+  --accent-gold: #fbbf24;
+  --accent-cyan: #22d3ee;
+  --accent-violet: #a78bfa;
+  --background: #071a1c;
+  --foreground: #ecfdf5;
+  --surface: #12373b;
+  --border: #2a6970;
+  --text-secondary: #b7e4dc;
 
-  --primary: #22c55e;
-  --primary-hover: #16a34a;
+  --primary: #10b981;
+  --primary-hover: #059669;
   --primary-foreground: #ffffff;
-  --primary-50: #14532d;
-  --primary-100: #166534;
-  --primary-200: #15803d;
-  --primary-500: #22c55e;
-  --primary-600: #16a34a;
-  --primary-700: #15803d;
+  --primary-50: #164e4a;
+  --primary-100: #17675e;
+  --primary-200: #1b8073;
+  --primary-500: #10b981;
+  --primary-600: #059669;
+  --primary-700: #047857;
 
-  --secondary: #d97706;
-  --secondary-hover: #b45309;
-  --secondary-foreground: #ffffff;
-  --secondary-50: #14532d;
-  --secondary-100: #166534;
-  --secondary-200: #fde68a;
+  --secondary: #d9a514;
+  --secondary-hover: #b78208;
+  --secondary-foreground: #1d2a20;
+  --secondary-50: #5a4b13;
+  --secondary-100: #78631a;
+  --secondary-200: #fcd34d;
   --secondary-500: #f59e0b;
   --secondary-600: #d97706;
   --secondary-700: #b45309;
 
-  --success: #10b981;
-  --success-50: #14532d;
-  --success-100: #166534;
+  --success: #34d399;
+  --success-50: #164e4a;
+  --success-100: #17675e;
   --success-500: #10b981;
   --success-600: #059669;
 
@@ -39,17 +42,17 @@
   --warning-500: #f59e0b;
   --warning-600: #d97706;
 
-  --danger: #ef4444;
-  --danger-50: #14532d;
-  --danger-100: #166534;
-  --danger-500: #ef4444;
-  --danger-600: #dc2626;
+  --danger: #fb7185;
+  --danger-50: #5c2432;
+  --danger-100: #7f283d;
+  --danger-500: #fb7185;
+  --danger-600: #e11d48;
 
-  --info: #3b82f6;
-  --info-50: #14532d;
-  --info-100: #166534;
-  --info-500: #3b82f6;
-  --info-600: #2563eb;
+  --info: #22d3ee;
+  --info-50: #164f5a;
+  --info-100: #176b76;
+  --info-500: #22d3ee;
+  --info-600: #0891b2;
 }
 
 @theme inline {
@@ -107,10 +110,84 @@
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at 8% 0%, rgb(34 211 238 / 19%), transparent 30rem),
+    radial-gradient(circle at 94% 12%, rgb(167 139 250 / 14%), transparent 28rem),
+    radial-gradient(circle at 80% 85%, rgb(251 191 36 / 12%), transparent 26rem),
+    var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+input::placeholder,
+textarea::placeholder {
+  color: #9ed8ce !important;
+  opacity: 1;
+}
+
+::selection {
+  background: var(--accent-violet);
+  color: #071a1c;
+}
+
+main {
+  min-height: calc(100vh - 4rem);
+}
+
+/* Shared surfaces provide visual polish throughout buyer, seller, and admin flows. */
+.farmmart-card {
+  position: relative;
+  overflow: hidden;
+  border-color: rgb(34 211 238 / 46%) !important;
+  box-shadow:
+    0 12px 30px rgb(2 34 36 / 42%),
+    inset 0 1px 0 rgb(255 255 255 / 12%);
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.farmmart-card:hover {
+  transform: translateY(-3px);
+  border-color: rgb(167 139 250 / 75%) !important;
+  box-shadow: 0 18px 38px rgb(2 34 36 / 48%), 0 0 0 1px rgb(34 211 238 / 14%);
+}
+
+.farmmart-card::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 5.5rem;
+  height: 0.3rem;
+  content: "";
+  background: var(--accent-gold);
+  border-radius: 0 0 0 999px;
+}
+
+.farmmart-button {
+  border: 1px solid rgb(251 191 36 / 70%) !important;
+  box-shadow: 0 5px 0 rgb(9 55 57), 0 10px 20px rgb(2 34 36 / 35%) !important;
+}
+
+.farmmart-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--accent-cyan) !important;
+  box-shadow: 0 7px 0 rgb(9 55 57), 0 14px 26px rgb(34 211 238 / 28%) !important;
+}
+
+a:hover {
+  text-decoration-color: var(--accent-cyan) !important;
+  text-decoration-thickness: 2px;
+}
+
+.farmmart-input {
+  border-color: rgb(34 211 238 / 35%) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 7%);
+}
+
+.farmmart-input:focus {
+  border-color: var(--accent-violet) !important;
+  box-shadow: 0 0 0 3px rgb(167 139 250 / 20%);
+}
+
 
 /* Custom animations used on the landing page */
 @keyframes fadeUp {

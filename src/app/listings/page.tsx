@@ -63,7 +63,7 @@ function ListingsPageContent() {
         params.set(key, value.toString());
       }
     });
-    router.push(`/listings?${params.toString()}`);
+    router.push(`/buyer/listing?${params.toString()}`);
   };
 
   const handleAddToCart = async (animal: Animal) => {

@@ -56,7 +56,9 @@ export async function POST(req: NextRequest) {
         firebase_uid: firebase_uid || `credentials_${randomUUID()}`,
         password: hashedPassword,
         role: assignedRole,
-        is_verified: true,
+        // Sellers must be approved by an admin before receiving a verified badge.
+        is_verified: assignedRole !== "SELLER",
+        verification_status: assignedRole === "SELLER" ? "PENDING" : undefined,
       },
     });
 
@@ -67,7 +69,9 @@ export async function POST(req: NextRequest) {
         html: `
           <p>Hi ${name},</p>
           <p>Your FarmMart account has been created successfully.</p>
-          <p>You can now log in and start using the platform.</p>
+          <p>${assignedRole === "SELLER"
+            ? "Your seller account is pending admin verification. You can log in and submit your verification documents from Settings."
+            : "You can now log in and start using the platform."}</p>
           <p>Regards,<br />FarmMart Support</p>
         `,
       });

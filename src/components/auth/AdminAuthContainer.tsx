@@ -95,7 +95,7 @@ export default function AdminAuthContainer({
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="auth-page min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="bg-surface rounded-2xl shadow-xl p-8 border border-border">
           <div className="text-center mb-8">

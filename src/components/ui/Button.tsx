@@ -23,9 +23,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variantStyles = {
       primary: "bg-primary hover:bg-primary-hover text-primary-foreground shadow-sm hover:shadow",
-      secondary: "bg-surface border border-border hover:bg-primary-50 text-foreground shadow-sm",
-      ghost: "bg-transparent hover:bg-primary-50 text-text-secondary hover:text-foreground",
-      outline: "bg-transparent border border-primary text-primary hover:bg-primary-50",
+      secondary: "bg-info-100 border border-info hover:bg-info-600 text-white shadow-sm",
+      ghost: "bg-transparent border border-info hover:bg-info-50 text-text-secondary hover:text-foreground",
+      outline: "bg-transparent border border-secondary text-secondary-200 hover:bg-secondary-50",
       danger: "bg-danger hover:bg-danger-600 text-white shadow-sm",
       success: "bg-success hover:bg-success-600 text-white shadow-sm",
       warning: "bg-secondary hover:bg-secondary-hover text-secondary-foreground shadow-sm",
@@ -40,7 +40,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+        className={`farmmart-button ${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
         disabled={isLoading || props.disabled}
         {...props}
       >

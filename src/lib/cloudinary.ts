@@ -3,18 +3,26 @@ import { v2 as cloudinary } from "cloudinary";
 const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
 const apiKey = process.env.CLOUDINARY_API_KEY;
 const apiSecret = process.env.CLOUDINARY_API_SECRET;
+const cloudinaryUrl = process.env.CLOUDINARY_URL;
 
-if (!cloudName || !apiKey || !apiSecret) {
+if ((!cloudName || !apiKey || !apiSecret) && !cloudinaryUrl) {
   throw new Error(
-    "Cloudinary is not configured. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in your .env file.",
+    "Cloudinary is not configured. Set CLOUDINARY_URL or CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET.",
   );
 }
 
-cloudinary.config({
-  cloud_name: cloudName,
-  api_key: apiKey,
-  api_secret: apiSecret,
-});
+if (cloudName && apiKey && apiSecret) {
+  cloudinary.config({
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
+    secure: true,
+  });
+} else {
+  // The Cloudinary SDK reads CLOUDINARY_URL automatically. This supports
+  // deployment providers that expose only this standard environment variable.
+  cloudinary.config({ secure: true });
+}
 
 function sanitizeFilename(name: string): string {
   return name
