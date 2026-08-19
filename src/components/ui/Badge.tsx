@@ -12,13 +12,13 @@ export const Badge: React.FC<BadgeProps> = ({
   ...props
 }) => {
   const variantStyles = {
-    primary: "bg-primary-50 text-primary-700 border border-primary-200",
-    success: "bg-success-50 text-success-700 border border-success-200",
-    warning: "bg-warning-50 text-warning-700 border border-warning-200",
-    danger: "bg-danger-50 text-danger-700 border border-danger-200",
-    info: "bg-info-50 text-info-700 border border-info-200",
-    outline: "border border-border text-text-secondary bg-transparent",
-    secondary: "bg-primary-50 text-text-secondary border border-border",
+    primary: "bg-primary text-white border border-primary-hover",
+    success: "bg-success text-white border border-success-600",
+    warning: "bg-warning text-white border border-warning-600",
+    danger: "bg-danger text-white border border-danger-600",
+    info: "bg-info text-white border border-info-600",
+    outline: "border border-primary text-primary bg-transparent",
+    secondary: "bg-primary-100 text-white border border-primary-hover",
   } as const;
 
   return (

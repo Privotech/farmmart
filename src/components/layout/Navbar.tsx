@@ -16,12 +16,12 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200 shadow-sm">
+    <nav className="bg-surface/95 backdrop-blur-md sticky top-0 z-50 border-b border-border shadow-sm">
       <div className="container mx-auto px-4 py-3.5">
         <div className="flex justify-between items-center">
           <Link
             href="/"
-            className="flex items-center gap-3 text-lg font-semibold text-gray-900"
+            className="flex items-center gap-3 text-lg font-semibold text-foreground"
           >
             <Image
               src="/logo.svg"
@@ -94,7 +94,7 @@ export const Navbar = () => {
 
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden text-text-secondary hover:text-foreground p-2 rounded-lg hover:bg-primary-50"
+            className="md:hidden text-white hover:text-primary p-2 rounded-lg hover:bg-primary-600"
             aria-label="Open menu"
           >
             <svg

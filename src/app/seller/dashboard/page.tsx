@@ -163,7 +163,7 @@ export default function SellerDashboard() {
     count: listingCountsByMonth[i],
     height: Math.max(15, Math.round((listingCountsByMonth[i] / maxCount) * 95)),
   }));
-  const chartColors = ["#065f46", "#065f46", "#065f46", "#047857", "#10b981", "#047857", "#059669"];
+  const chartColors = ["#15803d", "#15803d", "#15803d", "#16a34a", "#22c55e", "#16a34a", "#059669"];
 
   return (
     <div className="p-8 bg-background min-h-screen">

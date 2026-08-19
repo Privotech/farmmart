@@ -284,7 +284,7 @@ export const Sidebar = () => {
     <aside
       className={`hidden md:flex flex-col w-64 bg-surface h-screen sticky top-0 border-r border-border shadow-sm`}
     >
-      <div className="p-6 mb-4 border-b border-gray-100">
+      <div className="p-6 mb-4 border-b border-border">
         <div className="flex items-center gap-2 mb-1">
           {isSeller && (
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
@@ -355,7 +355,7 @@ export const Sidebar = () => {
         <div className="pt-4 space-y-1">
           <Link
             href={isSeller ? "/seller/help-center" : "/buyer/support"}
-            className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-bold text-gray-600 hover:text-gray-900 hover:bg-white transition`}
+            className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-bold text-text-secondary hover:text-foreground hover:bg-primary-600 transition`}
           >
             <svg
               className="w-5 h-5"

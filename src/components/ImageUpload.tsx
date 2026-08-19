@@ -120,7 +120,7 @@ export default function ImageUpload({
               placeholder="https://images.unsplash.com/photo-..."
               value={urlInput}
               onChange={handleUrlChange}
-              className="w-full px-4 py-2 border-border border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary text-foreground bg-surface transition-all"
+              className="w-full px-4 py-2 border-border border rounded-lg focus:ring-2 focus:ring-gray-900/20 focus:border-gray-900 text-foreground bg-surface transition-all"
             />
           </div>
         )}

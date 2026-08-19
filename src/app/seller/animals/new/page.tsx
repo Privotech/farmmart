@@ -150,7 +150,7 @@ function ListingQualityMeter({
           <span
             key={c.key}
             className={`inline-flex items-center gap-1.5 font-medium ${
-              c.passed ? "text-emerald-700" : "text-gray-500"
+              c.passed ? "text-primary" : "text-text-secondary"
             }`}
           >
             <span
@@ -381,7 +381,7 @@ export default function NewAnimalPage() {
                   name="category"
                   value={formData.category}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-gray-900"
+                  className="w-full px-4 py-2 bg-surface border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground"
                   disabled={isLoading}
                 >
                   <option value="CATTLE">Cattle (Cow, Bull, Ox)</option>

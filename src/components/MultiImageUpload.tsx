@@ -227,14 +227,14 @@ export default function MultiImageUpload({
 
       {images.length < maxImages && (
         <>
-          <div className="flex gap-2 border-b border-gray-200 pb-2">
+          <div className="flex gap-2 border-b border-border pb-2">
             <button
               type="button"
               onClick={() => setUploadMode("file")}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
                 uploadMode === "file"
-                  ? "bg-emerald-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "bg-primary text-white"
+                  : "bg-primary-50 text-text-secondary hover:bg-primary-100"
               }`}
             >
               <span className="inline-flex items-center gap-2">
@@ -257,8 +257,8 @@ export default function MultiImageUpload({
               onClick={() => setUploadMode("url")}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
                 uploadMode === "url"
-                  ? "bg-emerald-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "bg-primary text-white"
+                  : "bg-primary-50 text-text-secondary hover:bg-primary-100"
               }`}
             >
               <span className="inline-flex items-center gap-2">
@@ -280,7 +280,7 @@ export default function MultiImageUpload({
           <div>
             {uploadMode === "file" ? (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Select images from computer (up to {maxImages - images.length}{" "}
                   more)
                 </label>
@@ -290,10 +290,10 @@ export default function MultiImageUpload({
                   multiple
                   onChange={handleFileChange}
                   disabled={uploadingIndex !== null}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-gray-700 bg-white"
+                  className="w-full px-4 py-2 border-border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground bg-surface"
                 />
                 {uploadingIndex !== null && (
-                  <p className="text-sm text-emerald-600 mt-2 flex items-center gap-2">
+                  <p className="text-sm text-primary mt-2 flex items-center gap-2">
                     <svg
                       viewBox="0 0 24 24"
                       fill="none"
@@ -310,7 +310,7 @@ export default function MultiImageUpload({
             ) : (
               <div className="flex flex-col md:flex-row gap-2">
                 <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Image Web URL Link
                   </label>
                   <input
@@ -324,7 +324,7 @@ export default function MultiImageUpload({
                         handleAddUrl();
                       }
                     }}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-gray-900 bg-white"
+                    className="w-full px-4 py-2 border-border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground bg-surface"
                   />
                 </div>
                 <div className="flex items-end">
