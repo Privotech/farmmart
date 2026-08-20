@@ -360,7 +360,7 @@ export default function SellerSettingsClient({ seller }: { seller: User }) {
               name="documentType"
               value={formData.documentType}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-green-500"
             >
               <option value="">Select document type...</option>
               <option value="NATIONAL_ID">National ID Card (NIN slip)</option>
@@ -397,7 +397,7 @@ export default function SellerSettingsClient({ seller }: { seller: User }) {
             )}
         </Card>
 
-        <div className="bg-emerald-50 border-2 border-emerald-200 p-5 rounded-xl">
+        <div className="bg-emerald-200 border-2 border-emerald-200 p-5 rounded-xl">
           <div className="flex items-start gap-3">
             <div className="text-2xl text-emerald-600">
               <svg
