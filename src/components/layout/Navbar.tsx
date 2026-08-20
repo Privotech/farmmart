@@ -36,31 +36,31 @@ export const Navbar = () => {
           <div className="hidden md:flex gap-6 items-center">
             <Link
               href="/buyer/listing"
-              className="text-gray-700 hover:text-primary transition font-medium"
+              className="text-white hover:text-primary transition font-medium"
             >
               Browse
             </Link>
             <Link
               href="/logistics"
-              className="text-gray-700 hover:text-primary transition font-medium"
+              className="text-white hover:text-primary transition font-medium"
             >
               Logistics
             </Link>
             <Link
               href="/about"
-              className="text-gray-700 hover:text-primary transition font-medium"
+              className="text-white hover:text-primary transition font-medium"
             >
               About
             </Link>
             <Link
               href="/mission"
-              className="text-gray-700 hover:text-primary transition font-medium"
+              className="text-white hover:text-primary transition font-medium"
             >
               Mission
             </Link>
             <Link
               href="/contact-us"
-              className="text-gray-700 hover:text-primary transition font-medium"
+              className="text-white hover:text-primary transition font-medium"
             >
               Contact
             </Link>
@@ -68,7 +68,7 @@ export const Navbar = () => {
               <>
                 <Link
                   href="/dashboard"
-                  className="text-gray-700 hover:text-primary transition font-medium"
+                  className="text-white hover:text-primary transition font-medium"
                 >
                   Dashboard
                 </Link>
@@ -119,37 +119,37 @@ export const Navbar = () => {
           <div className="md:hidden mt-4 flex flex-col gap-1 bg-surface p-4 rounded-xl shadow border border-border">
             <Link
               href="/buyer/listing"
-              className="block px-3 py-2.5 rounded-lg text-text-secondary hover:text-primary hover:bg-primary-50 font-medium"
+              className="block px-3 py-2.5 rounded-lg text-white hover:text-primary hover:bg-primary-50 font-medium"
             >
               Browse Animals
             </Link>
             <Link
               href="/logistics"
-              className="block px-3 py-2.5 rounded-lg text-text-secondary hover:text-primary hover:bg-primary-50 font-medium"
+              className="block px-3 py-2.5 rounded-lg text-white hover:text-primary hover:bg-primary-50 font-medium"
             >
               Logistics
             </Link>
             <Link
               href="/about"
-              className="block px-3 py-2.5 rounded-lg text-text-secondary hover:text-primary hover:bg-primary-50 font-medium"
+              className="block px-3 py-2.5 rounded-lg text-white hover:text-primary hover:bg-primary-50 font-medium"
             >
               About
             </Link>
             <Link
               href="/mission"
-              className="block px-3 py-2.5 rounded-lg text-text-secondary hover:text-primary hover:bg-primary-50 font-medium"
+              className="block px-3 py-2.5 rounded-lg text-white hover:text-primary hover:bg-primary-50 font-medium"
             >
               Mission
             </Link>
             <Link
               href="/vision"
-              className="block px-3 py-2.5 rounded-lg text-text-secondary hover:text-primary hover:bg-primary-50 font-medium"
+              className="block px-3 py-2.5 rounded-lg text-white hover:text-primary hover:bg-primary-50 font-medium"
             >
               Vision
             </Link>
             <Link
               href="/contact-us"
-              className="block px-3 py-2.5 rounded-lg text-text-secondary hover:text-primary hover:bg-primary-50 font-medium"
+              className="block px-3 py-2.5 rounded-lg text-white hover:text-primary hover:bg-primary-50 font-medium"
             >
               Contact
             </Link>
@@ -158,7 +158,7 @@ export const Navbar = () => {
                 <>
                   <Link
                     href="/dashboard"
-                    className="block px-3 py-2.5 rounded-lg text-text-secondary hover:text-primary hover:bg-primary-50 font-medium"
+                    className="block px-3 py-2.5 rounded-lg text-white hover:text-primary hover:bg-primary-50 font-medium"
                   >
                     Dashboard
                   </Link>
