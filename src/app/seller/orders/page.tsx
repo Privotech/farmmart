@@ -4,6 +4,7 @@ import React from 'react';
 import { getSellerOrders, updateOrderStatus } from '@/actions/orders';
 import { Card } from '@/components/ui/Card';
 import { Prisma } from '@prisma/client';
+import { toast } from "react-toastify";
 
 type OrderStatus = 'PENDING' | 'PAID' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'REFUNDED';
 
@@ -26,7 +27,7 @@ const OrderStatusUpdater = ({ orderId, currentStatus }: { orderId: string; curre
     if (result.success) {
       setStatus(newStatus);
     } else {
-      alert("Failed to update status");
+      toast.error("Failed to update status");
     }
     setIsUpdating(false);
   };

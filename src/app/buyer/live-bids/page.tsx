@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import Image from "next/image";
 import { Animal } from "@/types";
+import { toast } from "react-toastify";
 
 function getImageUrl(imagesRaw: unknown): string {
   if (!imagesRaw) return "/placeholder-animal.jpg";
@@ -100,12 +101,12 @@ export default function BuyerLiveBidsPage() {
       if (data.success) {
         setInquiryInputs((p) => ({ ...p, [animalId]: "" }));
         setInquiries((prev) => [...(prev as any), data.data]);
-        alert("Inquiry sent to seller!");
+        toast.success("Inquiry sent to seller!");
       } else {
-        alert(data.error || "Failed to send inquiry");
+        toast.error(data.error || "Failed to send inquiry");
       }
     } catch {
-      alert("Error sending inquiry");
+      toast.error("Error sending inquiry");
     }
   };
 

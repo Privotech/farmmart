@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { CheckIcon, WarningIcon } from "@/components/ui/Icons";
 import { Animal, User } from "@/types";
+import { toast } from "react-toastify";
 
 import { useSession } from "@/lib/auth-client";
 
@@ -82,7 +83,7 @@ export default function AnimalDetailPage() {
   const handleAddToCart = async () => {
     if (!animal) return;
     if (!session || !session.user) {
-      alert("Please log in to add items to cart");
+      toast.info("Please log in to add items to cart");
       return;
     }
 
@@ -94,25 +95,25 @@ export default function AnimalDetailPage() {
       });
       const data = await res.json();
       if (data.success) {
-        alert(
+        toast.success(
           "Added to cart! Proceed to checkout for a protected transaction.",
         );
       } else {
-        alert(data.error || "Error adding to cart");
+        toast.error(data.error || "Error adding to cart");
       }
     } catch {
-      alert("Error adding to cart");
+      toast.error("Error adding to cart");
     }
   };
 
   const handleSendInquiry = async () => {
     if (!animal || !seller) return;
     if (!session || !session.user) {
-      alert("Please log in to send an inquiry");
+      toast.info("Please log in to send an inquiry");
       return;
     }
     if (!inquiryMessage.trim()) {
-      alert("Please write a message to the seller");
+      toast.info("Please write a message to the seller");
       return;
     }
 
@@ -129,16 +130,16 @@ export default function AnimalDetailPage() {
       });
       const data = await res.json();
       if (data.success) {
-        alert(
+        toast.success(
           "Inquiry sent! Your conversation will stay on the FarmMart platform.",
         );
         setInquiryOpen(false);
         setInquiryMessage("");
       } else {
-        alert(data.error || "Error sending inquiry");
+        toast.error(data.error || "Error sending inquiry");
       }
     } catch {
-      alert("Error sending inquiry");
+      toast.error("Error sending inquiry");
     } finally {
       setInquirySending(false);
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { toast } from "react-toastify";
 import { AnimalCard } from "@/components/features/AnimalCard";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -20,12 +21,12 @@ export function SavedClient({
     try {
       const res = await addToCart(animal.id, 1);
       if (res.success) {
-        alert("Added to cart!");
+        toast.success("Added to cart!");
       } else {
-        alert(res.error || "Error adding to cart");
+        toast.error(res.error || "Error adding to cart");
       }
     } catch {
-      alert("Error adding to cart");
+      toast.error("Error adding to cart");
     }
   };
 

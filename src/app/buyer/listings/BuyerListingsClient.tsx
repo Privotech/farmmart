@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Animal, AnimalFilters } from "@/types";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { addToCart } from "@/actions/cart";
+import { toast } from "react-toastify";
 
 export function BuyerListingsClient({ animals }: { animals: Animal[] }) {
   const router = useRouter();
@@ -34,12 +35,12 @@ export function BuyerListingsClient({ animals }: { animals: Animal[] }) {
     try {
       const res = await addToCart(animal.id, 1);
       if (res.success) {
-        alert("Added to cart!");
+        toast.success("Added to cart!");
       } else {
-        alert(res.error || "Error adding to cart");
+        toast.error(res.error || "Error adding to cart");
       }
     } catch {
-      alert("Error adding to cart");
+      toast.error("Error adding to cart");
     }
   };
 

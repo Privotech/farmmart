@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/Badge";
 import Link from "next/link";
 import { AlertTriangleIcon } from "@/components/ui/Icons";
 import { AnimalsCategory } from "@/types";
+import { toast } from "react-toastify";
 
 function getListingQualityScore(
   formData: {
@@ -246,7 +247,7 @@ export default function NewAnimalPage() {
 
       const result = await response.json();
       if (result.success) {
-        alert(
+        toast.success(
           "Animal listed successfully! Buyers will see your listing and can contact you ONLY through FarmMart's inquiry system.",
         );
         router.push("/seller/animals");

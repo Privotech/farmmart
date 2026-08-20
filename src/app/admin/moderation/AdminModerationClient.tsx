@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { updateAnimalStatus, deleteAnimal } from "@/actions/animals";
 import { useTransition } from "react";
 import type { Animal } from "@/types";
+import { toast } from "react-toastify";
 
 type ModerationAnimal = Animal & { sellerName?: string };
 
@@ -16,7 +17,7 @@ export function AdminModerationClient({ animals }: { animals: ModerationAnimal[]
     startTransition(async () => {
       const res = await updateAnimalStatus(id, "AVAILABLE");
       if (!res.success) {
-        alert(res.error || "Failed to approve listing");
+        toast.error(res.error || "Failed to approve listing");
       }
     });
   };
@@ -26,7 +27,7 @@ export function AdminModerationClient({ animals }: { animals: ModerationAnimal[]
       startTransition(async () => {
         const res = await deleteAnimal(id);
         if (!res.success) {
-          alert(res.error || "Failed to remove listing");
+          toast.error(res.error || "Failed to remove listing");
         }
       });
     }

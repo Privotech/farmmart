@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/Button";
 import { deleteAnimal } from "@/actions/animals";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 export default function SellerAnimalActions({ animalId }: { animalId: string }) {
   const router = useRouter();
@@ -14,7 +15,7 @@ export default function SellerAnimalActions({ animalId }: { animalId: string }) 
         // UI will be updated via revalidatePath, but we can also do a soft refresh just in case
         router.refresh();
       } else {
-        alert(res.error || "Failed to delete animal");
+        toast.error(res.error || "Failed to delete animal");
       }
     }
   };

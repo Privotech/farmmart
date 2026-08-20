@@ -16,6 +16,7 @@ import { User } from "@/types";
 import { updateUserRole, deleteUser, verifySeller } from "@/actions/users";
 import { useTransition, useState, useMemo } from "react";
 import Image from "next/image";
+import { toast } from "react-toastify";
 
 type FilterRole = "ALL" | "BUYER" | "SELLER" | "ADMIN";
 type FilterVerification = "ALL" | "APPROVED" | "PENDING" | "REJECTED" | "SUSPENDED" | "UNVERIFIED";
@@ -63,7 +64,7 @@ export function AdminUsersClient({ users, currentUserId }: { users: User[], curr
     startTransition(async () => {
       const res = await updateUserRole(userId, newRole as "BUYER" | "SELLER" | "ADMIN");
       if (!res.success) {
-        alert(res.error || "Failed to update role");
+        toast.error(res.error || "Failed to update role");
       }
     });
   };
@@ -73,7 +74,7 @@ export function AdminUsersClient({ users, currentUserId }: { users: User[], curr
       startTransition(async () => {
         const res = await deleteUser(userId);
         if (!res.success) {
-          alert(res.error || "Failed to delete user");
+          toast.error(res.error || "Failed to delete user");
         }
       });
     }
@@ -88,7 +89,7 @@ export function AdminUsersClient({ users, currentUserId }: { users: User[], curr
           setSelectedUser(null);
           setVerifyNotes("");
         } else {
-          alert(res.error || "Failed to update verification");
+          toast.error(res.error || "Failed to update verification");
         }
       });
     }

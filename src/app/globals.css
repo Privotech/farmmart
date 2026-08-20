@@ -198,6 +198,20 @@ a:hover {
   color: #d1fae5 !important;
 }
 
+/* Notification palette shared by buyer, seller, and admin pages. */
+.Toastify__toast {
+  border: 1px solid rgb(34 211 238 / 45%);
+  border-radius: 0.9rem;
+  box-shadow: 0 16px 35px rgb(2 34 36 / 35%);
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 600;
+}
+
+.Toastify__toast--success { background: #047857; }
+.Toastify__toast--error { background: #be123c; }
+.Toastify__toast--info { background: #0e7490; }
+.Toastify__toast--warning { background: #a16207; }
+
 
 /* Custom animations used on the landing page */
 @keyframes fadeUp {

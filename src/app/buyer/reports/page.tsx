@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { toast } from "react-toastify";
 
 export default function BuyerReportsPage() {
   const router = useRouter();
@@ -63,12 +64,12 @@ export default function BuyerReportsPage() {
       };
       setReports([newReport, ...reports]);
       setIsGenerating(null);
-      alert("Report generated successfully!");
+      toast.success("Report generated successfully!");
     }, 2000);
   };
 
   const handleDownloadReport = (reportId: string) => {
-    alert(`Downloading report ${reportId}...`);
+    toast.info(`Downloading report ${reportId}...`);
   };
 
   if (status === "loading" || !session) {

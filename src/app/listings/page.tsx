@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Animal, AnimalFilters } from "@/types";
 import { useSession } from "@/lib/auth-client";
 import { addToCart } from "@/actions/cart";
+import { toast } from "react-toastify";
 
 function ListingsPageContent() {
   const router = useRouter();
@@ -68,18 +69,18 @@ function ListingsPageContent() {
 
   const handleAddToCart = async (animal: Animal) => {
     if (!session) {
-      alert("Please log in to add items to your cart.");
+      toast.info("Please log in to add items to your cart.");
       return;
     }
     try {
       const result = await addToCart(animal.id, 1);
       if (result.success) {
-        alert("Added to cart!");
+        toast.success("Added to cart!");
       } else {
-        alert(result.error || "Error adding to cart");
+        toast.error(result.error || "Error adding to cart");
       }
     } catch {
-      alert("An unexpected error occurred.");
+      toast.error("An unexpected error occurred.");
     }
   };
 
